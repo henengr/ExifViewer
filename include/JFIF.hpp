@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+
 enum enSegmentMarker: std::uint16_t {
     SOI         = 0xffd8,
     APP0        = 0xffe0,
