@@ -1,2 +1,6 @@
-main
-a.out
+/build/
+/exifviewer.log
+/exifviewer/
+/exifviewer.exe
+/.settings/
+/.project/

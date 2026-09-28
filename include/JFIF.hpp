@@ -62,7 +62,12 @@ struct stAPP0 {
 };
 
 struct stAPP1 {
-
+    std::uint16_t       marker;                     // 0000
+    std::uint16_t       length;                     // 0002
+    std::uint8_t        ExifIdentifier[6];          // 0004  "Exif\0\0"
+    std::uint8_t        TIFFByteOrder[2];           // 000a
+    std::uint8_t        TIFFIdentifier;             // 000b  0x2a(42)
+    std::uint8_t        IFDs[1];                    // 000c
 };
 
 struct stDQT {
