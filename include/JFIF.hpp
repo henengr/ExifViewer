@@ -95,6 +95,7 @@ struct stMarker {
     std::uint16_t       length;                     // 0002
 };
 
+/*
 // 0th IFD
 struct st0thIFD {
     std::uint16_t       numOfEntities;
@@ -119,7 +120,7 @@ struct st1stIFD {
     std::vector<char>   IFD1stLongerThan4Bytes;
     std::vector<char>   thumbnailData;
 };
-
+*/
 
 struct stAPP0 {
     std::uint8_t        JFIFIdentifier[5];          // 0004  "JFIF\0"
@@ -138,10 +139,10 @@ struct stAPP1 {
     std::uint8_t        TIFFByteOrder[2];           // 000a
     std::uint16_t       TIFFIdentifier;             // 000b  0x002a(42)
     std::uint32_t       IFD0thOffset;               // 000d
-    //std::vector<char>   IFDs;                       // 0011
-    st0thIFD            IFD0th;                     // 0011
-    stExifIFD           ExifIFD;
-    st1stIFD            IFD1st;
+    //st0thIFD            IFD0th;                     // 0011
+    //stExifIFD           ExifIFD;
+    //st1stIFD            IFD1st;
+    std::vector<char>   IFDs;                       // 0011
 };
 
 struct stAPP2 {

@@ -16,19 +16,27 @@ public:
     static void dispDumb(std::vector<char> &data);
 };
 
+enum enEndian: std::uint8_t {
+    littleEndian = 1,
+    bigEndian
+};
+
 class JPEGReader {
 private:
     std::ifstream &stream;
+    enEndian endian;
 protected:
 public:
-    JPEGReader(std::ifstream &ifs):stream(ifs){}
+    JPEGReader(std::ifstream &ifs):stream(ifs), endian(enEndian::littleEndian) {}
     virtual ~JPEGReader(){}
+    enEndian getEndian() const;
 
     // Get current marker and doesn't seek the stream
     bool getMarker(std::uint16_t &marker);
     bool getLength(std::uint16_t &length);
     bool readSegment(const std::uint16_t length, std::vector<char> &data);
 
-    bool readAPP0(stAPP0 &app0);
+    bool getAPP0(const std::uint16_t length, stAPP0 &app0, const std::vector<char> data);
+    bool getAPP1(const std::uint16_t length, stAPP1 &app1, const std::vector<char> data);
 };
 
