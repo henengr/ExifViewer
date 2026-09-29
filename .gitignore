@@ -1,7 +1,14 @@
 /build/
 /exifviewer.log
-/exifviewer.exe
 /exifviewer/
 /.settings/
 /.project/
 /.vscode/
+
+/exifviewer.exe
+/ExifViewer/
+/.vs/
+/ExifViewer.vcxproj.filters
+/ExifViewer.vcxproj.user
+/x64/
+
