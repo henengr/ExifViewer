@@ -9,10 +9,10 @@ public:
     static std::uint16_t swapUInt16(const std::uint16_t value);
     static std::uint32_t swapUInt32(const std::uint32_t value);
     static std::uint64_t swapUInt64(const std::uint64_t value);
-    static std::uint8_t streamToUInt8(std::ifstream &ifs);
-    static std::uint16_t streamToUInt16(std::ifstream &ifs);
-    static std::uint32_t streamToUInt32(std::ifstream &ifs);
-    static std::uint64_t streamToUInt64(std::ifstream &ifs);
+    static std::uint8_t streamToUInt8(std::istream &ifs);
+    static std::uint16_t streamToUInt16(std::istream &ifs);
+    static std::uint32_t streamToUInt32(std::istream &ifs);
+    static std::uint64_t streamToUInt64(std::istream &ifs);
     static void dispDumb(std::vector<char> &data);
 };
 
@@ -23,11 +23,11 @@ enum enEndian: std::uint8_t {
 
 class JPEGReader {
 private:
-    std::ifstream &stream;
+    std::istream &stream;
     enEndian endian;
 protected:
 public:
-    JPEGReader(std::ifstream &ifs):stream(ifs), endian(enEndian::littleEndian) {}
+    JPEGReader(std::istream &ifs):stream(ifs), endian(enEndian::littleEndian) {}
     virtual ~JPEGReader(){}
     enEndian getEndian() const;
 

@@ -25,25 +25,25 @@ std::uint64_t valueConverter::swapUInt64(const std::uint64_t value){
     return value1 | value2;
 }
 
-std::uint8_t valueConverter::streamToUInt8(std::ifstream &ifs){
+std::uint8_t valueConverter::streamToUInt8(std::istream &ifs){
     uint8_t ret = 0;
     ifs.read(reinterpret_cast<char*>(&ret), sizeof(ret));
     return ret;
 }
 
-std::uint16_t valueConverter::streamToUInt16(std::ifstream &ifs){
+std::uint16_t valueConverter::streamToUInt16(std::istream &ifs){
     uint16_t ret = 0;
     ifs.read(reinterpret_cast<char*>(&ret), sizeof(ret));
     return ret;
 }
 
-std::uint32_t valueConverter::streamToUInt32(std::ifstream &ifs){
+std::uint32_t valueConverter::streamToUInt32(std::istream &ifs){
     uint32_t ret = 0;
     ifs.read(reinterpret_cast<char*>(&ret), sizeof(ret));
     return ret;
 }
 
-std::uint64_t valueConverter::streamToUInt64(std::ifstream &ifs){
+std::uint64_t valueConverter::streamToUInt64(std::istream &ifs){
     uint64_t ret = 0LL;
     ifs.read(reinterpret_cast<char*>(&ret), sizeof(ret));
     return ret;
