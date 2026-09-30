@@ -124,6 +124,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\IFD.hpp" />
+    <ClInclude Include="include\IFDReader.hpp" />
     <ClInclude Include="include\JFIF.hpp" />
     <ClInclude Include="include\JPEGReader.hpp" />
   </ItemGroup>

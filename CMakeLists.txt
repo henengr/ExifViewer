@@ -11,6 +11,8 @@ add_library(exifviewer_lib STATIC
 )
 target_include_directories(exifviewer_lib PUBLIC ${PROJECT_INCLUDE_DIR})
 
+target_link_libraries(exifviewer_lib PUBLIC GTest::gtest)
+
 add_executable(exifviewer src/main.cpp)
 target_link_libraries(exifviewer PRIVATE exifviewer_lib)
 
