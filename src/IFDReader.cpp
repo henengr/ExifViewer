@@ -75,7 +75,9 @@ bool IFDReader::getIFDValueShort(const std::uint16_t tag, const std::uint32_t of
     value.clear();  // initialize the vector
     if (iCount <= 4){   // If the number of elements is 4 or less, retrieve the value from the "Offset" value
         for (int i = 0; i < iCount; i++){
-            std::uint16_t ret = (static_cast<std::uint16_t>(data[iOffset + i * 2]) << 8) | data[iOffset + i * 2 + 1];
+            std::uint8_t b1 = static_cast<std::uint8_t>(data[iOffset + i * 2]);
+            std::uint8_t b2 = static_cast<std::uint8_t>(data[iOffset + i * 2 + 1]);
+            std::uint16_t ret = (static_cast<std::uint16_t>(b1) << 8) | b2;
             if (endian == enEndian::littleEndian) ret = valueConverter::swapUInt16(ret);
             value.push_back(ret);
         }
@@ -86,7 +88,9 @@ bool IFDReader::getIFDValueShort(const std::uint16_t tag, const std::uint32_t of
         if (endian == enEndian::littleEndian) ofs = valueConverter::swapUInt32(ofs);
         if (ofs + iCount * 2 > data.size()) return false;
         for (int i = 0; i < iCount; i++){
-            std::uint16_t ret = (static_cast<std::uint16_t>(data[ofs + i * 2]) << 8) | data[ofs + i * 2 + 1];
+            std::uint8_t b1 = static_cast<std::uint8_t>(data[ofs + i * 2]);
+            std::uint8_t b2 = static_cast<std::uint8_t>(data[ofs + i * 2 + 1]);
+            std::uint16_t ret = (static_cast<std::uint16_t>(b1) << 8) | b2;
             if (endian == enEndian::littleEndian) ret = valueConverter::swapUInt16(ret);
             value.push_back(ret);
         }
