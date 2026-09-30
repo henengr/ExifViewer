@@ -24,21 +24,13 @@ struct stIFDTag {
 };
 
 struct stIFDTypeValue {
-    enIFDType           type;
-    std::uint8_t        byteValue;
-    std::string         asciiValue;
-    std::uint16_t       shortValue;
-    std::uint32_t       longValue;
-    struct stRational{
-        std::uint32_t   numeratorValue;
-        std::uint32_t   denominatorValue;
-    };
-    std::vector<std::uint8_t> undefinedValue;
-    std::int32_t        slongValue;
-    struct stSRational{
-        std::int32_t    numeratorValue;
-        std::int32_t    denominatorValue;
-    };
+    enIFDType                   type;
+    std::vector<std::uint8_t>   byteValues;
+    std::string                 asciiValue;
+    std::vector<std::uint16_t>  shortValues;
+    std::vector<std::uint32_t>  longValues;
+    std::vector<std::uint8_t>   undefinedValue;
+    std::vector<std::int32_t>   slongValues;
 };
 
 constexpr std::uint16_t to_u16(enIFDType t){
@@ -70,7 +62,13 @@ constexpr stIFDTag IFDTable[] = {
     {0x0117, to_u16(enIFDType::SHORT) | to_u16(enIFDType::LONG),  1,  0},   // StripByteCounts
     {0x0201, to_u16(enIFDType::LONG),               1,  0},                 // JPEGInterchangeFormat
     {0x0202, to_u16(enIFDType::LONG),               1,  0},                 // JPEGInterchangeFormatLength
-
+    {0x012d, to_u16(enIFDType::SHORT),        3 * 256,  0},                 // TransferFunction
+    {0x013e, to_u16(enIFDType::RATIONAL),           2,  0},                 // WhitePoint
+    {0x013f, to_u16(enIFDType::RATIONAL),           6,  0},                 // PrimaryChromaticities
+    {0x0211, to_u16(enIFDType::RATIONAL),           3,  0},                 // YCbCrCoefficients
+    {0x0214, to_u16(enIFDType::RATIONAL),           6,  0},                 // ReferenceBlackWhite
+    {0x0132, to_u16(enIFDType::ASCII),             20,  0},                 // DateTime
+    {0x010e, to_u16(enIFDType::ASCII),         0xffff,  0},                 // ImageDescription
 };
 
 enum enIFDTag: std::uint16_t {
