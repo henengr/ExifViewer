@@ -49,13 +49,13 @@ std::uint64_t valueConverter::streamToUInt64(std::istream &ifs){
     return ret;
 }
 
-void valueConverter::dispDumb(std::vector<char> &data){
+void valueConverter::dispDumb(std::vector<std::uint8_t> &data){
     std::ios::fmtflags f(std::cout.flags());
     std::size_t count = 0;
     std::string ascii = "";
     std::string header = "Offset    |  +0 +1 +2 +3 +4 +5 +6 +7 +8 +9 +A +B +C +D +E +F  | 0123456789ABCDEF";
     std::cout << header << std::endl;
-    for (std::vector<char>::iterator i = data.begin(); i != data.end(); ++i){
+    for (std::vector<std::uint8_t>::iterator i = data.begin(); i != data.end(); ++i){
         std::uint8_t byte = static_cast<std::uint8_t>(*i);
         if (count % 16 == 0){
             std::cout << "+" << std::hex << std::setw(8) << std::setfill('0') << count << " |  ";
@@ -99,22 +99,26 @@ bool JPEGReader::getLength(std::uint16_t &length){
     return true;
 }
 
-bool JPEGReader::readSegment(const std::uint16_t length, std::vector<char> &data){
+bool JPEGReader::readSegment(const std::uint16_t length, std::vector<std::uint8_t> &data){
     std::size_t readsize = length - 2;
     data.resize(readsize);
-    stream.read(data.data(), readsize);
+    stream.read(reinterpret_cast<char*>(data.data()), readsize);
     return static_cast<std::size_t>(stream.gcount()) == readsize;
 }
 
-bool JPEGReader::getAPP0(const std::uint16_t length, stAPP0 &app0, const std::vector<char> data){
+bool JPEGReader::getAPP0(const std::uint16_t length, stAPP0 &app0, const std::vector<std::uint8_t> data){
     std::size_t size = sizeof(app0.JFIFIdentifier) + sizeof(app0.version) + sizeof(app0.pixelConcentrationUnit) +
         sizeof(app0.pixelConcentrationX) + sizeof(app0.pixelConcentrationY);
     if (data.size() != length || data.size() < size) return false;
     auto i = data.begin();
+    constexpr std::uint8_t JFIFMarker[] = {'J', 'F', 'I', 'F', 0x00};
     //
     size = sizeof(app0.JFIFIdentifier);
-    std::copy_n(i, size, app0.JFIFIdentifier);
+    std::copy_n(i, size, app0.JFIFIdentifier);  // "JFIF\0"
+    app0.JFIFIdentifier[4] = 0;     // Forcefully assign 0
     i += size;
+    bool isJFIF = std::equal(std::begin(app0.JFIFIdentifier), std::end(app0.JFIFIdentifier), std::begin(JFIFMarker));
+    if (!isJFIF) return false;
     //
     size = sizeof(app0.version);
     std::copy_n(i, size, reinterpret_cast<char*>(&app0.version));
@@ -135,15 +139,20 @@ bool JPEGReader::getAPP0(const std::uint16_t length, stAPP0 &app0, const std::ve
     return true;
 }
 
-bool JPEGReader::getAPP1(const std::uint16_t length, stAPP1 &app1, const std::vector<char> data){
+bool JPEGReader::getAPP1(const std::uint16_t length, stAPP1 &app1, const std::vector<std::uint8_t> data){
     std::size_t size = sizeof(app1.ExifIdentifier) + sizeof(app1.TIFFByteOrder) + sizeof(app1.TIFFIdentifier) +
         sizeof(app1.IFD0thOffset);
     if (data.size() != length || data.size() < size) return false;
     auto i = data.begin();
+    constexpr std::uint8_t ExifMarker[] = {'E', 'x', 'i', 'f', 0x00, 0x00};
     //
     size = sizeof(app1.ExifIdentifier);
-    std::copy_n(i, size, app1.ExifIdentifier);
+    std::copy_n(i, size, app1.ExifIdentifier);      // "Exif\0\0"
+    app1.ExifIdentifier[4] = 0;     // Forcefully assign 0
+    app1.ExifIdentifier[5] = 0;
     i += size;
+    bool isJFIF = std::equal(std::begin(app1.ExifIdentifier), std::end(app1.ExifIdentifier), std::begin(ExifMarker));
+    if (!isJFIF) return false;
     //
     size = sizeof(app1.TIFFByteOrder);
     std::copy_n(i, size, app1.TIFFByteOrder);

@@ -99,26 +99,26 @@ struct stMarker {
 // 0th IFD
 struct st0thIFD {
     std::uint16_t       numOfEntities;
-    std::vector<char>   IFDs;
+    std::vector<std::uint8_t>   IFDs;
     std::uint32_t       nextIFDOffset;
-    std::vector<char>   IFD0thLongerThan4Bytes;
+    std::vector<std::uint8_t>   IFD0thLongerThan4Bytes;
 };
 
 // Exif IFD
 struct stExifIFD {
     std::uint16_t       numOfExifIFDs;
-    std::vector<char>   ExifIFDs;
+    std::vector<std::uint8_t>   ExifIFDs;
     std::uint32_t       nextIFDOffset;
-    std::vector<char>   ExifIFDLongerThan4Bytes;
+    std::vector<std::uint8_t>   ExifIFDLongerThan4Bytes;
 };
 
 // 1st IFD
 struct st1stIFD {
     std::uint16_t       numOfEntities;
-    std::vector<char>   IFDs;
+    std::vector<std::uint8_t>   IFDs;
     std::uint32_t       nextIFDOffset;
-    std::vector<char>   IFD1stLongerThan4Bytes;
-    std::vector<char>   thumbnailData;
+    std::vector<std::uint8_t>   IFD1stLongerThan4Bytes;
+    std::vector<std::uint8_t>   thumbnailData;
 };
 */
 
@@ -131,7 +131,7 @@ struct stAPP0 {
     //
     std::uint8_t        thumbnailImageWidth;        // 0010
     std::uint8_t        thumbnailImageHeight;       // 0011
-    std::vector<char>   thumbnailImage;             // 0012
+    std::vector<std::uint8_t> thumbnailImage;       // 0012
 };
 
 struct stAPP1 {
@@ -142,18 +142,18 @@ struct stAPP1 {
     //st0thIFD            IFD0th;                     // 0011
     //stExifIFD           ExifIFD;
     //st1stIFD            IFD1st;
-    std::vector<char>   IFDs;                       // 0011
+    std::vector<std::uint8_t> IFDs;                 // 0011
 };
 
 struct stAPP2 {
     std::uint8_t        FPXRIdentifierCode[5];      // 0004  "FPXR\0"
     std::uint8_t        version;                    // 0009
-    std::vector<char>   streamData;                 // 000a
+    std::vector<std::uint8_t> streamData;           // 000a
 };
 
 struct stDQT {
     std::uint8_t        tableIdentifier;            // 0004
-    std::vector<char>   DQTtable;                   // 0005
+    std::vector<std::uint8_t> DQTtable;             // 0005
 };
 
 struct stSOF0 {
@@ -161,18 +161,18 @@ struct stSOF0 {
     std::uint16_t       imageRow;                   // 0005
     std::uint16_t       imageColumn;                // 0007
     std::uint8_t        numOfComponents;            // 0009
-    std::vector<char>   components;                 // 000a
+    std::vector<std::uint8_t> components;           // 000a
 };
 
 struct stDHT {
     std::uint8_t        DHTClassIdentifier;         // 0004
     std::uint8_t        numOfCodesByCodeLength[16]; // 0005
-    std::vector<char>   codesOfEachCodeLength;      // 0015
+    std::vector<std::uint8_t> codesOfEachCodeLength;// 0015
 };
 
 struct stSOS {
     std::uint8_t        numOfComponents;            // 0004
-    std::vector<char>   components;                 // 0005
+    std::vector<std::uint8_t> components;           // 0005
 };
 
 

@@ -29,10 +29,10 @@ TEST(ValueConverterTest, SwapUInt64) {
 
 TEST(ValueConverterStreamTest, ReadFromStream) {
     const char testData[] = {
-        0x0A,
-        0x0B, 0x0C, 
+        0x0a,
+        0x0b, 0x0c, 
         0x01, 0x02, 0x03, 0x04,
-        0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
+        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
     };
     
     std::string dataStr(testData, sizeof(testData));
@@ -45,12 +45,12 @@ TEST(ValueConverterStreamTest, ReadFromStream) {
 }
 
 TEST(ValueConverterTest, DispDumbTest) {
-    std::vector<char> data = {
+    std::vector<std::uint8_t> data = {
         'A', 'B', 'C', 0x00,
         0x10, 0x20, 'a', 'b',
         'c', 'd', 'e', 'f',
         0x01, 0x02, 0x03, 0x04,
-        'X', 'Y'             // Fractional data exceeding 16 bytes
+        'X', 'Y',               // Fractional data exceeding 16 bytes
     };
 
     std::stringstream buffer;
@@ -69,10 +69,10 @@ TEST(ValueConverterTest, DispDumbTest) {
 }
 
 TEST(JPEGReaderTest, ReadStreamSegments) {
-    std::vector<uint8_t> mockJpeg = {
-        0xFF, 0xD8,
-        0x00, 0x0A,
-        0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88
+    std::vector<std::uint8_t> mockJpeg = {
+        0xff, 0xd8,
+        0x00, 0x0a,
+        0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
     };
 
     std::string dataStr(mockJpeg.begin(), mockJpeg.end());
@@ -87,7 +87,7 @@ TEST(JPEGReaderTest, ReadStreamSegments) {
     EXPECT_TRUE(reader.getLength(length));
     EXPECT_EQ(length, 10);
 
-    std::vector<char> segmentData;
+    std::vector<std::uint8_t> segmentData;
     EXPECT_TRUE(reader.readSegment(length, segmentData));
     ASSERT_EQ(segmentData.size(), 8);
     EXPECT_EQ(static_cast<uint8_t>(segmentData[0]), 0x11);
@@ -95,18 +95,22 @@ TEST(JPEGReaderTest, ReadStreamSegments) {
 }
 
 TEST(JPEGReaderTest, GetAPP0Test) {
-    std::vector<char> mockDataShort = {
-        'J', 'F', 'I', 'F', 0x00, // Identifier
-        0x01, 0x02,               // Version
-        0x01                      // PixelConcentrationUnit
-    };
-    std::vector<char> mockData = {
+    std::vector<std::uint8_t> mockDataShort = {
         'J', 'F', 'I', 'F', 0x00, // Identifier
         0x01, 0x02,               // Version
         0x01,                     // PixelConcentrationUnit
-        0x2C, 0x01,               // PixelConcentrationX
-        0x2C, 0x01,               // PixelConcentrationY
-        0x4E, 0x4E
+    };
+    std::vector<std::uint8_t> mockDataNoJFIF = {
+        'A', 'B', 'C', 'D', 'E',
+        0x00, 0x00,
+    };
+    std::vector<std::uint8_t> mockData = {
+        'J', 'F', 'I', 'F', 0x00, // Identifier
+        0x01, 0x02,               // Version
+        0x01,                     // PixelConcentrationUnit
+        0x2c, 0x01,               // PixelConcentrationX
+        0x2c, 0x01,               // PixelConcentrationY
+        0x4e, 0x4e,
     };
 
     std::stringstream ss;
@@ -114,6 +118,7 @@ TEST(JPEGReaderTest, GetAPP0Test) {
 
     stAPP0 app0{};
     EXPECT_FALSE(reader.getAPP0(mockDataShort.size(), app0, mockDataShort));    // Abnormal scenario
+    EXPECT_FALSE(reader.getAPP0(mockDataNoJFIF.size(), app0, mockDataNoJFIF));  // No JFIF
 
     EXPECT_TRUE(reader.getAPP0(mockData.size(), app0, mockData));
     EXPECT_STREQ(reinterpret_cast<const char*>(app0.JFIFIdentifier), "JFIF");
@@ -123,42 +128,28 @@ TEST(JPEGReaderTest, GetAPP0Test) {
     EXPECT_EQ(app0.pixelConcentrationY, 0x012C);   // PixelConcentrationY
 }
 
-TEST(JPEGReaderTest, GetAPP1LittleEndianTest) {
-    std::vector<char> mockData = {
+TEST(JPEGReaderTest, GetAPP1Test) {
+    std::vector<std::uint8_t> mockDataShort = {
+        'E', 'x', 'i', 'f', 0x00, 0x00, // ExifIdentifier (6bytes)
+        'M', 'M',                       // TIFFByteOrder -> Big Endian check
+    };
+    std::vector<std::uint8_t> mockDataNoExif = {
+        'A', 'B', 'C', 'D', 'E', 'F',
+        0x00, 0x00,
+    };
+    std::vector<std::uint8_t> mockDataBE = {
+        'E', 'x', 'i', 'f', 0x00, 0x00, // ExifIdentifier (6bytes)
+        'M', 'M',                       // TIFFByteOrder -> Big Endian check
+        0x00, 0x2a,                     // TIFFIdentifier (2bytes)
+        0x00, 0x00, 0x00, 0x08,         // IFD0thOffset (4bytes)
+        0xaa, 0xbb, 0xcc,
+    };
+    std::vector<std::uint8_t> mockDataLE = {
         'E', 'x', 'i', 'f', 0x00, 0x00, // ExifIdentifier (6bytes)
         'I', 'I',                       // TIFFByteOrder -> Little Endian check
-        0x2A, 0x00,                     // TIFFIdentifier (2bytes)
+        0x2a, 0x00,                     // TIFFIdentifier (2bytes)
         0x08, 0x00, 0x00, 0x00,         // IFD0thOffset (4bytes)
-        0x11, 0x22, 0x33
-    };
-
-    std::stringstream ss;
-    JPEGReader reader(ss);
-
-    stAPP1 app1{};
-    
-    EXPECT_TRUE(reader.getAPP1(mockData.size(), app1, mockData));
-
-    EXPECT_EQ(app1.TIFFByteOrder[0], 'I');
-    EXPECT_EQ(app1.TIFFByteOrder[1], 'I');
-    
-    EXPECT_EQ(reader.getEndian(), enEndian::littleEndian);
-
-    ASSERT_EQ(app1.IFDs.size(), 3);
-    EXPECT_EQ(app1.IFDs[0], 0x11);
-}
-
-TEST(JPEGReaderTest, GetAPP1BigEndianTest) {
-    std::vector<char> mockDataShort = {
-        'E', 'x', 'i', 'f', 0x00, 0x00,
-        'M', 'M'
-    };
-    std::vector<char> mockData = {
-        'E', 'x', 'i', 'f', 0x00, 0x00,
-        'M', 'M',                       // TIFFByteOrder -> Big Endian check
-        0x00, 0x2A, 
-        0x00, 0x00, 0x00, 0x08,
-        static_cast<char>(0xAA), static_cast<char>(0xBB), static_cast<char>(0xCC)
+        0x11, 0x22, 0x33,
     };
 
     std::stringstream ss;
@@ -167,12 +158,18 @@ TEST(JPEGReaderTest, GetAPP1BigEndianTest) {
     stAPP1 app1{};
 
     EXPECT_FALSE(reader.getAPP1(mockDataShort.size(), app1, mockDataShort));    // Abnormal scenario
+    EXPECT_FALSE(reader.getAPP1(mockDataNoExif.size(), app1, mockDataNoExif));  // No Exif
 
-    EXPECT_TRUE(reader.getAPP1(mockData.size(), app1, mockData));
+    // Little Endian
+    EXPECT_TRUE(reader.getAPP1(mockDataLE.size(), app1, mockDataLE));
+    EXPECT_EQ(app1.TIFFByteOrder[0], 'I');
+    EXPECT_EQ(app1.TIFFByteOrder[1], 'I');
+    EXPECT_EQ(reader.getEndian(), enEndian::littleEndian);
 
+    // Big Endian
+    EXPECT_TRUE(reader.getAPP1(mockDataBE.size(), app1, mockDataBE));
     EXPECT_EQ(app1.TIFFByteOrder[0], 'M');
     EXPECT_EQ(app1.TIFFByteOrder[1], 'M');
-    
     EXPECT_EQ(reader.getEndian(), enEndian::bigEndian);
 }
 

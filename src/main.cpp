@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
 
     uint16_t marker;
     uint16_t length;
-    vector<char> data;
+    vector<uint8_t> data;
     // SOI
     pjpg->getMarker(marker);    // SOI
     cout << "marker:" << std::hex << marker << endl;
