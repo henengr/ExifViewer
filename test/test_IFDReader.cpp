@@ -38,10 +38,10 @@ TEST(IFDReaderTest, GetIFDValueByte) {
 
     // Normal Scenario
     EXPECT_TRUE(IFDReader::getIFDValueByte(0x0005, 0, enEndian::littleEndian, mockData, retValue));
-    EXPECT_TRUE(std::equal(std::begin(retValue), std::end(retValue), std::begin(checkValue)));
+    EXPECT_EQ(retValue, checkValue);
     //
     EXPECT_TRUE(IFDReader::getIFDValueByte(0x0005, 0, enEndian::littleEndian, mockDataLong, retValue));
-    EXPECT_TRUE(std::equal(std::begin(retValue), std::end(retValue), std::begin(checkValueLong)));
+    EXPECT_EQ(retValue, checkValueLong);
 }
 
 TEST(IFDReaderTest, GetIFDValueShort) {
@@ -70,7 +70,7 @@ TEST(IFDReaderTest, GetIFDValueShort) {
         0x00, 0x00,
     };
     std::vector<std::uint16_t> checkValue = {0x5678, 0x1234};
-    std::vector<std::uint16_t> checkValueLong = {0x2301, 0x6745, 0xbc8a};
+    std::vector<std::uint16_t> checkValueLong = {0x2301, 0x6745, 0xbc8a, 0x0000, 0x0000};
     std::vector<std::uint16_t> retValue;
 
     // Abnormal Scenario
@@ -80,9 +80,9 @@ TEST(IFDReaderTest, GetIFDValueShort) {
 
     // Normal Scenario
     EXPECT_TRUE(IFDReader::getIFDValueShort(0x0112, 0, enEndian::littleEndian, mockData, retValue));
-    EXPECT_TRUE(std::equal(std::begin(retValue), std::end(retValue), std::begin(checkValue)));
+    EXPECT_EQ(retValue, checkValue);
     //
     EXPECT_TRUE(IFDReader::getIFDValueShort(0x0112, 0, enEndian::littleEndian, mockDataLong, retValue));
-    EXPECT_TRUE(std::equal(std::begin(retValue), std::end(retValue), std::begin(checkValueLong)));
+    EXPECT_EQ(retValue, checkValueLong);
 }
 

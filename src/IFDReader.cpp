@@ -6,7 +6,7 @@ constexpr std::uint16_t APP1HeaderSize = sizeof(stAPP1::TIFFByteOrder) + sizeof(
     sizeof(stAPP1::IFD0thOffset);
 
 bool IFDReader::getIFDValueByte(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
-        const std::vector<std::uint8_t> data, std::vector<std::uint8_t> &value){
+        const std::vector<std::uint8_t> &data, std::vector<std::uint8_t> &value){
     std::uint32_t iOffset = offset;
     if (iOffset + 12 > data.size()) return false;
     //
@@ -49,7 +49,7 @@ bool IFDReader::getIFDValueByte(const std::uint16_t tag, const std::uint32_t off
 };
 
 bool IFDReader::getIFDValueShort(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
-        const std::vector<std::uint8_t> data, std::vector<std::uint16_t> &value){
+        const std::vector<std::uint8_t> &data, std::vector<std::uint16_t> &value){
     std::uint32_t iOffset = offset;
     if (iOffset + 12 > data.size()) return false;
     //
