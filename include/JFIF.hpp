@@ -4,7 +4,7 @@
 #include <vector>
 
 
-enum enSegmentMarker: std::uint16_t {
+enum class enSegmentMarker: std::uint16_t {
     TEM         = 0xff01,
     SOC         = 0xff4f,
 	SIZ         = 0xff51,

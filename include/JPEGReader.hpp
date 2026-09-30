@@ -16,7 +16,7 @@ public:
     static void dispDumb(std::vector<char> &data);
 };
 
-enum enEndian: std::uint8_t {
+enum class enEndian: std::uint8_t {
     littleEndian = 1,
     bigEndian
 };

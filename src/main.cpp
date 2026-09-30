@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "JFIF.hpp"
+#include "IFD.hpp"
 #include "JPEGReader.hpp"
 
 using namespace std;

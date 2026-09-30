@@ -123,7 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Exif.hpp" />
+    <ClInclude Include="include\IFD.hpp" />
     <ClInclude Include="include\JFIF.hpp" />
     <ClInclude Include="include\JPEGReader.hpp" />
   </ItemGroup>

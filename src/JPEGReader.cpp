@@ -107,9 +107,10 @@ bool JPEGReader::readSegment(const std::uint16_t length, std::vector<char> &data
 }
 
 bool JPEGReader::getAPP0(const std::uint16_t length, stAPP0 &app0, const std::vector<char> data){
-    //if (data.size() < length) return false;
+    std::size_t size = sizeof(app0.JFIFIdentifier) + sizeof(app0.version) + sizeof(app0.pixelConcentrationUnit) +
+        sizeof(app0.pixelConcentrationX) + sizeof(app0.pixelConcentrationY);
+    if (data.size() != length || data.size() < size) return false;
     auto i = data.begin();
-    std::size_t size = 0;
     //
     size = sizeof(app0.JFIFIdentifier);
     std::copy_n(i, size, app0.JFIFIdentifier);
@@ -121,14 +122,24 @@ bool JPEGReader::getAPP0(const std::uint16_t length, stAPP0 &app0, const std::ve
     //
     size = sizeof(app0.pixelConcentrationUnit);
     std::copy_n(i, size, reinterpret_cast<char*>(&app0.pixelConcentrationUnit));
+    i += size;
+    //
+    size = sizeof(app0.pixelConcentrationX);
+    std::copy_n(i, size, reinterpret_cast<char*>(&app0.pixelConcentrationX));
+    i += size;
+    //
+    size = sizeof(app0.pixelConcentrationY);
+    std::copy_n(i, size, reinterpret_cast<char*>(&app0.pixelConcentrationY));
+    i += size;
     //
     return true;
 }
 
 bool JPEGReader::getAPP1(const std::uint16_t length, stAPP1 &app1, const std::vector<char> data){
-    //if (data.size() < length) return false;
+    std::size_t size = sizeof(app1.ExifIdentifier) + sizeof(app1.TIFFByteOrder) + sizeof(app1.TIFFIdentifier) +
+        sizeof(app1.IFD0thOffset);
+    if (data.size() != length || data.size() < size) return false;
     auto i = data.begin();
-    std::size_t size = 0;
     //
     size = sizeof(app1.ExifIdentifier);
     std::copy_n(i, size, app1.ExifIdentifier);
