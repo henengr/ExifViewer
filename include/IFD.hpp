@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
 
 
 enum class enIFDType: std::uint16_t {
@@ -20,6 +21,24 @@ struct stIFDTag {
     std::uint16_t       type;
     std::uint32_t       count;
     std::uint32_t       offset;
+};
+
+struct stIFDTypeValue {
+    enIFDType           type;
+    std::uint8_t        byteValue;
+    std::string         asciiValue;
+    std::uint16_t       shortValue;
+    std::uint32_t       longValue;
+    struct stRational{
+        std::uint32_t   numeratorValue;
+        std::uint32_t   denominatorValue;
+    };
+    std::vector<std::uint8_t> undefinedValue;
+    std::int32_t        slongValue;
+    struct stSRational{
+        std::int32_t    numeratorValue;
+        std::int32_t    denominatorValue;
+    };
 };
 
 constexpr std::uint16_t to_u16(enIFDType t){
