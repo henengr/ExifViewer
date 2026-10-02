@@ -17,14 +17,19 @@ private:
     FRIEND_TEST(IFDReaderTest, GetIFDValueAscii);
     FRIEND_TEST(IFDReaderTest, GetIFDValueShort);
     FRIEND_TEST(IFDReaderTest, GetIFDValueLong);
+    FRIEND_TEST(IFDReaderTest, GetIFDValue);
+
     static bool getIFDValueByte(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
-                const std::vector<std::uint8_t> &data, std::vector<std::uint8_t> &value);
+                const std::vector<std::uint8_t> &data, stIFDTypeValue &value);
     static bool getIFDValueAscii(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
-                const std::vector<std::uint8_t> &data, std::string &value);
+                const std::vector<std::uint8_t> &data, stIFDTypeValue &value);
     static bool getIFDValueShort(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
-                const std::vector<std::uint8_t> &data, std::vector<std::uint16_t> &value);
+                const std::vector<std::uint8_t> &data, stIFDTypeValue &value);
     static bool getIFDValueLong(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
-                const std::vector<std::uint8_t> &data, std::vector<std::uint32_t> &value);
+                const std::vector<std::uint8_t> &data, stIFDTypeValue &value);
+
+    static bool getIFDValue(const std::uint32_t offset, const enEndian endian, std::vector<std::uint8_t> &data,
+                stIFDTypeValue &value);
 
 protected:
 public:
@@ -33,6 +38,6 @@ public:
         ardata(data), enendian(endian){}
     virtual ~IFDReader(){}
 
-    bool getIFDValue(const std::uint32_t offset, stIFDTypeValue &value);
+    bool getIFDValues(const std::uint32_t offset, std::vector<stIFDTypeValue> &values);
 };
 

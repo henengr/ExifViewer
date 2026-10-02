@@ -3,7 +3,7 @@
 
 
 bool IFDReader::getIFDValueByte(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
-        const std::vector<std::uint8_t> &data, std::vector<std::uint8_t> &value){
+        const std::vector<std::uint8_t> &data, stIFDTypeValue &value){
     std::uint32_t iOffset = offset;
     if (iOffset + 12 > data.size()) return false;
     //
@@ -26,10 +26,11 @@ bool IFDReader::getIFDValueByte(const std::uint16_t tag, const std::uint32_t off
     if (iType != static_cast<std::uint16_t>(enIFDType::BYTE)) return false;
     if (iOffset + iCount > data.size()) return false;
     //
-    value.clear();  // initialize the vector
+    value.type = enIFDType::BYTE;
+    value.byteValues.clear();  // initialize the vector
     if (iCount <= 4){   // If the number of elements is 4 or less, retrieve the value from the "Offset" value
         for (int i = 0; i < iCount; i++){
-            value.push_back(data[iOffset + i]);
+            value.byteValues.push_back(data[iOffset + i]);
         }
     }else{  // If the number of elements is 5 or greater, retrieve the value at the location indicated by the Offset value
         std::uint32_t ofs = (static_cast<std::uint32_t>(data[iOffset]) << 24) | 
@@ -38,7 +39,7 @@ bool IFDReader::getIFDValueByte(const std::uint16_t tag, const std::uint32_t off
         if (endian == enEndian::littleEndian) ofs = valueConverter::swapUInt32(ofs);
         if (ofs + iCount > data.size()) return false;
         for (int i = 0; i < iCount; i++){
-            value.push_back(data[ofs + i]);
+            value.byteValues.push_back(data[ofs + i]);
         }
     }
     //
@@ -46,7 +47,7 @@ bool IFDReader::getIFDValueByte(const std::uint16_t tag, const std::uint32_t off
 };
 
 bool IFDReader::getIFDValueAscii(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
-        const std::vector<std::uint8_t> &data, std::string &value){
+        const std::vector<std::uint8_t> &data, stIFDTypeValue &value){
     std::uint32_t iOffset = offset;
     if (iOffset + 12 > data.size()) return false;
     //
@@ -69,12 +70,13 @@ bool IFDReader::getIFDValueAscii(const std::uint16_t tag, const std::uint32_t of
     if (iType != static_cast<std::uint16_t>(enIFDType::ASCII)) return false;
     if (iOffset + iCount > data.size()) return false;
     //
-    value.clear();  // initialize the string
+    value.type = enIFDType::ASCII;
+    value.asciiValue.clear();  // initialize the string
     if (iCount <= 4){   // If the number of elements is 4 or less, retrieve the value from the "Offset" value
         for (int i = 0; i < iCount; i++){
             char c = static_cast<char>(data[iOffset + i]);
             if (c == '\0') break;
-            value += c;
+            value.asciiValue += c;
         }
     }else{  // If the number of elements is 5 or greater, retrieve the value at the location indicated by the Offset value
         std::uint32_t ofs = (static_cast<std::uint32_t>(data[iOffset]) << 24) | 
@@ -85,7 +87,7 @@ bool IFDReader::getIFDValueAscii(const std::uint16_t tag, const std::uint32_t of
         for (int i = 0; i < iCount; i++){
             char c = static_cast<char>(data[ofs + i]);
             if (c == '\0') break;
-            value += c;
+            value.asciiValue += c;
         }
     }
     //
@@ -93,7 +95,7 @@ bool IFDReader::getIFDValueAscii(const std::uint16_t tag, const std::uint32_t of
 };
 
 bool IFDReader::getIFDValueShort(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
-        const std::vector<std::uint8_t> &data, std::vector<std::uint16_t> &value){
+        const std::vector<std::uint8_t> &data, stIFDTypeValue &value){
     std::uint32_t iOffset = offset;
     if (iOffset + 12 > data.size()) return false;
     //
@@ -116,14 +118,15 @@ bool IFDReader::getIFDValueShort(const std::uint16_t tag, const std::uint32_t of
     if (iType != static_cast<std::uint16_t>(enIFDType::SHORT)) return false;
     if (iOffset + iCount * 2 > data.size()) return false;
     //
-    value.clear();  // initialize the vector
+    value.type = enIFDType::SHORT;
+    value.shortValues.clear();  // initialize the vector
     if (iCount <= 2){   // If the number of elements is 2 or less, retrieve the value from the "Offset" value
         for (int i = 0; i < iCount; i++){
             std::uint8_t b1 = static_cast<std::uint8_t>(data[iOffset + i * 2]);
             std::uint8_t b2 = static_cast<std::uint8_t>(data[iOffset + i * 2 + 1]);
             std::uint16_t ret = (static_cast<std::uint16_t>(b1) << 8) | b2;
             if (endian == enEndian::littleEndian) ret = valueConverter::swapUInt16(ret);
-            value.push_back(ret);
+            value.shortValues.push_back(ret);
         }
     }else{  // If the number of elements is 3 or greater, retrieve the value at the location indicated by the Offset value
         std::uint32_t ofs = (static_cast<std::uint32_t>(data[iOffset]) << 24) | 
@@ -136,7 +139,7 @@ bool IFDReader::getIFDValueShort(const std::uint16_t tag, const std::uint32_t of
             std::uint8_t b2 = static_cast<std::uint8_t>(data[ofs + i * 2 + 1]);
             std::uint16_t ret = (static_cast<std::uint16_t>(b1) << 8) | b2;
             if (endian == enEndian::littleEndian) ret = valueConverter::swapUInt16(ret);
-            value.push_back(ret);
+            value.shortValues.push_back(ret);
         }
     }
     //
@@ -144,7 +147,7 @@ bool IFDReader::getIFDValueShort(const std::uint16_t tag, const std::uint32_t of
 };
 
 bool IFDReader::getIFDValueLong(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
-        const std::vector<std::uint8_t> &data, std::vector<std::uint32_t> &value){
+        const std::vector<std::uint8_t> &data, stIFDTypeValue &value){
     std::uint32_t iOffset = offset;
     if (iOffset + 12 > data.size()) return false;
     //
@@ -167,7 +170,8 @@ bool IFDReader::getIFDValueLong(const std::uint16_t tag, const std::uint32_t off
     if (iType != static_cast<std::uint16_t>(enIFDType::LONG)) return false;
     if (iOffset + iCount * 4 > data.size()) return false;
     //
-    value.clear();  // initialize the vector
+    value.type = enIFDType::LONG;
+    value.longValues.clear();  // initialize the vector
     if (iCount <= 1){   // If the number of elements is 1 or less, retrieve the value from the "Offset" value
         for (int i = 0; i < iCount; i++){
             std::uint8_t b1 = static_cast<std::uint8_t>(data[iOffset + i * 4]);
@@ -178,7 +182,7 @@ bool IFDReader::getIFDValueLong(const std::uint16_t tag, const std::uint32_t off
                         (static_cast<std::uint32_t>(b2) << 16) |
                         (static_cast<std::uint32_t>(b3) << 8)  | b4;
             if (endian == enEndian::littleEndian) ret = valueConverter::swapUInt32(ret);
-            value.push_back(ret);
+            value.longValues.push_back(ret);
         }
     }else{  // If the number of elements is 2 or greater, retrieve the value at the location indicated by the Offset value
         std::uint32_t ofs = (static_cast<std::uint32_t>(data[iOffset]) << 24) | 
@@ -195,38 +199,82 @@ bool IFDReader::getIFDValueLong(const std::uint16_t tag, const std::uint32_t off
                         (static_cast<std::uint32_t>(b2) << 16) |
                         (static_cast<std::uint32_t>(b3) << 8)  | b4;
             if (endian == enEndian::littleEndian) ret = valueConverter::swapUInt32(ret);
-            value.push_back(ret);
+            value.longValues.push_back(ret);
         }
     }
     //
     return true;
 };
 
-bool IFDReader::getIFDValue(const std::uint32_t offset, stIFDTypeValue &value){
-    const std::uint16_t APP1HeaderSize = sizeof(stAPP1::TIFFByteOrder) + sizeof(stAPP1::TIFFIdentifier) +
-            sizeof(stAPP1::IFD0thOffset);
-    std::uint32_t iOffset = offset + APP1HeaderSize;
-    //
+bool IFDReader::getIFDValue(const std::uint32_t offset, const enEndian endian, std::vector<std::uint8_t> &data, 
+        stIFDTypeValue &value){
+    std::uint32_t iOffset = offset;
     bool found = false;
     for (stIFDTag ifd: IFDTable){
+        if (found) break;
         if (ifd.type == static_cast<std::uint16_t>(enIFDType::BYTE)){
-            std::vector<std::uint8_t> retVal;
-            bool res = getIFDValueByte(ifd.tag, iOffset, enendian, ardata, retVal);
+            bool res = getIFDValueByte(ifd.tag, iOffset, endian, data, value);
             if (!res) continue;
-            value.byteValues = retVal;
+            value.tag = ifd;
             found = true;
             continue;
         }
         if (ifd.type == static_cast<std::uint16_t>(enIFDType::ASCII)){
             std::string retVal;
-            bool res = getIFDValueAscii(ifd.tag, iOffset, enendian, ardata, retVal);
+            bool res = getIFDValueAscii(ifd.tag, iOffset, endian, data, value);
             if (!res) continue;
-            value.asciiValue = retVal;
+            value.tag = ifd;
+            found = true;
+            continue;
+        }
+        if (ifd.type == static_cast<std::uint16_t>(enIFDType::SHORT)){
+            std::vector<std::uint16_t> retVal;
+            bool res = getIFDValueShort(ifd.tag, iOffset, endian, data, value);
+            if (!res) continue;
+            value.tag = ifd;
+            found = true;
+            continue;
+        }
+        if (ifd.type == static_cast<std::uint16_t>(enIFDType::LONG)){
+            std::vector<std::uint32_t> retVal;
+            bool res = getIFDValueLong(ifd.tag, iOffset, endian, data, value);
+            if (!res) continue;
+            value.tag = ifd;
             found = true;
             continue;
         }
     }
-    //
     return found;
+}
+
+
+bool IFDReader::getIFDValues(const std::uint32_t offset, std::vector<stIFDTypeValue> &values){
+    const std::uint16_t APP1HeaderSize = sizeof(stAPP1::TIFFByteOrder) + sizeof(stAPP1::TIFFIdentifier) +
+            sizeof(stAPP1::IFD0thOffset);
+    std::uint32_t iOffset = offset + APP1HeaderSize;
+    if (iOffset > ardata.size()) return false;
+    //
+    std::uint16_t numOfEntries = (static_cast<std::uint16_t>(ardata[iOffset]) << 8) | ardata[iOffset + 1];
+    if (enendian == enEndian::littleEndian) numOfEntries = valueConverter::swapUInt16(numOfEntries);
+    iOffset += sizeof(numOfEntries);
+    //
+    stIFDTypeValue value;
+    std::uint32_t iExifIFDPtr;
+    std::uint32_t iGPSIFDPtr;
+    stIFDTag ifd;
+    for (std::uint16_t i = 0; i < numOfEntries; i++){
+        bool res = getIFDValue(iOffset, enendian, ardata, value);
+        if (!res) continue;
+        values.push_back(value);
+        if (ifd.tag == 0x8769 && ifd.type == to_u16(enIFDType::LONG) && value.longValues.size() > 0)
+                iExifIFDPtr = value.longValues[0];      // Exif IFD Pointer
+        if (ifd.tag == 0x8825 && ifd.type == to_u16(enIFDType::LONG) && value.longValues.size() > 0)
+                iGPSIFDPtr = value.longValues[0];       // GPS IFD Pointer
+        // move to next IFD
+        iOffset += sizeof(std::uint16_t) + sizeof(std::uint16_t) + sizeof(std::uint32_t) + sizeof(std::uint32_t);
+    }
+
+    //
+    return true;
 }
 
