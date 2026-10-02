@@ -129,8 +129,8 @@
     <ClInclude Include="include\JPEGReader.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\JPEGReader.cpp" />
-    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\core\JPEGReader.cpp" />
+    <ClCompile Include="src\core\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
