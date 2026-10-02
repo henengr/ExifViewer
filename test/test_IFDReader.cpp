@@ -382,7 +382,7 @@ TEST(IFDReaderTest, GetIFDValue) {
         0x00, 0x00, 0x00, 0x00,
     };
     std::vector<std::uint8_t> mockDataSLong = {
-        0x99, 0x99,                     // Tag (0x9999: -)
+        0x99, 0x99,                     // Tag (0x9999: ***DummySLongForTest***)
         0x09, 0x00,                     // Type (0x0009: SLONG)
         0x01, 0x00, 0x00, 0x00,         // Count (0x00000001)
         0x34, 0x12, 0x00, 0x00,
@@ -395,6 +395,24 @@ TEST(IFDReaderTest, GetIFDValue) {
         0x00, 0x00, 0x00, 0x00,
         0x48, 0x00, 0x00, 0x00,
         0x10, 0x00, 0x00, 0x00,
+    };
+    std::vector<std::uint8_t> mockDataInvaidType = {
+        0x69, 0x87,                     // Tag (0x8769: Exif IFD Pointer)
+        0x3f, 0x00,                     // Type (0x003f: -)
+        0x01, 0x00, 0x00, 0x00,         // Count (0x00000001)
+        0x34, 0x12, 0x00, 0x00,
+    };
+    std::vector<std::uint8_t> mockDataNonExistantTag = {
+        0xff, 0xff,                     // Tag (0xffff: -)
+        0x04, 0x00,                     // Type (0x0004: LONG)
+        0x01, 0x00, 0x00, 0x00,         // Count (0x00000001)
+        0x34, 0x12, 0x00, 0x00,
+    };
+    std::vector<std::uint8_t> mockDataInvalidCount = {
+        0x69, 0x87,                     // Tag (0x8769: Exif IFD Pointer)
+        0x04, 0x00,                     // Type (0x0004: LONG)
+        0x00, 0x00, 0x00, 0x00,         // Count (0x00000000)
+        0x34, 0x12, 0x00, 0x00,
     };
     //
     std::vector<std::uint8_t> checkValueByte = {0x12, 0x34, 0x56, 0x78};
@@ -472,6 +490,18 @@ TEST(IFDReaderTest, GetIFDValue) {
     EXPECT_EQ(sratValue.slong1, checkValueSRational.slong1);
     EXPECT_EQ(sratValue.slong2, checkValueSRational.slong2);
     EXPECT_EQ(value.tag.tag, checkTagSRational);
+
+    // Invalid Type
+    result = reader.getIFDValue(0, enEndian::littleEndian, mockDataInvaidType, value);
+    EXPECT_FALSE(result);
+
+    // Non-Existant Tag
+    result = reader.getIFDValue(0, enEndian::littleEndian, mockDataNonExistantTag, value);
+    EXPECT_FALSE(result);
+
+    // Invalid Count value
+    result = reader.getIFDValue(0, enEndian::littleEndian, mockDataInvalidCount, value);
+    EXPECT_FALSE(result);
 }
 
 /*

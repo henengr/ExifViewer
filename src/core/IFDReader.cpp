@@ -23,6 +23,7 @@ bool IFDReader::getIFDValueByte(const std::uint16_t tag, const std::uint32_t off
         iCount = valueConverter::swapUInt32(iCount);
     }
     if (tag != iTag) return false;
+    if (iCount == 0) return false;
     if (iType != static_cast<std::uint16_t>(enIFDType::BYTE)) return false;
     if (iOffset + iCount > data.size()) return false;
     //
@@ -67,6 +68,7 @@ bool IFDReader::getIFDValueAscii(const std::uint16_t tag, const std::uint32_t of
         iCount = valueConverter::swapUInt32(iCount);
     }
     if (tag != iTag) return false;
+    if (iCount == 0) return false;
     if (iType != static_cast<std::uint16_t>(enIFDType::ASCII)) return false;
     if (iOffset + iCount > data.size()) return false;
     //
@@ -115,6 +117,7 @@ bool IFDReader::getIFDValueShort(const std::uint16_t tag, const std::uint32_t of
         iCount = valueConverter::swapUInt32(iCount);
     }
     if (tag != iTag) return false;
+    if (iCount == 0) return false;
     if (iType != static_cast<std::uint16_t>(enIFDType::SHORT)) return false;
     if (iOffset + iCount * 2 > data.size()) return false;
     //
@@ -167,6 +170,7 @@ bool IFDReader::getIFDValueLong(const std::uint16_t tag, const std::uint32_t off
         iCount = valueConverter::swapUInt32(iCount);
     }
     if (tag != iTag) return false;
+    if (iCount == 0) return false;
     if (iType != static_cast<std::uint16_t>(enIFDType::LONG)) return false;
     if (iOffset + iCount * 4 > data.size()) return false;
     //
@@ -227,6 +231,7 @@ bool IFDReader::getIFDValueRational(const std::uint16_t tag, const std::uint32_t
         iCount = valueConverter::swapUInt32(iCount);
     }
     if (tag != iTag) return false;
+    if (iCount == 0) return false;
     if (iType != static_cast<std::uint16_t>(enIFDType::RATIONAL)) return false;
     if (iOffset + iCount * 8 > data.size()) return false;
     //
@@ -284,6 +289,7 @@ bool IFDReader::getIFDValueUndefined(const std::uint16_t tag, const std::uint32_
         iCount = valueConverter::swapUInt32(iCount);
     }
     if (tag != iTag) return false;
+    if (iCount == 0) return false;
     if (iType != static_cast<std::uint16_t>(enIFDType::UNDEFINED)) return false;
     if (iOffset + iCount > data.size()) return false;
     //
@@ -330,6 +336,7 @@ bool IFDReader::getIFDValueSLong(const std::uint16_t tag, const std::uint32_t of
         iCount = valueConverter::swapUInt32(iCount);
     }
     if (tag != iTag) return false;
+    if (iCount == 0) return false;
     if (iType != static_cast<std::uint16_t>(enIFDType::SLONG)) return false;
     if (iOffset + iCount * 4 > data.size()) return false;
     //
@@ -390,6 +397,7 @@ bool IFDReader::getIFDValueSRational(const std::uint16_t tag, const std::uint32_
         iCount = valueConverter::swapUInt32(iCount);
     }
     if (tag != iTag) return false;
+    if (iCount == 0) return false;
     if (iType != static_cast<std::uint16_t>(enIFDType::SRATIONAL)) return false;
     if (iOffset + iCount * 8 > data.size()) return false;
     //
