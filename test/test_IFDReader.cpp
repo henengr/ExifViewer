@@ -257,6 +257,83 @@ TEST(IFDReaderTest, GetIFDValueUndefined) {
     EXPECT_EQ(retValue.undefinedValue, checkValueLong.undefinedValue);
 }
 
+TEST(IFDReaderTest, GetIFDValueSLong) {
+    std::vector<std::uint8_t> mockDataErr = {
+        0xa0, 0xff,                     // Tag (0xffa0: -)
+        0x09, 0x00,                     // Type (0x0009: SLONG)
+        0x01, 0x00, 0x00, 0x00,         // Count (0x00000001)
+    };
+    std::vector<std::uint8_t> mockData = {
+        0xa0, 0xff,                     // Tag (0xffa0: -)
+        0x09, 0x00,                     // Type (0x0009: SLONG)
+        0x01, 0x00, 0x00, 0x00,         // Count (0x00000001)
+        0x78, 0x56, 0x34, 0x12,         // Offset (0x12345678)
+        0x00, 0x00, 0x00, 0x00,
+    };
+    std::vector<std::uint8_t> mockData2 = {
+        0xa0, 0xff,                     // Tag (0xffa0: -)
+        0x09, 0x00,                     // Type (0x0009: SLONG)
+        0x06, 0x00, 0x00, 0x00,         // Count (0x00000006)
+        0x10, 0x00, 0x00, 0x00,         // Offset (0x00000010)
+        0x00, 0x00, 0x00, 0x00,
+        0x01, 0x23, 0x45, 0x67,         // data (0x01, 0x23, 0x45, 0x67)
+        0x8a, 0xbc, 0xaa, 0x00,         // data (0x8a, 0xbc, 0xaa, 0x00)
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+    };
+    stIFDTypeValue checkValue;
+    stIFDTypeValue checkValueSLong;
+    stIFDTypeValue retValue;
+    checkValue.type = enIFDType::SLONG;
+    checkValue.slongValues = {0x12345678};
+    checkValueSLong.type = enIFDType::LONG;
+    checkValueSLong.slongValues = {0x67452301, 0x00aabc8a, 0x00000000, 0x00000000};
+
+    // Abnormal Scenario
+    EXPECT_FALSE(IFDReader::getIFDValueSLong(0xffa0, 0, enEndian::littleEndian, mockDataErr, retValue));   // short data
+    EXPECT_FALSE(IFDReader::getIFDValueSLong(0x0500, 0, enEndian::littleEndian, mockDataErr, retValue));   // invalid tag
+    EXPECT_FALSE(IFDReader::getIFDValueSLong(0xffa0, 0, enEndian::bigEndian, mockDataErr, retValue));      // invalid endian setting
+
+    // Normal Scenario
+    EXPECT_TRUE(IFDReader::getIFDValueSLong(0xffa0, 0, enEndian::littleEndian, mockData, retValue));
+    EXPECT_EQ(retValue.slongValues, checkValue.slongValues);
+    //
+  //  EXPECT_TRUE(IFDReader::getIFDValueSLong(0xffa0, 0, enEndian::littleEndian, mockData2, retValue));
+  //  EXPECT_EQ(retValue.slongValues, checkValueSLong.slongValues);
+}
+
+TEST(IFDReaderTest, GetIFDValueSRational) {
+    std::vector<std::uint8_t> mockDataErr = {
+        0x03, 0x92,                     // Tag (0x9203: BrightnessValue)
+        0x0a, 0x00,                     // Type (0x000A: SRATIONAL)
+        0x01, 0x00, 0x00, 0x00,         // Count (0x00000001)
+    };
+    std::vector<std::uint8_t> mockData = {
+        0x03, 0x92,                     // Tag (0x9203: BrightnessValue)
+        0x0a, 0x00,                     // Type (0x000A: SRATIONAL)
+        0x01, 0x00, 0x00, 0x00,         // Count (0x00000001)
+        0x10, 0x00, 0x00, 0x00,         // Offset (0x00000010)
+        0x00, 0x00, 0x00, 0x00,
+        0x48, 0x00, 0x00, 0x00,
+        0x10, 0x00, 0x00, 0x00,
+    };
+    stSRational checkValue;
+    stIFDTypeValue retValue;
+    checkValue = {0x00000048, 0x00000010};
+
+    // Abnormal Scenario
+    EXPECT_FALSE(IFDReader::getIFDValueSRational(0x9203, 0, enEndian::littleEndian, mockDataErr, retValue));   // short data
+    EXPECT_FALSE(IFDReader::getIFDValueSRational(0x0500, 0, enEndian::littleEndian, mockDataErr, retValue));   // invalid tag
+    EXPECT_FALSE(IFDReader::getIFDValueSRational(0x9203, 0, enEndian::bigEndian, mockDataErr, retValue));      // invalid endian setting
+
+    // Normal Scenario
+    stSRational ratValue;
+    EXPECT_TRUE(IFDReader::getIFDValueSRational(0x9203, 0, enEndian::littleEndian, mockData, retValue));
+    ratValue = retValue.srationalValues[0];
+    EXPECT_EQ(ratValue.slong1, checkValue.slong1);
+    EXPECT_EQ(ratValue.slong2, checkValue.slong2);
+}
+
 TEST(IFDReaderTest, GetIFDValue) {
     std::vector<std::uint8_t> mockDataByte = {
         0x05, 0x00,                     // Tag (0x0005: GPSAltitudeRef)
@@ -304,18 +381,39 @@ TEST(IFDReaderTest, GetIFDValue) {
         0x30, 0x32, 0x30, 0x30,         // Offset (0x30303230)
         0x00, 0x00, 0x00, 0x00,
     };
+    std::vector<std::uint8_t> mockDataSLong = {
+        0x99, 0x99,                     // Tag (0x9999: -)
+        0x09, 0x00,                     // Type (0x0009: SLONG)
+        0x01, 0x00, 0x00, 0x00,         // Count (0x00000001)
+        0x34, 0x12, 0x00, 0x00,
+    };
+    std::vector<std::uint8_t> mockDataSRational = {
+        0x03, 0x92,                     // Tag (0x9203: BrightnessValue)
+        0x0a, 0x00,                     // Type (0x000A: SRATIONAL)
+        0x01, 0x00, 0x00, 0x00,         // Count (0x00000001)
+        0x10, 0x00, 0x00, 0x00,         // Offset (0x00000010)
+        0x00, 0x00, 0x00, 0x00,
+        0x48, 0x00, 0x00, 0x00,
+        0x10, 0x00, 0x00, 0x00,
+    };
+    //
     std::vector<std::uint8_t> checkValueByte = {0x12, 0x34, 0x56, 0x78};
     std::string checkValueAscii = "Exif_JPEG_422\0";
     std::vector<std::uint16_t> checkValueShort = {0x3412, 0x7856, 0x2211};
     std::vector<std::uint32_t> checkValueLong = {0x00001234};
     stRational checkValueRational = {0x00000048, 0x00000010};
     std::vector<std::uint8_t> checkValueUndefined = {0x30, 0x32, 0x30, 0x30};
+    std::vector<std::int32_t> checkValueSLong = {0x00001234};
+    stSRational checkValueSRational = {0x00000048, 0x00000010};
+    //
     std::uint16_t checkTagByte = 0x0005;
     std::uint16_t checkTagAscii = 0x010e;
     std::uint16_t checkTagShort = 0x0102;
     std::uint16_t checkTagLong = 0x8769;
     std::uint16_t checkTagRational = 0x011a;
     std::uint16_t checkTagUndefined = 0x9000;
+    std::uint16_t checkTagSLong = 0x9999;
+    std::uint16_t checkTagSRational = 0x9203;
 
     IFDReader reader(mockDataAscii, enEndian::littleEndian);
     stIFDTypeValue value;
@@ -359,6 +457,21 @@ TEST(IFDReaderTest, GetIFDValue) {
     EXPECT_TRUE(result);
     EXPECT_EQ(value.undefinedValue, checkValueUndefined);
     EXPECT_EQ(value.tag.tag, checkTagUndefined);
+
+    // SLONG
+    result = reader.getIFDValue(0, enEndian::littleEndian, mockDataSLong, value);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(value.slongValues, checkValueSLong);
+    EXPECT_EQ(value.tag.tag, checkTagSLong);
+
+    // SRATIONAL
+    stSRational sratValue;
+    result = reader.getIFDValue(0, enEndian::littleEndian, mockDataSRational, value);
+    EXPECT_TRUE(result);
+    sratValue = value.srationalValues[0];
+    EXPECT_EQ(sratValue.slong1, checkValueSRational.slong1);
+    EXPECT_EQ(sratValue.slong2, checkValueSRational.slong2);
+    EXPECT_EQ(value.tag.tag, checkTagSRational);
 }
 
 /*

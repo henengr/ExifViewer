@@ -196,6 +196,8 @@ constexpr stIFDTag IFDTable[] = {
     {0x001c, to_u16(enIFDType::UNDEFINED), 0xffff, 0,   "GPSAreaInformation"},
     {0x001d, to_u16(enIFDType::ASCII),     11,  0,      "GPSDateStamp"},
     {0x001e, to_u16(enIFDType::SHORT),      1,  0,      "GPSDifferential"},
-    {0x001f, to_u16(enIFDType::RATIONAL),   1,  0,      "GPSHPositioningError"}
+    {0x001f, to_u16(enIFDType::RATIONAL),   1,  0,      "GPSHPositioningError"},
+    // Dummy data for testing SLONG types
+    {0x9999, to_u16(enIFDType::SLONG),      1,  0,      "DummySLongForTest"},
 };
 

@@ -19,6 +19,8 @@ private:
     FRIEND_TEST(IFDReaderTest, GetIFDValueLong);
     FRIEND_TEST(IFDReaderTest, GetIFDValueRational);
     FRIEND_TEST(IFDReaderTest, GetIFDValueUndefined);
+    FRIEND_TEST(IFDReaderTest, GetIFDValueSLong);
+    FRIEND_TEST(IFDReaderTest, GetIFDValueSRational);
     static bool getIFDValueByte(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
                 const std::vector<std::uint8_t> &data, stIFDTypeValue &value);
     static bool getIFDValueAscii(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
@@ -30,6 +32,10 @@ private:
     static bool getIFDValueRational(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
                 const std::vector<std::uint8_t> &data, stIFDTypeValue &value);
     static bool getIFDValueUndefined(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
+                const std::vector<std::uint8_t> &data, stIFDTypeValue &value);
+    static bool getIFDValueSLong(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
+                const std::vector<std::uint8_t> &data, stIFDTypeValue &value);
+    static bool getIFDValueSRational(const std::uint16_t tag, const std::uint32_t offset, const enEndian endian,
                 const std::vector<std::uint8_t> &data, stIFDTypeValue &value);
 
     FRIEND_TEST(IFDReaderTest, GetIFDValue);
