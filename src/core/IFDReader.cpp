@@ -434,7 +434,7 @@ bool IFDReader::getIFDValueSRational(const std::uint16_t tag, const std::uint32_
     return true;
 };
 
-bool IFDReader::getIFDValue(const std::uint32_t offset, const enEndian endian, std::vector<std::uint8_t> &data, 
+bool IFDReader::getIFDValue(const std::uint32_t offset, const enEndian endian, const std::vector<std::uint8_t> &data, 
         stIFDTypeValue &value){
     std::uint32_t iOffset = offset;
     bool found = false;
@@ -500,6 +500,15 @@ bool IFDReader::getIFDValue(const std::uint32_t offset, const enEndian endian, s
     return found;
 }
 
+/*
+bool IFDReader::getIFDValue(const std::uint32_t offset, const enEndian endian, const std::vector<std::uint8_t> &data,
+        stIFDTypeValue &value){
+    for (std::uint16_t i = 0x0000; i <= 0xffff; i++){
+
+    }
+    return true;
+}
+*/
 
 bool IFDReader::getIFDValues(const std::uint32_t offset, std::vector<stIFDTypeValue> &values){
     const std::uint16_t APP1HeaderSize = sizeof(stAPP1::TIFFByteOrder) + sizeof(stAPP1::TIFFIdentifier) +
@@ -511,17 +520,17 @@ bool IFDReader::getIFDValues(const std::uint32_t offset, std::vector<stIFDTypeVa
     if (enendian == enEndian::littleEndian) numOfEntries = valueConverter::swapUInt16(numOfEntries);
     iOffset += sizeof(numOfEntries);
     //
-    stIFDTypeValue value;
     std::uint32_t iExifIFDPtr = 0;
     std::uint32_t iGPSIFDPtr = 0;
     stIFDTag ifd;
     for (std::uint16_t i = 0; i < numOfEntries; i++){
+        stIFDTypeValue value;
         bool res = getIFDValue(iOffset, enendian, ardata, value);
         if (!res) continue;
         values.push_back(value);
-        if (ifd.tag == 0x8769 && ifd.type == to_u16(enIFDType::LONG) && value.longValues.size() > 0)
+        if (ifd.tag == IFDTAG_ExifIFDPointer && ifd.type == to_u16(enIFDType::LONG) && value.longValues.size() > 0)
                 iExifIFDPtr = value.longValues[0];      // Exif IFD Pointer
-        if (ifd.tag == 0x8825 && ifd.type == to_u16(enIFDType::LONG) && value.longValues.size() > 0)
+        if (ifd.tag == IFDTAG_GPSInfoIFDPointer && ifd.type == to_u16(enIFDType::LONG) && value.longValues.size() > 0)
                 iGPSIFDPtr = value.longValues[0];       // GPS IFD Pointer
         // move to next IFD
         iOffset += sizeof(std::uint16_t) + sizeof(std::uint16_t) + sizeof(std::uint32_t) + sizeof(std::uint32_t);

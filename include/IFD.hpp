@@ -51,6 +51,9 @@ constexpr std::uint16_t to_u16(enIFDType t){
     return static_cast<std::uint16_t>(t);
 }
 
+constexpr std::uint16_t IFDTAG_ExifIFDPointer = 0x8769;
+constexpr std::uint16_t IFDTAG_GPSInfoIFDPointer = 0x8825;
+
 constexpr stIFDTag IFDTable[] = {
     // Tags related to image composition
     {0x8769, to_u16(enIFDType::LONG),       1,  0,      "Exif IFD Pointer"},
