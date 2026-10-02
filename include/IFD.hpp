@@ -26,6 +26,13 @@ struct stSRational {
     std::int32_t slong2;
 };
 
+struct stIFD {
+    std::uint16_t       tag;
+    std::uint16_t       type;
+    std::uint32_t       count;
+    std::vector<std::uint8_t> data;
+};
+
 struct stIFDTag {
     std::uint16_t       tag;
     std::uint16_t       type;
