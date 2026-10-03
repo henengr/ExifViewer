@@ -16,16 +16,6 @@ enum class enIFDType: std::uint16_t {
     SRATIONAL,          // 2 of 16-bit signed integer - The first value represents the numerator, and the second value represents the denominator.
 };
 
-struct stRational {
-    std::uint32_t long1;
-    std::uint32_t long2;
-};
-
-struct stSRational {
-    std::int32_t slong1;
-    std::int32_t slong2;
-};
-
 struct stIFDTag {
     std::uint16_t       tag;
     std::uint16_t       type;
@@ -34,18 +24,6 @@ struct stIFDTag {
     const char*         description;
 };
 
-struct stIFDTypeValue {
-    enIFDType                   type;
-    stIFDTag                    tag;
-    std::vector<std::uint8_t>   byteValues;
-    std::string                 asciiValue;
-    std::vector<std::uint16_t>  shortValues;
-    std::vector<std::uint32_t>  longValues;
-    std::vector<stRational>     rationalValues;
-    std::vector<std::uint8_t>   undefinedValue;
-    std::vector<std::int32_t>   slongValues;
-    std::vector<stSRational>    srationalValues;
-};
 
 constexpr std::uint16_t to_u16(enIFDType t){
     return static_cast<std::uint16_t>(t);
