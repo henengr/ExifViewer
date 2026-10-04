@@ -50,15 +50,19 @@ private:
     std::vector<std::uint8_t> &ardata;
     enEndian enendian;
 
-    FRIEND_TEST(IFDReaderTest, readIFDByte);
-    FRIEND_TEST(IFDReaderTest, readIFDShort);
-    FRIEND_TEST(IFDReaderTest, readIFDLong);
-    FRIEND_TEST(IFDReaderTest, readIFDRational);
+    FRIEND_TEST(IFDReaderTest, readIFDByte);            // BYTE, ASCII, UNDEFINED
+    FRIEND_TEST(IFDReaderTest, readIFDShort);           // SHORT
+    FRIEND_TEST(IFDReaderTest, readIFDLong);            // LONG, SLONG
+    FRIEND_TEST(IFDReaderTest, readIFDRational);        // RATIONAL, SRATIONAL
     static std::int32_t readIFD(const std::uint32_t offset, const enEndian endian, const std::vector<std::uint8_t> &data, stIFD &ifd);
 
-    FRIEND_TEST(IFDReaderTest, getVariantIFDByte);
-    FRIEND_TEST(IFDReaderTest, getVariantIFDAscii);
-    FRIEND_TEST(IFDReaderTest, getVariantIFDShort);
+    FRIEND_TEST(IFDReaderTest, getVariantIFDByte);      // BYTE, UNDEFINED
+    FRIEND_TEST(IFDReaderTest, getVariantIFDAscii);     // ASCII
+    FRIEND_TEST(IFDReaderTest, getVariantIFDShort);     // SHORT
+    FRIEND_TEST(IFDReaderTest, getVariantIFDLong);      // LONG
+    FRIEND_TEST(IFDReaderTest, getVariantIFDRational);  // RATIONAL
+    FRIEND_TEST(IFDReaderTest, getVariantIFDSLong);     // SLONG
+    FRIEND_TEST(IFDReaderTest, getVariantIFDSRational); // SRATIONAL
     static bool getVariantIFD(const stIFD &ifd, const enEndian endian, stIFDValue &value);
 protected:
 public:

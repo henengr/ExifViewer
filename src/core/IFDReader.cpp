@@ -107,7 +107,6 @@ bool IFDReader::getVariantIFD(const stIFD &ifd, const enEndian endian, stIFDValu
     }
     if (ifd.type == static_cast<std::uint16_t>(enIFDType::SHORT)){
         std::vector<std::uint16_t> vals;
-        //for (std::uint32_t i = 0; i < ifd.count; i++){
         for (std::uint32_t i = 0; i + 1< ifd.data.size(); i += 2){
             std::uint16_t val = (static_cast<std::uint16_t>(ifd.data[i]) << 8) | ifd.data[i + 1];
             if (endian == enEndian::littleEndian) val = valueConverter::swapUInt16(val);
@@ -140,34 +139,34 @@ bool IFDReader::getVariantIFD(const stIFD &ifd, const enEndian endian, stIFDValu
     if (ifd.type == static_cast<std::uint16_t>(enIFDType::RATIONAL)){
         std::vector<stRational> vals;
         for (std::uint32_t i = 0; i + 7 < ifd.data.size(); i += 8) {
-            std::uint32_t num = (static_cast<std::uint32_t>(ifd.data[i]) << 24) |
+            std::uint32_t l1 = (static_cast<std::uint32_t>(ifd.data[i]) << 24) |
                                 (static_cast<std::uint32_t>(ifd.data[i + 1]) << 16) |
                                 (static_cast<std::uint32_t>(ifd.data[i + 2]) << 8) | ifd.data[i + 3];
-            std::uint32_t den = (static_cast<std::uint32_t>(ifd.data[i + 4]) << 24) |
+            std::uint32_t l2 = (static_cast<std::uint32_t>(ifd.data[i + 4]) << 24) |
                                 (static_cast<std::uint32_t>(ifd.data[i + 5]) << 16) |
                                 (static_cast<std::uint32_t>(ifd.data[i + 6]) << 8) | ifd.data[i + 7];
             if (endian == enEndian::littleEndian) {
-                num = valueConverter::swapUInt32(num);
-                den = valueConverter::swapUInt32(den);
+                l1 = valueConverter::swapUInt32(l1);
+                l2 = valueConverter::swapUInt32(l2);
             }
-            vals.push_back(stRational{num, den});
+            vals.push_back(stRational{l1, l2});
         }
         value.values = vals;
     }
-    else if (ifd.type == static_cast<std::uint16_t>(enIFDType::RATIONAL)){
+    else if (ifd.type == static_cast<std::uint16_t>(enIFDType::SRATIONAL)){
         std::vector<stSRational> vals;
         for (std::uint32_t i = 0; i + 7 < ifd.data.size(); i += 8) {
-            std::uint32_t num = (static_cast<std::uint32_t>(ifd.data[i]) << 24) |
+            std::uint32_t l1 = (static_cast<std::uint32_t>(ifd.data[i]) << 24) |
                                 (static_cast<std::uint32_t>(ifd.data[i + 1]) << 16) |
                                 (static_cast<std::uint32_t>(ifd.data[i + 2]) << 8) | ifd.data[i + 3];
-            std::uint32_t den = (static_cast<std::uint32_t>(ifd.data[i + 4]) << 24) |
+            std::uint32_t l2 = (static_cast<std::uint32_t>(ifd.data[i + 4]) << 24) |
                                 (static_cast<std::uint32_t>(ifd.data[i + 5]) << 16) |
                                 (static_cast<std::uint32_t>(ifd.data[i + 6]) << 8) | ifd.data[i + 7];
             if (endian == enEndian::littleEndian) {
-                num = valueConverter::swapUInt32(num);
-                den = valueConverter::swapUInt32(den);
+                l1 = valueConverter::swapUInt32(l1);
+                l2 = valueConverter::swapUInt32(l2);
             }
-            vals.push_back(stSRational{static_cast<std::int32_t>(num), static_cast<std::int32_t>(den)});
+            vals.push_back(stSRational{static_cast<std::int32_t>(l1), static_cast<std::int32_t>(l2)});
         }
         value.values = vals;
     }

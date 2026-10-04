@@ -222,9 +222,73 @@ TEST(IFDReaderTest, getVariantIFDShort){
         0x00000005,     // Count (0x00000005)
         {0x01, 0x23, 0x45, 0x67, 0x8a, 0xbc, 0x00, 0x00, 0x00, 0x00}
     };
-    std::vector<uint16_t> checkVal = {0x2301, 0x6745, 0xbc8a, 0x0000, 0x0000};
+    std::vector<std::uint16_t> checkVal = {0x2301, 0x6745, 0xbc8a, 0x0000, 0x0000};
 
     stIFDValue retVal;
     EXPECT_TRUE(IFDReader::getVariantIFD(ifd, enEndian::littleEndian, retVal));
     EXPECT_EQ(std::get<std::vector<std::uint16_t>>(retVal.values), checkVal);
+}
+
+TEST(IFDReaderTest, getVariantIFDLong){
+    stIFD ifd = {
+        0x0116,     // Tag (0x0112: RowsPerStrip)
+        0x0004,     // Type (0x0004: LONG)
+        0x00000004,     // Count (0x00000004)
+        {0x01, 0x23, 0x45, 0x67, 0x8a, 0xbc, 0xaa, 0xbb, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+    };
+    std::vector<std::uint32_t> checkVal = {0x67452301, 0xbbaabc8a, 0x00000000, 0x00000000};
+
+    stIFDValue retVal;
+    EXPECT_TRUE(IFDReader::getVariantIFD(ifd, enEndian::littleEndian, retVal));
+    EXPECT_EQ(std::get<std::vector<std::uint32_t>>(retVal.values), checkVal);
+}
+
+TEST(IFDReaderTest, getVariantIFDRational){
+    stIFD ifd = {
+        0x011a,     // Tag (0x011a: XResolution)
+        0x0005,     // Type (0x0005: RATIONAL)
+        0x00000001,     // Count (0x00000001)
+        {0x48, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00}
+    };
+    std::vector<stRational> checkVal = {{0x00000048, 0x0000010}};
+    stRational chkVal = checkVal[0];
+
+    stIFDValue retVal;
+    stRational ratVal;
+    EXPECT_TRUE(IFDReader::getVariantIFD(ifd, enEndian::littleEndian, retVal));
+    ratVal = std::get<std::vector<stRational>>(retVal.values)[0];
+    EXPECT_EQ(ratVal.long1, chkVal.long1);
+    EXPECT_EQ(ratVal.long2, chkVal.long2);
+}
+
+TEST(IFDReaderTest, getVariantIFDSLong){
+    stIFD ifd = {
+        0xffa0,     // Tag (0xffa0: -)
+        0x0009,     // Type (0x0009: SLONG)
+        0x00000004,     // Count (0x00000004)
+        {0x01, 0x23, 0x45, 0x67, 0x8a, 0xbc, 0xaa, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+    };
+    std::vector<std::int32_t> checkVal = {0x67452301, 0x00aabc8a, 0x00000000, 0x00000000};
+
+    stIFDValue retVal;
+    EXPECT_TRUE(IFDReader::getVariantIFD(ifd, enEndian::littleEndian, retVal));
+    EXPECT_EQ(std::get<std::vector<std::int32_t>>(retVal.values), checkVal);
+}
+
+TEST(IFDReaderTest, getVariantIFDSRational){
+    stIFD ifd = {
+        0x9203,     // Tag (0x9203: BrightnessValue)
+        0x000a,     // Type (0x000a: SRATIONAL)
+        0x00000001,     // Count (0x00000001)
+        {0x48, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00}
+    };
+    std::vector<stSRational> checkVal = {{0x00000048, 0x0000010}};
+    stSRational chkVal = checkVal[0];
+
+    stIFDValue retVal;
+    stSRational ratVal;
+    EXPECT_TRUE(IFDReader::getVariantIFD(ifd, enEndian::littleEndian, retVal));
+    ratVal = std::get<std::vector<stSRational>>(retVal.values)[0];
+    EXPECT_EQ(ratVal.slong1, chkVal.slong1);
+    EXPECT_EQ(ratVal.slong2, chkVal.slong2);
 }
