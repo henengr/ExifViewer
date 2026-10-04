@@ -24,26 +24,34 @@ struct stIFD {
     std::uint16_t       tag;
     std::uint16_t       type;
     std::uint32_t       count;
+    std::string         description;
     std::vector<std::uint8_t> data;
 };
 
+using variantIFD = std::variant<
+    std::vector<std::uint8_t>,      // BYTE, UNDEFINED
+    std::string,                    // ASCII
+    std::vector<std::uint16_t>,     // SHORT
+    std::vector<std::uint32_t>,     // LONG
+    std::vector<stRational>,        // RATIONAL
+    std::vector<std::int32_t>,      // SLONG
+    std::vector<stSRational>        // SRATIONAL
+>;
 struct stIFDValue {
     stIFDTag            IFD;
-    std::variant<
-        std::vector<std::uint8_t>,      // BYTE
-        std::string,                    // ASCII, UNDEFINED
-        std::vector<std::uint16_t>,     // SHORT
-        std::vector<std::uint32_t>,     // LONG
-        std::vector<stRational>,        // RATIONAL
-        std::vector<std::int32_t>,      // SLONG
-        std::vector<stSRational>        // SRATIONAL
-    > values;
+    variantIFD          values;
 };
 
 constexpr std::int32_t IFDREADER_INVALID_IFD_SIZE                           = -1;
 constexpr std::int32_t IFDREADER_INVALID_VALUE_LONGER_THAN_FOURBYTE_SIZE    = -2;
 
+constexpr std::int32_t IFDREADER_INVALID_ENDIAN_SETTING                     = -8;
+constexpr std::int32_t IFDREADER_INVALID_HEADER42_VALUE                     = -9;
+constexpr std::int32_t IFDREADER_INVALID_NUM_OF_IFDS                        = -10;
+
+
 constexpr const char* const IFD_UNKNOWN_TAG   = "???";
+
 
 class IFDReader {
 private:
@@ -56,18 +64,22 @@ private:
     FRIEND_TEST(IFDReaderTest, readIFDRational);        // RATIONAL, SRATIONAL
     static std::int32_t readIFD(const std::uint32_t offset, const enEndian endian, const std::vector<std::uint8_t> &data, stIFD &ifd);
 
-    FRIEND_TEST(IFDReaderTest, getVariantIFDByte);      // BYTE, UNDEFINED
+/*    FRIEND_TEST(IFDReaderTest, getVariantIFDByte);      // BYTE, UNDEFINED
     FRIEND_TEST(IFDReaderTest, getVariantIFDAscii);     // ASCII
     FRIEND_TEST(IFDReaderTest, getVariantIFDShort);     // SHORT
     FRIEND_TEST(IFDReaderTest, getVariantIFDLong);      // LONG
     FRIEND_TEST(IFDReaderTest, getVariantIFDRational);  // RATIONAL
     FRIEND_TEST(IFDReaderTest, getVariantIFDSLong);     // SLONG
-    FRIEND_TEST(IFDReaderTest, getVariantIFDSRational); // SRATIONAL
-    static bool getVariantIFD(const stIFD &ifd, const enEndian endian, stIFDValue &value);
+    FRIEND_TEST(IFDReaderTest, getVariantIFDSRational); // SRATIONAL*/
+
+    FRIEND_TEST(IFDReaderTest, readIFDs);
+    static std::int32_t readIFDs(const std::uint32_t offset, const std::vector<std::uint8_t> &data, std::vector<stIFD> &ifds);
 protected:
 public:
     IFDReader(std::vector<std::uint8_t> &data, const enEndian endian = enEndian::littleEndian):
         ardata(data), enendian(endian){}
     virtual ~IFDReader(){}
+    static bool getVariantIFD(const stIFD &ifd, const enEndian endian, stIFDValue &value);
+    std::int32_t readIFDs(std::vector<stIFD> &ifds);
 };
 
