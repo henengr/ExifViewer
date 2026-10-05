@@ -64,14 +64,6 @@ private:
     FRIEND_TEST(IFDReaderTest, readIFDRational);        // RATIONAL, SRATIONAL
     static std::int32_t readIFD(const std::uint32_t offset, const enEndian endian, const std::vector<std::uint8_t> &data, stIFD &ifd);
 
-/*    FRIEND_TEST(IFDReaderTest, getVariantIFDByte);      // BYTE, UNDEFINED
-    FRIEND_TEST(IFDReaderTest, getVariantIFDAscii);     // ASCII
-    FRIEND_TEST(IFDReaderTest, getVariantIFDShort);     // SHORT
-    FRIEND_TEST(IFDReaderTest, getVariantIFDLong);      // LONG
-    FRIEND_TEST(IFDReaderTest, getVariantIFDRational);  // RATIONAL
-    FRIEND_TEST(IFDReaderTest, getVariantIFDSLong);     // SLONG
-    FRIEND_TEST(IFDReaderTest, getVariantIFDSRational); // SRATIONAL*/
-
     FRIEND_TEST(IFDReaderTest, readIFDs);
     static std::int32_t readIFDs(const std::uint32_t offset, const std::vector<std::uint8_t> &data, std::vector<stIFD> &ifds);
 protected:

@@ -3,8 +3,13 @@
 #include <cstdint>
 #include <iostream>
 #include <fstream>
+#include <gtest/gtest_prod.h>
 
+#include "FileReader.hpp"
 #include "JFIF.hpp"
+
+
+constexpr std::int32_t JPEGREADER_INVALID_FILE_SIZE                 = -1;
 
 class valueConverter {
 public:
@@ -24,22 +29,15 @@ enum class enEndian: std::uint8_t {
     bigEndian
 };
 
-class JPEGReader {
+class JPEGReader: public FileReader{
 private:
-    std::istream &stream;
-    enEndian endian;
+
+    FRIEND_TEST(JPEGReaderTest, readSegment);
+    static std::int32_t readSegment(std::uint16_t marker, std::istream &stream, std::vector<std::uint8_t> &data);
+
 protected:
 public:
-    JPEGReader(std::istream &ifs):stream(ifs), endian(enEndian::littleEndian) {}
+    explicit JPEGReader(){}
     virtual ~JPEGReader(){}
-    enEndian getEndian() const;
-
-    // Get current marker and doesn't seek the stream
-    bool getMarker(std::uint16_t &marker);
-    bool getLength(std::uint16_t &length);
-    bool readSegment(const std::uint16_t length, std::vector<std::uint8_t> &data);
-
-    bool getAPP0(const std::uint16_t length, stAPP0 &app0, const std::vector<std::uint8_t> data);
-    bool getAPP1(const std::uint16_t length, stAPP1 &app1, const std::vector<std::uint8_t> data);
 };
 

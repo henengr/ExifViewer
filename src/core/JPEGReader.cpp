@@ -44,7 +44,7 @@ std::uint32_t valueConverter::streamToUInt32(std::istream &ifs){
 }
 
 std::uint64_t valueConverter::streamToUInt64(std::istream &ifs){
-    uint64_t ret = 0LL;
+    uint64_t ret = 0ULL;
     ifs.read(reinterpret_cast<char*>(&ret), sizeof(ret));
     return ret;
 }
@@ -82,97 +82,49 @@ void valueConverter::dispDumb(std::vector<std::uint8_t> &data){
     std::cout.flags(f);
 }
 
+std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream, std::vector<std::uint8_t> &data){
+    std::uint8_t byte;
+    std::uint16_t mk;
+    std::uint16_t len;
 
-enEndian JPEGReader::getEndian() const {
-    return endian;
-}
+    stream.clear();
+    stream.seekg(0, std::ios::beg);
+    do {
+        stream.read(reinterpret_cast<char*>(&mk), sizeof(mk));
+        if (stream.gcount() < sizeof(mk) || stream.eof()){
+            return JPEGREADER_INVALID_FILE_SIZE;
+        }
+        mk = valueConverter::swapUInt16(mk);
 
-bool JPEGReader::getMarker(std::uint16_t &marker){
-    stream.read(reinterpret_cast<char*>(&marker), sizeof(marker));
-    marker = valueConverter::swapUInt16(marker);
-    return true;
-}
+        if (mk != marker) continue;
 
-bool JPEGReader::getLength(std::uint16_t &length){
-    stream.read(reinterpret_cast<char*>(&length), sizeof(length));
-    length = valueConverter::swapUInt16(length);
-    return true;
-}
+        // These segments have no length field or data
+        if (mk == static_cast<std::uint16_t>(enSegmentMarker::ByteStuffing) ||
+            mk == static_cast<std::uint16_t>(enSegmentMarker::SOI) || 
+            mk == static_cast<std::uint16_t>(enSegmentMarker::EOI) ||
+            mk == static_cast<std::uint16_t>(enSegmentMarker::TEM) ||
+            (mk >= static_cast<std::uint16_t>(enSegmentMarker::RST0) && mk <= static_cast<std::uint16_t>(enSegmentMarker::RST7))) {
+            data.clear();
+            return 0;
+        }
 
-bool JPEGReader::readSegment(const std::uint16_t length, std::vector<std::uint8_t> &data){
-    std::size_t readsize = length - 2;
-    data.resize(readsize);
-    stream.read(reinterpret_cast<char*>(data.data()), readsize);
-    return static_cast<std::size_t>(stream.gcount()) == readsize;
-}
+        stream.read(reinterpret_cast<char*>(&len), sizeof(len));
+        if (stream.gcount() < sizeof(len) || stream.eof()){
+            return JPEGREADER_INVALID_FILE_SIZE;
+        }
+        len = valueConverter::swapUInt16(len);
+        std::uint16_t payloadLen = len - sizeof(mk);
 
-bool JPEGReader::getAPP0(const std::uint16_t length, stAPP0 &app0, const std::vector<std::uint8_t> data){
-    std::size_t size = sizeof(app0.JFIFIdentifier) + sizeof(app0.version) + sizeof(app0.pixelConcentrationUnit) +
-        sizeof(app0.pixelConcentrationX) + sizeof(app0.pixelConcentrationY);
-    if (data.size() != length || data.size() < size) return false;
-    auto i = data.begin();
-    constexpr std::uint8_t JFIFMarker[] = {'J', 'F', 'I', 'F', 0x00};
-    //
-    size = sizeof(app0.JFIFIdentifier);
-    std::copy_n(i, size, app0.JFIFIdentifier);  // "JFIF\0"
-    app0.JFIFIdentifier[4] = 0;     // Forcefully assign 0
-    i += size;
-    bool isJFIF = std::equal(std::begin(app0.JFIFIdentifier), std::end(app0.JFIFIdentifier), std::begin(JFIFMarker));
-    if (!isJFIF) return false;
-    //
-    size = sizeof(app0.version);
-    std::copy_n(i, size, reinterpret_cast<char*>(&app0.version));
-    i += size;
-    //
-    size = sizeof(app0.pixelConcentrationUnit);
-    std::copy_n(i, size, reinterpret_cast<char*>(&app0.pixelConcentrationUnit));
-    i += size;
-    //
-    size = sizeof(app0.pixelConcentrationX);
-    std::copy_n(i, size, reinterpret_cast<char*>(&app0.pixelConcentrationX));
-    i += size;
-    //
-    size = sizeof(app0.pixelConcentrationY);
-    std::copy_n(i, size, reinterpret_cast<char*>(&app0.pixelConcentrationY));
-    i += size;
-    //
-    return true;
-}
+        if (payloadLen <= 0) return JPEGREADER_INVALID_FILE_SIZE;
 
-bool JPEGReader::getAPP1(const std::uint16_t length, stAPP1 &app1, const std::vector<std::uint8_t> data){
-    std::size_t size = sizeof(app1.ExifIdentifier) + sizeof(app1.TIFFByteOrder) + sizeof(app1.TIFFIdentifier) +
-        sizeof(app1.IFD0thOffset);
-    if (data.size() != length || data.size() < size) return false;
-    auto i = data.begin();
-    constexpr std::uint8_t ExifMarker[] = {'E', 'x', 'i', 'f', 0x00, 0x00};
-    //
-    size = sizeof(app1.ExifIdentifier);
-    std::copy_n(i, size, app1.ExifIdentifier);      // "Exif\0\0"
-    app1.ExifIdentifier[4] = 0;     // Forcefully assign 0
-    app1.ExifIdentifier[5] = 0;
-    i += size;
-    bool isJFIF = std::equal(std::begin(app1.ExifIdentifier), std::end(app1.ExifIdentifier), std::begin(ExifMarker));
-    if (!isJFIF) return false;
-    //
-    size = sizeof(app1.TIFFByteOrder);
-    std::copy_n(i, size, app1.TIFFByteOrder);
-    i += size;
-    if (app1.TIFFByteOrder[0] == 'M' && app1.TIFFByteOrder[1] == 'M')
-        endian = enEndian::bigEndian;
-    else if (app1.TIFFByteOrder[0] == 'I' && app1.TIFFByteOrder[1] == 'I')
-        endian = enEndian::littleEndian;
-    //
-    size = sizeof(app1.TIFFIdentifier);
-    std::copy_n(i, size, reinterpret_cast<char*>(&app1.TIFFIdentifier));
-    i += size;
-    //
-    size = sizeof(app1.IFD0thOffset);
-    std::copy_n(i, size, reinterpret_cast<char*>(&app1.IFD0thOffset));
-    i += size;
-    //
-    app1.IFDs.clear();
-    app1.IFDs.insert(app1.IFDs.end(), i, data.end());
-    //
-    return true;
+        data.resize(payloadLen);
+        stream.read(reinterpret_cast<char*>(data.data()), payloadLen);
+        if (stream.gcount() < payloadLen || stream.eof()){
+            return JPEGREADER_INVALID_FILE_SIZE;
+        }
+        break;
+    } while (!stream.eof());
+
+    return stream.gcount();
 }
 

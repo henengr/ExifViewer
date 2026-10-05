@@ -5,6 +5,7 @@
 
 
 enum class enSegmentMarker: std::uint16_t {
+    ByteStuffing = 0xff00,
     TEM         = 0xff01,
     SOC         = 0xff4f,
 	SIZ         = 0xff51,
@@ -95,33 +96,6 @@ struct stMarker {
     std::uint16_t       length;                     // 0002
 };
 
-/*
-// 0th IFD
-struct st0thIFD {
-    std::uint16_t       numOfEntities;
-    std::vector<std::uint8_t>   IFDs;
-    std::uint32_t       nextIFDOffset;
-    std::vector<std::uint8_t>   IFD0thLongerThan4Bytes;
-};
-
-// Exif IFD
-struct stExifIFD {
-    std::uint16_t       numOfExifIFDs;
-    std::vector<std::uint8_t>   ExifIFDs;
-    std::uint32_t       nextIFDOffset;
-    std::vector<std::uint8_t>   ExifIFDLongerThan4Bytes;
-};
-
-// 1st IFD
-struct st1stIFD {
-    std::uint16_t       numOfEntities;
-    std::vector<std::uint8_t>   IFDs;
-    std::uint32_t       nextIFDOffset;
-    std::vector<std::uint8_t>   IFD1stLongerThan4Bytes;
-    std::vector<std::uint8_t>   thumbnailData;
-};
-*/
-
 struct stAPP0 {
     std::uint8_t        JFIFIdentifier[5];          // 0004  "JFIF\0"
     std::uint16_t       version;                    // 0009
@@ -136,12 +110,9 @@ struct stAPP0 {
 
 struct stAPP1 {
     std::uint8_t        ExifIdentifier[6];          // 0004  "Exif\0\0"
-    std::uint8_t        TIFFByteOrder[2];           // 000a
+    std::uint8_t        TIFFByteOrder[2];           // 000a  "MM" / "II"
     std::uint16_t       TIFFIdentifier;             // 000b  0x002a(42)
     std::uint32_t       IFD0thOffset;               // 000d
-    //st0thIFD            IFD0th;                     // 0011
-    //stExifIFD           ExifIFD;
-    //st1stIFD            IFD1st;
     std::vector<std::uint8_t> IFDs;                 // 0011
 };
 

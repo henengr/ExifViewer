@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
     uint16_t length;
     vector<uint8_t> data;
     // SOI
-    pjpg->getMarker(marker);    // SOI
+/*    pjpg->getMarker(marker);    // SOI
     cout << "marker:" << std::hex << marker << endl;
 
     pjpg->getMarker(marker);    // APP0
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 
     }
 
-    file.close();
+    file.close();*/
     return 0;
 }
 
