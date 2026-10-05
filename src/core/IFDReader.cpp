@@ -28,7 +28,8 @@ std::int32_t IFDReader::readIFD(const std::uint32_t offset, const enEndian endia
     ifd.data.clear();
     if (ifd.type == static_cast<std::uint16_t>(enIFDType::BYTE) ||
         ifd.type == static_cast<std::uint16_t>(enIFDType::ASCII) ||
-        ifd.type == static_cast<std::uint16_t>(enIFDType::UNDEFINED)){
+        ifd.type == static_cast<std::uint16_t>(enIFDType::UNDEFINED) ||
+        ifd.type == static_cast<std::uint16_t>(enIFDType::UTF8)){
         if (ifd.count <= 4){
             auto is = data.begin() + iOffset;
             auto ie = is + ifd.count;
@@ -97,7 +98,8 @@ bool IFDReader::getVariantIFD(const stIFD &ifd, const enEndian endian, stIFDValu
         ifd.type == static_cast<std::uint16_t>(enIFDType::UNDEFINED)){
         value.values = ifd.data;
     }
-    if (ifd.type == static_cast<std::uint16_t>(enIFDType::ASCII)){
+    if (ifd.type == static_cast<std::uint16_t>(enIFDType::ASCII) ||
+        ifd.type == static_cast<std::uint16_t>(enIFDType::UTF8)){
         std::string str = "";
         for (std::uint32_t i = 0; i < ifd.count; i++){
             str += static_cast<char>(ifd.data[i]);

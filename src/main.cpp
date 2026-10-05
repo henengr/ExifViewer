@@ -24,32 +24,28 @@ int main(int argc, char **argv) {
     std::ifstream file(filePath, std::ios::binary);
     if (!file.is_open()){
         cout << "File could not be opened. :" << filePath.string() << endl;
+        return -1;
     }
 
     auto pjpg = std::make_unique<JPEGReader>(file);
 
-    uint16_t marker;
-    uint16_t length;
-    vector<uint8_t> data;
-    // SOI
-/*    pjpg->getMarker(marker);    // SOI
-    cout << "marker:" << std::hex << marker << endl;
+    std::int32_t ret;
+    enEndian endian;
+    stAPP1 app1;
 
-    pjpg->getMarker(marker);    // APP0
-    cout << "marker:" << std::hex << marker << endl;
-    pjpg->getLength(length);
-    cout << "length:" << std::hex << length << endl;
-    pjpg->readSegment(length, data);
+    ret = pjpg->readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP1));
+    if (ret < 0){
+        cout << "Invalid file. : " << filePath.string() << endl;
+        return -1;
+    }
 
-    pjpg->getMarker(marker);    // APP1
-    cout << "marker:" << std::hex << marker << endl;
-    pjpg->getLength(length);
-    cout << "length:" << std::hex << length << endl;
-    pjpg->readSegment(length, data);
+    ret = pjpg->parseAPP1(endian, app1);
+    if (ret < 0){
+        cout << "File parsing error. " << filePath.string() << endl;
+        return -1;
+    }
 
-    auto dtb = data.begin();
-    data.erase(dtb, dtb + 6);   // このやり方はよくない。あとで直す。 TBD
-
+    vector<uint8_t> &data = app1.data;
     auto rifd = std::make_unique<IFDReader>(data);
 
     std::vector<stIFD> ifds;
@@ -76,7 +72,7 @@ int main(int argc, char **argv) {
 
     }
 
-    file.close();*/
+    file.close();
     return 0;
 }
 

@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 #include <iomanip>
-#include <cctype>
+#include <cstring>
 #include <algorithm>
 
 #include "JFIF.hpp"
@@ -110,17 +110,17 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
 
         stream.read(reinterpret_cast<char*>(&len), sizeof(len));
         if (stream.gcount() < sizeof(len) || stream.eof()){
-            return JPEGREADER_INVALID_FILE_SIZE;
+            return JPEGREADER_INVALID_FILE_FORMAT;
         }
         len = valueConverter::swapUInt16(len);
         std::uint16_t payloadLen = len - sizeof(mk);
 
-        if (payloadLen <= 0) return JPEGREADER_INVALID_FILE_SIZE;
+        if (payloadLen <= 0) return JPEGREADER_INVALID_FILE_FORMAT;
 
         data.resize(payloadLen);
         stream.read(reinterpret_cast<char*>(data.data()), payloadLen);
         if (stream.gcount() < payloadLen || stream.eof()){
-            return JPEGREADER_INVALID_FILE_SIZE;
+            return JPEGREADER_INVALID_FILE_FORMAT;
         }
         break;
     } while (!stream.eof());
@@ -128,3 +128,91 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
     return stream.gcount();
 }
 
+std::int32_t JPEGReader::parseAPP0(const std::vector<std::uint8_t>& data, stAPP0 &value){
+    std::uint32_t ofs = 0;
+    if (data.size() < 12) return JPEGREADER_INVALID_FILE_SIZE;
+
+    auto is = data.begin();
+    auto ie = is + 5;
+    std::string jfif(is, ie);       // JFIF
+    std::memcpy(value.JFIFIdentifier, data.data(), 5);
+    ofs += 5;
+    if (std::memcmp(value.JFIFIdentifier, "JFIF\0", 5) != 0)
+        return JPEGREADER_INVALID_FILE_FORMAT;
+
+    value.version = (static_cast<std::uint16_t>(data[ofs]) << 8) | data[ofs + 1];
+    ofs += sizeof(value.version);
+
+    value.pixelConcentrationUnit = data[ofs];
+    ofs++;
+
+    value.pixelConcentrationX = (static_cast<std::uint16_t>(data[ofs]) << 8) | data[ofs + 1];
+    ofs += sizeof(value.pixelConcentrationX);
+    value.pixelConcentrationY = (static_cast<std::uint16_t>(data[ofs]) << 8) | data[ofs + 1];
+    ofs += sizeof(value.pixelConcentrationY);
+
+    if (data.size() < 14) return ofs;
+
+    value.thumbnailImageWidth = data[ofs];
+    value.thumbnailImageHeight = data[ofs + 1];
+    ofs += 2;
+
+    std::uint32_t payloadLen = data.size() - ofs;
+    if (payloadLen <= 0) return ofs;
+
+    value.thumbnailImage.clear();
+    value.thumbnailImage.resize(payloadLen);
+    auto tb = value.thumbnailImage.begin();
+    auto db = data.begin() + ofs;
+    std::copy_n(db, payloadLen, tb);
+
+    return ofs;
+}
+
+std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndian &endian, stAPP1 &value){
+    std::uint32_t ofs = 0;
+    if (data.size() < 16) return JPEGREADER_INVALID_FILE_SIZE;
+
+    auto is = data.begin();
+    auto ie = is + 6;
+    std::string exif(is, ie);       // Exif
+    std::memcpy(value.ExifIdentifier, data.data(), 6);
+    ofs += 6;
+    if (std::memcmp(value.ExifIdentifier, "Exif\0\0", 6) != 0)
+        return JPEGREADER_INVALID_FILE_FORMAT;
+
+    if (data[ofs] == 'M' && data[ofs + 1] == 'M')
+        endian = enEndian::bigEndian;
+    else if (data[ofs] == 'I' && data[ofs + 1] == 'I')
+        endian = enEndian::littleEndian;
+    else return JPEGREADER_INVALID_FILE_FORMAT;
+    //ofs += 2;     Start the payload from "ByteOrder".
+
+    std::uint32_t payloadLen = data.size() - ofs;
+    if (payloadLen <= 0) return JPEGREADER_INVALID_FILE_FORMAT;     // No IFD data.
+
+    value.data.clear();
+    value.data.resize(payloadLen);
+    auto tb = value.data.begin();
+    auto db = data.begin() + ofs;
+    std::copy_n(db, payloadLen, tb);
+
+    return ofs;
+}
+
+
+enEndian JPEGReader::getEndian() const{
+    return endian;
+}
+
+std::int32_t JPEGReader::readSegment(std::uint16_t marker){
+    return readSegment(marker, arstream, ardata);
+}
+
+std::int32_t JPEGReader::parseAPP0(stAPP0 &value){
+    return parseAPP0(ardata, value);
+}
+
+std::int32_t JPEGReader::parseAPP1(enEndian &endian, stAPP1 &value){
+    return parseAPP1(ardata, endian, value);
+}

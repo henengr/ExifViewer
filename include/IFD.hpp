@@ -14,6 +14,7 @@ enum class enIFDType: std::uint16_t {
     UNDEFINED = 7,      // undedined 8-bit value
     SLONG = 9,          // 32-bit signed integer
     SRATIONAL,          // 2 of 16-bit signed integer - The first value represents the numerator, and the second value represents the denominator.
+    UTF8 = 129,         // UTF-8
 };
 
 struct stIFDTag {
@@ -67,11 +68,11 @@ constexpr stIFDTag IFDTable[] = {
     {0x0211, to_u16(enIFDType::RATIONAL),   3,  0,      "YCbCrCoefficients"},
     {0x0214, to_u16(enIFDType::RATIONAL),   6,  0,      "ReferenceBlackWhite"},
     {0x0132, to_u16(enIFDType::ASCII),     20,  0,      "DateTime"},
-    {0x010e, to_u16(enIFDType::ASCII), 0xffff,  0,      "ImageDescription"},
-    {0x010f, to_u16(enIFDType::ASCII), 0xffff,  0,      "Make"},
-    {0x0110, to_u16(enIFDType::ASCII), 0xffff,  0,      "Model"},
-    {0x0131, to_u16(enIFDType::ASCII), 0xffff,  0,      "Software"},
-    {0x013b, to_u16(enIFDType::ASCII), 0xffff,  0,      "Artist"},
+    //{0x010e, to_u16(enIFDType::ASCII), 0xffff,  0,      "ImageDescription"},
+    //{0x010f, to_u16(enIFDType::ASCII), 0xffff,  0,      "Make"},
+    //{0x0110, to_u16(enIFDType::ASCII), 0xffff,  0,      "Model"},
+    //{0x0131, to_u16(enIFDType::ASCII), 0xffff,  0,      "Software"},
+    //{0x013b, to_u16(enIFDType::ASCII), 0xffff,  0,      "Artist"},
     {0x8298, to_u16(enIFDType::ASCII), 0xffff,  0,      "Copyright"},
     // Exif IFDs
     {0x9000, to_u16(enIFDType::UNDEFINED),  4,  0,      "ExifVersion"},
@@ -178,6 +179,19 @@ constexpr stIFDTag IFDTable[] = {
     {0x001d, to_u16(enIFDType::ASCII),     11,  0,      "GPSDateStamp"},
     {0x001e, to_u16(enIFDType::SHORT),      1,  0,      "GPSDifferential"},
     {0x001f, to_u16(enIFDType::RATIONAL),   1,  0,      "GPSHPositioningError"},
+    // Exif 3.*
+    {0x00fe, to_u16(enIFDType::LONG),       1,  0,      "NewSubfileType"},
+    {0x010d, to_u16(enIFDType::UTF8),  0xffff,  0,      "DocumentName"},
+    {0x010e, to_u16(enIFDType::UTF8),  0xffff,  0,      "ImageDescription"},
+    {0x010f, to_u16(enIFDType::UTF8),  0xffff,  0,      "Make"},
+    {0x0110, to_u16(enIFDType::UTF8),  0xffff,  0,      "Model"},
+    {0x0131, to_u16(enIFDType::UTF8),  0xffff,  0,      "Software"},
+    {0x013b, to_u16(enIFDType::UTF8),  0xffff,  0,      "Artist"},
+    {0x4201, to_u16(enIFDType::UTF8),  0xffff,  0,      "CameraOwnerName"},
+    {0xa460, to_u16(enIFDType::SHORT),      1,  0,      "CompositeImage"},
+    {0xa461, to_u16(enIFDType::LONG),       1,  0,      "SourceImageNumberOfCompositeImage"},
+    {0xa461, to_u16(enIFDType::SHORT),      1,  0,      "SourceImageNumberOfCompositeImage"},
+    {0xa462, to_u16(enIFDType::UNDEFINED),  1,  0,      "SourceExposureTimesOfCompositeImage"},
     // Dummy data for testing SLONG types
     {0x9999, to_u16(enIFDType::SLONG),      1,  0,      "DummySLongForTest"},
 };

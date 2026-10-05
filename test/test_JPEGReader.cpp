@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 
 #include "JFIF.hpp"
 #include "IFD.hpp"
@@ -74,7 +75,7 @@ TEST(JPEGReaderTest, readSegment){
         0xff, 0xe0,             // APP0
         0x00, 0x14,
         0x4a, 0x46, 0x49, 0x46, 0x00,       // "JFIF\0"
-        0x01, 0x01, 0x01, 0x01, 0x2c, 0x01, 0x2C, 0x00, 0x00, 0x41, 0x4d, 0x50, 0x46,
+        0x01, 0x01, 0x01, 0x01, 0x2c, 0x01, 0x2c, 0x00, 0x00, 0x41, 0x4d, 0x50, 0x46,
         0xff, 0xe1,             // APP1
         0x00, 0x12,
         0x45, 0x78, 0x69, 0x66, 0x00, 0x00, // "Exif\0\0"
@@ -85,7 +86,7 @@ TEST(JPEGReaderTest, readSegment){
         0xff, 0xd9,             // EOI
     };
     std::vector<std::uint8_t> dtAPP0 = {0x4a, 0x46, 0x49, 0x46, 0x00,       // "JFIF\0"
-        0x01, 0x01, 0x01, 0x01, 0x2c, 0x01, 0x2C, 0x00, 0x00, 0x41, 0x4d, 0x50, 0x46};
+        0x01, 0x01, 0x01, 0x01, 0x2c, 0x01, 0x2c, 0x00, 0x00, 0x41, 0x4d, 0x50, 0x46};
     std::vector<std::uint8_t> dtAPP1 = {0x45, 0x78, 0x69, 0x66, 0x00, 0x00, // "Exif\0\0"
         0x4d, 0x4d,             // "MM"
         0x00, 0x2a,
@@ -98,7 +99,8 @@ TEST(JPEGReaderTest, readSegment){
     std::stringstream ss(str);
     std::vector<std::uint8_t> data;
 
-    std:int32_t len = JPEGReader::readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss, data);
+    std:int32_t len;
+    len = JPEGReader::readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss, data);
     EXPECT_EQ(dtAPP0, data);
 
     data.clear();
@@ -106,4 +108,132 @@ TEST(JPEGReaderTest, readSegment){
     EXPECT_EQ(dtAPP1, data);
 }
 
+TEST(JPEGReaderTest, readSegmentErr){
+    std::vector<std::uint8_t> mockErr1 = {
+        0xff, 0xd8,             // SOI
+    };
+    std::vector<std::uint8_t> mockErr2 = {
+        0xff, 0xd8,             // SOI
+        0xff, 0xe0,             // APP0
+        0x00, 0x14,
+        0x4a, 0x46, 0x49, 0x46, 0x00,       // "JFIF\0"
+    };
+    std::vector<std::uint8_t> mockErr3 = {
+        0xff, 0xd8,             // SOI
+        0xff, 0xe0,             // APP0
+        0x00, 0x14,
+        0x4a, 0x46, 0x49, 0x46, 0x00,       // "JFIF\0"
+        0x01, 0x01, 0x01, 0x01, 0x2c, 0x01, 0x2c, 0x00, 0x00, 0x41, 0x4d, 0x50, 
+    };
 
+    auto is1 = mockErr1.begin();
+    auto ie1 = mockErr1.end();
+    std::string str1(is1, ie1);
+    std::stringstream ss1(str1);
+    auto is2 = mockErr2.begin();
+    auto ie2 = mockErr2.end();
+    std::string str2(is2, ie2);
+    std::stringstream ss2(str2);
+    std::vector<std::uint8_t> data;
+
+    std:int32_t len;
+    len = JPEGReader::readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss1, data);
+    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_SIZE);
+
+    len = JPEGReader::readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss2, data);
+    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_FORMAT);
+}
+
+TEST(JPEGReaderTest, parseAPP0){
+    std::vector<std::uint8_t> mock = {
+        0x4a, 0x46, 0x49, 0x46, 0x00,       // "JFIF\0"
+        0x01, 0x01,                         // version
+        0x01,                               // pixelConcentrationUnit
+        0x01, 0x2c,                         // pixelConcentrationX
+        0x01, 0x2c,                         // pixelConcentrationY
+        0x00,               // thumbnailImageWidth
+        0x00,               // thumbnailImageHeight
+        0x41, 0x4d, 0x50, 0x46      // thumbnailImage
+    };
+    std::vector<std::uint8_t> dtAPP0 = {0x4a, 0x46, 0x49, 0x46, 0x00,       // "JFIF\0"
+        0x01, 0x01, 0x01, 0x01, 0x2c, 0x01, 0x2c, 0x00, 0x00, 0x41, 0x4d, 0x50, 0x46};
+    char dtJFIF[] = {0x4a, 0x46, 0x49, 0x46, 0x00};
+    std::vector<std::uint8_t> dtThumb = {0x41, 0x4d, 0x50, 0x46};
+
+    stAPP0 app;
+    std::int32_t len = JPEGReader::parseAPP0(mock, app);
+    EXPECT_EQ(std::memcmp(app.JFIFIdentifier, dtJFIF, 5), 0);
+    EXPECT_EQ(app.version, 0x0101);
+    EXPECT_EQ(app.pixelConcentrationUnit, 0x01);
+    EXPECT_EQ(app.pixelConcentrationX, 0x012c);
+    EXPECT_EQ(app.thumbnailImageWidth, 0x00);
+    EXPECT_EQ(app.thumbnailImageHeight, 0x00);
+    EXPECT_EQ(app.thumbnailImage, dtThumb);
+}
+
+TEST(JPEGReaderTest, parseAPP0Err){
+    std::vector<std::uint8_t> mockErr1 = {
+        0x4a, 0x46, 0x49
+    };
+    std::vector<std::uint8_t> mockErr2 = {
+        0x4a, 0x46, 0x49, 0x47, 0x00,       // "JFIG\0"
+        0x01, 0x01,                         // version
+        0x01,                               // pixelConcentrationUnit
+        0x01, 0x2c,                         // pixelConcentrationX
+        0x01, 0x2c,                         // pixelConcentrationY
+        0x00,               // thumbnailImageWidth
+        0x00,               // thumbnailImageHeight
+        0x41, 0x4d, 0x50, 0x46      // thumbnailImage
+    };
+
+    stAPP0 app;
+    std::int32_t len;
+    len = JPEGReader::parseAPP0(mockErr1, app);
+    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_SIZE);
+
+    len = JPEGReader::parseAPP0(mockErr2, app);
+    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_FORMAT);
+}
+
+TEST(JPEGReaderTest, parseAPP1){
+    std::vector<std::uint8_t> mock = {
+        0x45, 0x78, 0x69, 0x66, 0x00, 0x00, // "Exif\0\0"
+        0x4d, 0x4d,             // "MM"
+        0x00, 0x2a,
+        0x00, 0x00, 0x00, 0x08,
+        0x00, 0x00,
+    };
+    char dtExif[] = {0x45, 0x78, 0x69, 0x66, 0x00, 0x00};
+    std::vector<std::uint8_t> dtThumb = {0x41, 0x4d, 0x50, 0x46};
+
+    stAPP1 app;
+    enEndian endian;
+    std::int32_t len = JPEGReader::parseAPP1(mock, endian, app);
+    EXPECT_EQ(std::memcmp(app.ExifIdentifier, dtExif, 6), 0);
+    EXPECT_EQ(endian, enEndian::bigEndian);
+}
+
+TEST(JPEGReaderTest, parseAPP1Err){
+    std::vector<std::uint8_t> mockErr1 = {
+        0x45, 0x78, 0x69,
+    };
+    std::vector<std::uint8_t> mockErr2 = {
+        0x45, 0x78, 0x69, 0x67, 0x00, 0x00, // "Exig\0\0"
+        0x4d, 0x4d,             // "MM"
+        0x00, 0x2a,
+        0x00, 0x00, 0x00, 0x08,
+        0x00, 0x00,
+    };
+    char dtExif[] = {0x45, 0x78, 0x69, 0x66, 0x00, 0x00};
+    std::vector<std::uint8_t> dtThumb = {0x41, 0x4d, 0x50, 0x46};
+
+    stAPP1 app;
+    enEndian endian;
+    std::int32_t len;
+    len = JPEGReader::parseAPP1(mockErr1, endian, app);
+    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_SIZE);
+
+    len = JPEGReader::parseAPP1(mockErr2, endian, app);
+    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_FORMAT);
+    EXPECT_TRUE(std::memcmp(app.ExifIdentifier, dtExif, 6) > 0);
+}

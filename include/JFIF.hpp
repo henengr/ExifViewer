@@ -97,7 +97,7 @@ struct stMarker {
 };
 
 struct stAPP0 {
-    std::uint8_t        JFIFIdentifier[5];          // 0004  "JFIF\0"
+    char                JFIFIdentifier[5];          // 0004  "JFIF\0"
     std::uint16_t       version;                    // 0009
     std::uint8_t        pixelConcentrationUnit;     // 000b
     std::uint16_t       pixelConcentrationX;        // 000c
@@ -109,11 +109,12 @@ struct stAPP0 {
 };
 
 struct stAPP1 {
-    std::uint8_t        ExifIdentifier[6];          // 0004  "Exif\0\0"
-    std::uint8_t        TIFFByteOrder[2];           // 000a  "MM" / "II"
-    std::uint16_t       TIFFIdentifier;             // 000b  0x002a(42)
-    std::uint32_t       IFD0thOffset;               // 000d
-    std::vector<std::uint8_t> IFDs;                 // 0011
+    char                ExifIdentifier[6];          // 0004  "Exif\0\0"
+    //char                TIFFByteOrder[2];           // 000a  "MM" / "II"
+    //std::uint16_t       TIFFIdentifier;             // 000b  0x002a(42)
+    //std::uint32_t       IFD0thOffset;               // 000d
+    //std::vector<std::uint8_t> IFDs;                 // 0011
+    std::vector<std::uint8_t> data;                 // 000a
 };
 
 struct stAPP2 {

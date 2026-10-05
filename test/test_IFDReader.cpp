@@ -298,6 +298,22 @@ TEST(IFDReaderTest, getVariantIFDSRational){
     EXPECT_EQ(ratVal.slong2, checkVal.slong2);
 }
 
+TEST(IFDReaderTest, getVariantIFDUTF8){
+    stIFD ifd = {
+        0x0110,     // Tag (0x0110: Model)
+        0x0081,     // Type (0x0081: UTF-8)
+        0x00000020,     // Count (0x00000020)
+        "",
+        {0xe6, 0x98, 0x8e, 0xe6, 0x99, 0xba, 0xe3, 0x81, 0x82, 0xe3, 0x82, 0x93, 0xe3, 0x81, 0xaa, 0x26,    // "明智あんな&"
+         0xe5, 0xb0, 0x8f, 0xe6, 0x9e, 0x97, 0xe3, 0x81, 0xbf, 0xe3, 0x81, 0x8f, 0xe3, 0x82, 0x8b, 0x00}    // "小林みくる\0"
+    };
+    std::string checkVal = "明智あんな&小林みくる";
+
+    stIFDValue retVal;
+    EXPECT_TRUE(IFDReader::getVariantIFD(ifd, enEndian::littleEndian, retVal));
+    EXPECT_EQ(std::get<std::string>(retVal.values), checkVal);
+}
+
 TEST(IFDReaderTest, readIFDs){
     std::vector<stIFD> ifds;
     std::int32_t ret = IFDReader::readIFDs(0, APP1_INNER_DATA, ifds);

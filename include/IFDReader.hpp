@@ -58,7 +58,7 @@ private:
     std::vector<std::uint8_t> &ardata;
     enEndian enendian;
 
-    FRIEND_TEST(IFDReaderTest, readIFDByte);            // BYTE, ASCII, UNDEFINED
+    FRIEND_TEST(IFDReaderTest, readIFDByte);            // BYTE, ASCII, UNDEFINED, UTF-8
     FRIEND_TEST(IFDReaderTest, readIFDShort);           // SHORT
     FRIEND_TEST(IFDReaderTest, readIFDLong);            // LONG, SLONG
     FRIEND_TEST(IFDReaderTest, readIFDRational);        // RATIONAL, SRATIONAL
