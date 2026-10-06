@@ -138,7 +138,7 @@ TEST(JPEGReaderTest, readSegmentErr){
 
     std:int32_t len;
     len = JPEGReader::readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss1, data);
-    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_SIZE);
+    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_FORMAT);
 
     len = JPEGReader::readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss2, data);
     EXPECT_EQ(len, JPEGREADER_INVALID_FILE_FORMAT);
