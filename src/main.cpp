@@ -53,21 +53,58 @@ int main(int argc, char **argv) {
     rifd->readIFDs(ifds);
 
     for (stIFD ifd: ifds){
-        cout << hex << setw(4) << setfill('0') << ifd.tag << " ";
-        cout << hex << setw(4) << setfill('0') << ifd.type << " ";
-        cout << hex << setw(8) << setfill('0') << ifd.count << " ";
+        //cout << hex << right << setw(8) << setfill('0') << ifd.offset << " ";
+        cout << hex << right << setw(4) << setfill('0') << ifd.tag << " ";
+        cout << hex << right << setw(4) << setfill('0') << ifd.type << " ";
+        cout << hex << right << setw(8) << setfill('0') << ifd.count << " ";
+        //
+        cout << left << setfill(' ') << setw(30) << ifd.description;
         //
         stIFDValue vals;
-        IFDReader::getVariantIFD(ifd, enEndian::bigEndian, vals);
-        if (vals.IFD.type == static_cast<uint16_t>(enIFDType::BYTE)){
-            //cout << hex << setfill('0') << get<vector
+        IFDReader::getVariantIFD(ifd, endian, vals);
+        if (vals.IFD.type == static_cast<uint16_t>(enIFDType::BYTE) ||
+            vals.IFD.type == static_cast<uint16_t>(enIFDType::UNDEFINED)){
+            vector<uint8_t> v = get<vector<uint8_t>>(vals.values);
+            for (auto i = v.begin(); i != v.end(); i++){
+                cout << hex << right <<setw(2) << setfill('0') << static_cast<int>(*i) << " ";
+            }
         }
-        if (vals.IFD.type == static_cast<uint16_t>(enIFDType::ASCII)){
+        if (vals.IFD.type == static_cast<uint16_t>(enIFDType::ASCII) ||
+            vals.IFD.type == static_cast<uint16_t>(enIFDType::UTF8)){
             cout << get<string>(vals.values);
-            //string str(get<string>(vals.values), ifd.count);
-            //cout << str;
         }
-        cout << " - " << ifd.description;
+        if (vals.IFD.type == static_cast<uint16_t>(enIFDType::SHORT)){
+            vector<uint16_t> v = get<vector<uint16_t>>(vals.values);
+            for (auto i = v.begin(); i != v.end(); i++){
+                cout << hex << right <<setw(4) << setfill('0') << *i << " ";
+            }
+        }
+        if (vals.IFD.type == static_cast<uint16_t>(enIFDType::LONG)){
+            vector<uint32_t> v = get<vector<uint32_t>>(vals.values);
+            for (auto i = v.begin(); i != v.end(); i++){
+                cout << hex << right <<setw(8) << setfill('0') << *i << " ";
+            }
+        }
+        if (vals.IFD.type == static_cast<uint16_t>(enIFDType::RATIONAL)){
+            vector<stRational> v = get<vector<stRational>>(vals.values);
+            for (auto i = v.begin(); i != v.end(); i++){
+                cout << hex << right <<setw(8) << setfill('0') << i->long1 << "/";
+                cout << hex << right <<setw(8) << setfill('0') << i->long2 << " ";
+            }
+        }
+        if (vals.IFD.type == static_cast<uint16_t>(enIFDType::SLONG)){
+            vector<int32_t> v = get<vector<int32_t>>(vals.values);
+            for (auto i = v.begin(); i != v.end(); i++){
+                cout << hex << right <<setw(8) << setfill('0') << *i << " ";
+            }
+        }
+        if (vals.IFD.type == static_cast<uint16_t>(enIFDType::SRATIONAL)){
+            vector<stSRational> v = get<vector<stSRational>>(vals.values);
+            for (auto i = v.begin(); i != v.end(); i++){
+                cout << hex << right <<setw(8) << setfill('0') << i->slong1 << "/";
+                cout << hex << right <<setw(8) << setfill('0') << i->slong2 << " ";
+            }
+        }
         cout << endl;
 
     }

@@ -24,6 +24,7 @@ struct stIFD {
     std::uint16_t       tag;
     std::uint16_t       type;
     std::uint32_t       count;
+    std::uint32_t       offset;
     std::string         description;
     std::vector<std::uint8_t> data;
 };

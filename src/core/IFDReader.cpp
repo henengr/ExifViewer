@@ -91,9 +91,6 @@ bool IFDReader::getVariantIFD(const stIFD &ifd, const enEndian endian, stIFDValu
             break;
         }
     }
-    if (!found){
-        value.IFD.description = IFD_UNKNOWN_TAG;
-    }
     if (ifd.type == static_cast<std::uint16_t>(enIFDType::BYTE) ||
         ifd.type == static_cast<std::uint16_t>(enIFDType::UNDEFINED)){
         value.values = ifd.data;
@@ -202,11 +199,10 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
                         (static_cast<std::uint32_t>(data[iOffset + 2]) << 8) | data[iOffset + 3];
     if (endian == enEndian::littleEndian) ofs0thIFD = valueConverter::swapUInt32(ofs0thIFD);
     if (iOffset + ofs0thIFD > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
-    //iOffset += sizeof(ofs0thIFD);
     iOffset = ofs0thIFD + offset;
     // Number of Entries
     std::uint16_t numOfEntries = (static_cast<std::uint16_t>(data[iOffset]) << 8) | data[iOffset + 1];
-    if (endian == enEndian::littleEndian) header42 = valueConverter::swapUInt16(header42);
+    if (endian == enEndian::littleEndian) numOfEntries = valueConverter::swapUInt16(numOfEntries);
     if (iOffset + numOfEntries * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
     iOffset += sizeof(numOfEntries);
     //
@@ -215,12 +211,21 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
     ifds.clear();
     for (std::uint16_t i = 0; i < numOfEntries; i++){
         stIFD ifd;
+        bool found = false;
+
         readIFD(iOffset, endian, data, ifd);
         for (stIFDTag tag: IFDTable){
             if (ifd.tag == tag.tag){
                 ifd.description = tag.description;
+                ifd.offset = offset;
+                found = true;
+                break;
             }
         }
+        if (!found){
+            ifd.description = IFD_UNKNOWN_TAG;
+        }
+
         ifds.push_back(ifd);
         if (ifd.tag == IFDTAG_ExifIFDPointer){
             stIFDValue val;
@@ -246,12 +251,21 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
     //
     for (std::uint16_t i = 0; i < ExifIFDNumber; i++){
         stIFD ifd;
+        bool found = false;
+
         readIFD(iOffset, endian, data, ifd);
         for (stIFDTag tag: IFDTable){
             if (ifd.tag == tag.tag){
                 ifd.description = tag.description;
+                ifd.offset = offset;
+                found = true;
+                break;
             }
         }
+        if (!found){
+            ifd.description = IFD_UNKNOWN_TAG;
+        }
+
         ifds.push_back(ifd);
         iOffset += 12;
     }
