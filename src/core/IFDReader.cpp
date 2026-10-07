@@ -205,7 +205,7 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
     if (endian == enEndian::littleEndian) numOfEntries = valueConverter::swapUInt16(numOfEntries);
     if (iOffset + numOfEntries * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
     iOffset += sizeof(numOfEntries);
-    //
+    // 0th IFD
     std::uint32_t exifIFDPointer = 0;
     std::uint32_t GPSIFDOffset = 0;
     ifds.clear();
@@ -243,13 +243,41 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
     }
     if (exifIFDPointer == 0) return iOffset;
     iOffset = exifIFDPointer + offset;
-    //
+    // Exif IFD
     std::uint16_t ExifIFDNumber = (static_cast<std::uint16_t>(data[iOffset]) << 8) | data[iOffset + 1];
     if (endian == enEndian::littleEndian) ExifIFDNumber = valueConverter::swapUInt16(ExifIFDNumber);
     iOffset += sizeof(ExifIFDNumber);
     if (iOffset + ExifIFDNumber * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
     //
     for (std::uint16_t i = 0; i < ExifIFDNumber; i++){
+        stIFD ifd;
+        bool found = false;
+
+        readIFD(iOffset, endian, data, ifd);
+        for (stIFDTag tag: IFDTable){
+            if (ifd.tag == tag.tag){
+                ifd.description = tag.description;
+                ifd.offset = offset;
+                found = true;
+                break;
+            }
+        }
+        if (!found){
+            ifd.description = IFD_UNKNOWN_TAG;
+        }
+
+        ifds.push_back(ifd);
+        iOffset += 12;
+    }
+    // 1st IFD
+    if (GPSIFDOffset == 0) return iOffset;
+    iOffset = GPSIFDOffset + offset;
+    numOfEntries = (static_cast<std::uint16_t>(data[iOffset]) << 8) | data[iOffset + 1];
+    if (endian == enEndian::littleEndian) numOfEntries = valueConverter::swapUInt16(numOfEntries);
+    iOffset += sizeof(numOfEntries);
+    if (iOffset + numOfEntries * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
+    //
+    for (std::uint16_t i = 0; i < numOfEntries; i++){
         stIFD ifd;
         bool found = false;
 

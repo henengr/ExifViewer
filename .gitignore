@@ -12,3 +12,6 @@
 /ExifViewer.vcxproj.user
 /x64/
 
+/src/gui/.qtcreator/
+/src/gui/build/
+/src/gui/*
