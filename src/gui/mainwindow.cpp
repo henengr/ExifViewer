@@ -2,6 +2,7 @@
 #include <QStandardItemModel>
 #include <QStandardItem>
 #include <QMessageBox>
+#include <QHeaderView>
 #include <filesystem>
 #include <string>
 #include <fstream>
@@ -175,6 +176,14 @@ void MainWindow::on_action_Open_triggered()
             std::vector<std::uint16_t> v = std::get<std::vector<std::uint16_t>>(vals.values);
             ui->labelISO->setText(QString("%1").arg(v[0]));
         }
+        if (ifd.tag == 0x9201){     // ShutterSpeedValue
+            std::vector<stSRational> stRat = std::get<std::vector<stSRational>>(vals.values);
+            ui->labelShutterSpeed->setText(QString("%1").arg(stRat[0].slong1 / stRat[1].slong2));
+        }
+        if (ifd.tag == 0x9003){     // DateTimeOriginal
+            std::string str = std::get<std::string>(vals.values);
+            ui->labelDateTimeOrg->setText(QString::fromStdString(str));
+        }
 
         std::stringstream sloc;
         if (ifd.tag == 0x0002){     // GPSLatitude
@@ -216,9 +225,17 @@ void MainWindow::on_action_Open_triggered()
 
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectItems);
+    ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    ui->tableView->verticalHeader()->setDefaultSectionSize(30);
+
+    ui->tableView->setColumnWidth(0, 100);
+    ui->tableView->setColumnWidth(1, 100);
+    ui->tableView->setColumnWidth(2, 150);
+    ui->tableView->setColumnWidth(3, 250);
+    ui->tableView->setColumnWidth(4, 600);
 
     ui->tableView->setModel(model);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 

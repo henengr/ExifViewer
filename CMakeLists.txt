@@ -13,7 +13,7 @@ target_include_directories(exifviewer_lib PUBLIC ${PROJECT_INCLUDE_DIR})
 
 target_link_libraries(exifviewer_lib PUBLIC GTest::gtest)
 
-add_executable(exifviewer src/main.cpp)
+add_executable(exifviewer src/cli/main.cpp)
 target_link_libraries(exifviewer PRIVATE exifviewer_lib)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

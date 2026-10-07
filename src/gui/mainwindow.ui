@@ -51,20 +51,20 @@
         <rect>
          <x>350</x>
          <y>180</y>
-         <width>181</width>
+         <width>91</width>
          <height>20</height>
         </rect>
        </property>
        <property name="text">
-        <string>GPS Location Information</string>
+        <string>GPS Location</string>
        </property>
       </widget>
       <widget class="QLabel" name="labelLocation">
        <property name="geometry">
         <rect>
-         <x>550</x>
+         <x>450</x>
          <y>180</y>
-         <width>411</width>
+         <width>511</width>
          <height>20</height>
         </rect>
        </property>
@@ -94,9 +94,9 @@
       <widget class="QLabel" name="labelVendor">
        <property name="geometry">
         <rect>
-         <x>550</x>
+         <x>450</x>
          <y>10</y>
-         <width>411</width>
+         <width>511</width>
          <height>20</height>
         </rect>
        </property>
@@ -120,9 +120,9 @@
       <widget class="QLabel" name="labelModel">
        <property name="geometry">
         <rect>
-         <x>550</x>
+         <x>450</x>
          <y>40</y>
-         <width>411</width>
+         <width>511</width>
          <height>20</height>
         </rect>
        </property>
@@ -146,7 +146,85 @@
       <widget class="QLabel" name="labelISO">
        <property name="geometry">
         <rect>
-         <x>550</x>
+         <x>450</x>
+         <y>70</y>
+         <width>62</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_4">
+       <property name="geometry">
+        <rect>
+         <x>350</x>
+         <y>100</y>
+         <width>101</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Date of photo</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelDateTimeOrg">
+       <property name="geometry">
+        <rect>
+         <x>450</x>
+         <y>100</y>
+         <width>121</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_5">
+       <property name="geometry">
+        <rect>
+         <x>570</x>
+         <y>70</y>
+         <width>101</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Shutter speed</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelShutterSpeed">
+       <property name="geometry">
+        <rect>
+         <x>670</x>
+         <y>70</y>
+         <width>62</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_6">
+       <property name="geometry">
+        <rect>
+         <x>790</x>
+         <y>70</y>
+         <width>101</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Exposure time</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelExposureTime">
+       <property name="geometry">
+        <rect>
+         <x>890</x>
          <y>70</y>
          <width>62</width>
          <height>20</height>
