@@ -4,8 +4,11 @@
 #include <vector>
 #include <string>
 #include <variant>
+#ifndef DISABLE_GTEST
 #include <gtest/gtest_prod.h>
-
+#else
+#define FRIEND_TEST(test_case_name, test_name)
+#endif
 #include "IFD.hpp"
 #include "JPEGReader.hpp"
 

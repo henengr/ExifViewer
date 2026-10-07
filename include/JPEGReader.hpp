@@ -3,8 +3,11 @@
 #include <cstdint>
 #include <iostream>
 #include <fstream>
+#ifndef DISABLE_GTEST
 #include <gtest/gtest_prod.h>
-
+#else
+#define FRIEND_TEST(test_case_name, test_name)
+#endif
 #include "FileReader.hpp"
 #include "JFIF.hpp"
 
