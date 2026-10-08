@@ -192,6 +192,11 @@ constexpr stIFDTag IFDTable[] = {
     {0xa461, to_u16(enIFDType::LONG),       1,  0,      "SourceImageNumberOfCompositeImage"},
     {0xa461, to_u16(enIFDType::SHORT),      1,  0,      "SourceImageNumberOfCompositeImage"},
     {0xa462, to_u16(enIFDType::UNDEFINED),  1,  0,      "SourceExposureTimesOfCompositeImage"},
+    //
+    {0x013c, to_u16(enIFDType::ASCII), 0xffff,  0,      "HostComputer "},
+    {0x9010, to_u16(enIFDType::ASCII), 0xffff,  0,      "OffsetTime"},
+    {0x9011, to_u16(enIFDType::ASCII), 0xffff,  0,      "OffsetTimeOriginal"},
+    {0x9012, to_u16(enIFDType::ASCII), 0xffff,  0,      "OffsetTimeDigitized"},
     // Dummy data for testing SLONG types
     {0x9999, to_u16(enIFDType::SLONG),      1,  0,      "DummySLongForTest"},
 };

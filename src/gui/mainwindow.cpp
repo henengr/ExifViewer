@@ -7,6 +7,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -101,6 +102,24 @@ void MainWindow::on_action_Open_triggered()
     model->setHeaderData(3, Qt::Horizontal, "Description");
     model->setHeaderData(4, Qt::Horizontal, "Value");
 
+    ui->tableView->setModel(model);
+
+    ui->tableView->setColumnWidth(0, 60);
+    ui->tableView->setColumnWidth(1, 60);
+    ui->tableView->setColumnWidth(2, 120);
+    ui->tableView->setColumnWidth(3, 220);
+    ui->tableView->setColumnWidth(4, 1000);
+
+    //ui->tableView->setStyleSheet("QTableView { gridline-color: #d0d0d0; border-bottom: 1px solid #d0d0d0; }");
+    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectItems);
+    ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    ui->tableView->verticalHeader()->setDefaultSectionSize(26);
+    //ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+
+
     int row = 0;
     std::string strLat, strLong;
     double dbLat, dbLong;
@@ -158,6 +177,19 @@ void MainWindow::on_action_Open_triggered()
                 ss << "0x" << std::hex << std::right << std::setw(8) << std::setfill('0') << i->long2 << " ";
             }
         }
+        if (vals.IFD.type == static_cast<uint16_t>(enIFDType::SLONG)){
+            std::vector<std::int32_t> v = std::get<std::vector<std::int32_t>>(vals.values);
+            for (auto i = v.begin(); i != v.end(); i++){
+                ss << "0x" << std::hex << std::right << std::setw(8) << std::setfill('0') << *i << " ";
+            }
+        }
+        if (vals.IFD.type == static_cast<uint16_t>(enIFDType::SRATIONAL)){
+            std::vector<stSRational> v = std::get<std::vector<stSRational>>(vals.values);
+            for (auto i = v.begin(); i != v.end(); i++){
+                ss << "0x" << std::hex << std::right << std::setw(8) << std::setfill('0') << i->slong1 << "/";
+                ss << "0x" << std::hex << std::right << std::setw(8) << std::setfill('0') << i->slong2 << " ";
+            }
+        }
 
         QStandardItem *itemValue = new QStandardItem(QString("%1").arg(ss.str()));
         itemValue->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
@@ -178,7 +210,8 @@ void MainWindow::on_action_Open_triggered()
         }
         if (ifd.tag == 0x9201){     // ShutterSpeedValue
             std::vector<stSRational> stRat = std::get<std::vector<stSRational>>(vals.values);
-            ui->labelShutterSpeed->setText(QString("%1").arg(stRat[0].slong1 / stRat[1].slong2));
+            std::uint32_t at = std::pow(2, (stRat[0].slong1 / stRat[0].slong2));
+            ui->labelShutterSpeed->setText(QString("1/%1").arg(at));
         }
         if (ifd.tag == 0x9003){     // DateTimeOriginal
             std::string str = std::get<std::string>(vals.values);
@@ -190,7 +223,11 @@ void MainWindow::on_action_Open_triggered()
             std::vector<stRational> lats = std::get<std::vector<stRational>>(vals.values);
             sloc << lats[0].long1 << "°" << lats[1].long1 << "\'" << (lats[2].long1 / 100.0) << "\"";
             strLat += sloc.str();
-            dbLat = lats[0].long1 + (lats[1].long1 / 60.0) + (lats[2].long1 / 3600.0);
+            //dbLat = lats[0].long1 + (lats[1].long1 / 60.0) + (lats[2].long1 / 3600.0);
+            double deg = (lats[0].long2 != 0) ? (double)lats[0].long1 / lats[0].long2 : 0;
+            double min = (lats[1].long2 != 0) ? (double)lats[1].long1 / lats[1].long2 : 0;
+            double sec = (lats[2].long2 != 0) ? (double)lats[2].long1 / lats[2].long2 : 0;
+            dbLat = deg + (min / 60.0) + (sec / 3600.0);
         }
         if (ifd.tag == 0x0001){
             strLat += std::get<std::string>(vals.values);      // Latitude symbol 'N'/'S'
@@ -199,44 +236,26 @@ void MainWindow::on_action_Open_triggered()
             std::vector<stRational> longs = std::get<std::vector<stRational>>(vals.values);
             sloc << longs[0].long1 << "°" << longs[1].long1 << "\'" << (longs[2].long1 / 100.0) << "\"";
             strLong += sloc.str();
-            dbLong = longs[0].long1 + (longs[1].long1 / 60.0) + (longs[2].long1 / 3600.0);
+            //dbLong = longs[0].long1 + (longs[1].long1 / 60.0) + (longs[2].long1 / 3600.0);
+            double deg = (longs[0].long2 != 0) ? (double)longs[0].long1 / longs[0].long2 : 0;
+            double min = (longs[1].long2 != 0) ? (double)longs[1].long1 / longs[1].long2 : 0;
+            double sec = (longs[2].long2 != 0) ? (double)longs[2].long1 / longs[2].long2 : 0;
+            dbLong = deg + (min / 60.0) + (sec / 3600.0);
         }
         if (ifd.tag == 0x0003){
             strLong += std::get<std::string>(vals.values);      // Longitude symbol 'E'/'W'
         }
         if (strLat.length() > 0 && strLong.length() > 0){
-            std::string strLocation = strLat + " " + strLong;
-            std::string strURL = "https://www.google.com/maps/place/" + strLat + "+" + strLong;
-            //std::string strURL = "https://www.google.com/maps/search/?api=1&query=" +
-                                 std::to_string(dbLat) + "%2C%20" + std::to_string(dbLong);
-            // https://www.google.com/maps/place/35%C2%B040'57.0%22N+139%C2%B045'10.0%22E
-            // https://www.google.com/maps/search/?api=1&query=36.807786%2C%20139.711822
-            // https://www.google.com/maps/search/?api=1&query=37.983333N36%C2%B059%274417
+            QString qstrURL = QString("https://www.google.com/maps/search/?api=1&query=%1, %2").arg(dbLat).arg(dbLong);
+            //QString qstrLocation = QString("%1 %2").arg(dbLat).arg(dbLong);
+            QString qstrLocation = QString("%1 %2").arg(strLat).arg(strLong);
+            QString qstrLink = QString("<a href=\"%1\">%2</a>").arg(qstrURL).arg(qstrLocation);
 
-            QString linkHtml = QString("<a href=\"%1\">%2</a>")
-                                   .arg(QString::fromStdString(strURL))
-                                   .arg(QString::fromStdString(strLocation));
-
-            ui->labelLocation->setText(linkHtml);
+            ui->labelLocation->setText(qstrLink);
         }
 
         row++;
     }
-
-    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectItems);
-    ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    ui->tableView->verticalHeader()->setDefaultSectionSize(30);
-
-    ui->tableView->setColumnWidth(0, 100);
-    ui->tableView->setColumnWidth(1, 100);
-    ui->tableView->setColumnWidth(2, 150);
-    ui->tableView->setColumnWidth(3, 250);
-    ui->tableView->setColumnWidth(4, 600);
-
-    ui->tableView->setModel(model);
-    //ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 
