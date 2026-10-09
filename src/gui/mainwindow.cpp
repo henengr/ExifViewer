@@ -3,6 +3,7 @@
 #include <QStandardItem>
 #include <QMessageBox>
 #include <QHeaderView>
+#include <QMessageBox>
 #include <filesystem>
 #include <string>
 #include <fstream>
@@ -17,6 +18,8 @@
 #include "../../include/JPEGReader.hpp"
 
 namespace fs = std::filesystem;
+
+constexpr const char* APP_NAME = "ExifViewer ver.0.10";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -106,9 +109,9 @@ void MainWindow::on_action_Open_triggered()
 
     ui->tableView->setColumnWidth(0, 60);
     ui->tableView->setColumnWidth(1, 60);
-    ui->tableView->setColumnWidth(2, 120);
+    ui->tableView->setColumnWidth(2, 100);
     ui->tableView->setColumnWidth(3, 220);
-    ui->tableView->setColumnWidth(4, 1000);
+    ui->tableView->setColumnWidth(4, 1200);
 
     //ui->tableView->setStyleSheet("QTableView { gridline-color: #d0d0d0; border-bottom: 1px solid #d0d0d0; }");
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -262,5 +265,11 @@ void MainWindow::on_action_Open_triggered()
 void MainWindow::on_action_Quit_triggered()
 {
     close();
+}
+
+
+void MainWindow::on_action_About_triggered()
+{
+    QMessageBox::information(this, "About", APP_NAME);
 }
 

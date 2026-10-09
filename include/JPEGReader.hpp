@@ -28,17 +28,8 @@ public:
     static void dispDumb(std::vector<uint8_t> &data);
 };
 
-enum class enEndian: std::uint8_t {
-    littleEndian = 1,
-    bigEndian
-};
-
 class JPEGReader: public FileReader{
 private:
-    std::istream &arstream;
-    std::vector<std::uint8_t> ardata;
-    enEndian endian;
-
     FRIEND_TEST(JPEGReaderTest, readSegment);
     FRIEND_TEST(JPEGReaderTest, readSegmentErr);
     static std::int32_t readSegment(std::uint16_t marker, std::istream &stream, std::vector<std::uint8_t> &data);
@@ -53,7 +44,7 @@ private:
 protected:
 public:
     //explicit JPEGReader(){}
-    JPEGReader(std::ifstream &stream): arstream(stream), endian(enEndian::littleEndian), ardata(){} 
+    JPEGReader(std::ifstream &stream):FileReader(stream){} 
     virtual ~JPEGReader(){}
 
     enEndian getEndian() const;

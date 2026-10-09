@@ -34,7 +34,7 @@ struct stIFD {
 
 using variantIFD = std::variant<
     std::vector<std::uint8_t>,      // BYTE, UNDEFINED
-    std::string,                    // ASCII
+    std::string,                    // ASCII, UTF-8
     std::vector<std::uint16_t>,     // SHORT
     std::vector<std::uint32_t>,     // LONG
     std::vector<stRational>,        // RATIONAL
