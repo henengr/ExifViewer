@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    setWindowTitle(APP_NAME);
 }
 
 MainWindow::~MainWindow()
@@ -115,7 +117,8 @@ void MainWindow::on_action_Open_triggered()
 
     //ui->tableView->setStyleSheet("QTableView { gridline-color: #d0d0d0; border-bottom: 1px solid #d0d0d0; }");
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectItems);
+    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    //ui->tableView->setSelectionBehavior(QAbstractItemView::SelectItems);
     ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->tableView->verticalHeader()->setDefaultSectionSize(26);
     //ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -259,6 +262,9 @@ void MainWindow::on_action_Open_triggered()
 
         row++;
     }
+
+    std::string title = std::string(APP_NAME) + "  [" + filePath.string() + "]";
+    setWindowTitle(title.c_str());
 }
 
 
