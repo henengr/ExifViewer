@@ -19,7 +19,7 @@ private:
 
     FRIEND_TEST(JPEGReaderTest, readSegment);
     FRIEND_TEST(JPEGReaderTest, readSegmentErr);
-    std::int32_t readSegment(std::uint16_t marker, std::ifstream &stream, std::vector<std::uint8_t> &data);
+    std::int32_t readSegment(std::uint16_t marker, std::istream &stream, std::vector<std::uint8_t> &data);
 
     FRIEND_TEST(JPEGReaderTest, parseAPP0);
     FRIEND_TEST(JPEGReaderTest, parseAPP0Err);
