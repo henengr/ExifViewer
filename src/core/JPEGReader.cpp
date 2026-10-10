@@ -82,7 +82,7 @@ void valueConverter::dispDumb(std::vector<std::uint8_t> &data){
     std::cout.flags(f);
 }
 
-std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream, std::vector<std::uint8_t> &data){
+std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::ifstream &stream, std::vector<std::uint8_t> &data){
     std::uint8_t byte;
     //std::uint16_t mk;
     std::uint16_t len;
@@ -111,7 +111,7 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
                 if (stream.read(reinterpret_cast<char*>(&skipLen), sizeof(skipLen))) {
                     skipLen = valueConverter::swapUInt16(skipLen);
                     if (skipLen >= 2) {
-                        // セグメント長（skip_len）には自分自身の2バイト分が含まれるため、-2 してデータ分を飛び越える
+                        // Since segment length includes its own length, 2 is subtracted.
                         stream.seekg(skipLen - 2, std::ios::cur); 
                     }
                 } else {
