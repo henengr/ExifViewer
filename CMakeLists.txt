@@ -6,6 +6,7 @@ set(PROJECT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # ==============================================================================
 add_library(exifviewer_lib STATIC
+    src/core/ReaderFactory.cpp
     src/core/JPEGReader.cpp
     src/core/IFDReader.cpp
 )

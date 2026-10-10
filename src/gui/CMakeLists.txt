@@ -11,8 +11,9 @@ qt_add_executable(ExifViewer
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-    ../core/IFDReader.cpp ../core/JPEGReader.cpp
-    ../../include/FileReader.hpp ../../include/IFD.hpp ../../include/IFDReader.hpp ../../include/JFIF.hpp ../../include/JPEGReader.hpp
+    ../core/IFDReader.cpp ../core/JPEGReader.cpp ../core/ReaderFactory.cpp
+    ../../include/FileReader.hpp ../../include/IFD.hpp
+    ../../include/IFDReader.hpp ../../include/JFIF.hpp ../../include/JPEGReader.hpp ../../include/ReaderFactory.hpp
 )
 
 qt_add_translations(

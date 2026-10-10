@@ -100,11 +100,12 @@ TEST(JPEGReaderTest, readSegment){
     std::vector<std::uint8_t> data;
 
     std:int32_t len;
-    len = JPEGReader::readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss, data);
+    auto pjpg = std::make_unique<JPEGReader>("");
+    len = pjpg->readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss, data);
     EXPECT_EQ(dtAPP0, data);
 
     data.clear();
-    len = JPEGReader::readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP1), ss, data);
+    len = pjpg->readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP1), ss, data);
     EXPECT_EQ(dtAPP1, data);
 }
 
@@ -137,11 +138,12 @@ TEST(JPEGReaderTest, readSegmentErr){
     std::vector<std::uint8_t> data;
 
     std:int32_t len;
-    len = JPEGReader::readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss1, data);
-    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_FORMAT);
+    auto pjpg = std::make_unique<JPEGReader>("");
+    len = pjpg->readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss1, data);
+    EXPECT_EQ(len, FILEREADER_INVALID_FILE_FORMAT);
 
-    len = JPEGReader::readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss2, data);
-    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_FORMAT);
+    len = pjpg->readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss2, data);
+    EXPECT_EQ(len, FILEREADER_INVALID_FILE_FORMAT);
 }
 
 TEST(JPEGReaderTest, parseAPP0){
@@ -161,7 +163,8 @@ TEST(JPEGReaderTest, parseAPP0){
     std::vector<std::uint8_t> dtThumb = {0x41, 0x4d, 0x50, 0x46};
 
     stAPP0 app;
-    std::int32_t len = JPEGReader::parseAPP0(mock, app);
+    auto pjpg = std::make_unique<JPEGReader>("");
+    std::int32_t len = pjpg->parseAPP0(mock, app);
     EXPECT_EQ(std::memcmp(app.JFIFIdentifier, dtJFIF, 5), 0);
     EXPECT_EQ(app.version, 0x0101);
     EXPECT_EQ(app.pixelConcentrationUnit, 0x01);
@@ -188,11 +191,12 @@ TEST(JPEGReaderTest, parseAPP0Err){
 
     stAPP0 app;
     std::int32_t len;
-    len = JPEGReader::parseAPP0(mockErr1, app);
-    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_SIZE);
+    auto pjpg = std::make_unique<JPEGReader>("");
+    len = pjpg->parseAPP0(mockErr1, app);
+    EXPECT_EQ(len, FILEREADER_INVALID_FILE_SIZE);
 
-    len = JPEGReader::parseAPP0(mockErr2, app);
-    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_FORMAT);
+    len = pjpg->parseAPP0(mockErr2, app);
+    EXPECT_EQ(len, FILEREADER_INVALID_FILE_FORMAT);
 }
 
 TEST(JPEGReaderTest, parseAPP1){
@@ -208,7 +212,8 @@ TEST(JPEGReaderTest, parseAPP1){
 
     stAPP1 app;
     enEndian endian;
-    std::int32_t len = JPEGReader::parseAPP1(mock, endian, app);
+    auto pjpg = std::make_unique<JPEGReader>("");
+    std::int32_t len = pjpg->parseAPP1(mock, endian, app);
     EXPECT_EQ(std::memcmp(app.ExifIdentifier, dtExif, 6), 0);
     EXPECT_EQ(endian, enEndian::bigEndian);
 }
@@ -230,10 +235,11 @@ TEST(JPEGReaderTest, parseAPP1Err){
     stAPP1 app;
     enEndian endian;
     std::int32_t len;
-    len = JPEGReader::parseAPP1(mockErr1, endian, app);
-    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_SIZE);
+    auto pjpg = std::make_unique<JPEGReader>("");
+    len = pjpg->parseAPP1(mockErr1, endian, app);
+    EXPECT_EQ(len, FILEREADER_INVALID_FILE_SIZE);
 
-    len = JPEGReader::parseAPP1(mockErr2, endian, app);
-    EXPECT_EQ(len, JPEGREADER_INVALID_FILE_FORMAT);
+    len = pjpg->parseAPP1(mockErr2, endian, app);
+    EXPECT_EQ(len, FILEREADER_INVALID_FILE_FORMAT);
     EXPECT_TRUE(std::memcmp(app.ExifIdentifier, dtExif, 6) > 0);
 }

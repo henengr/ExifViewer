@@ -93,7 +93,7 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
     while (stream.read(reinterpret_cast<char*>(&byte), 1)) {
         if (byte == 0xff) {
             std::uint8_t markerCode;
-            if (!stream.read(reinterpret_cast<char*>(&markerCode), 1)) return JPEGREADER_INVALID_FILE_SIZE;
+            if (!stream.read(reinterpret_cast<char*>(&markerCode), 1)) return FILEREADER_INVALID_FILE_SIZE;
 
             if (markerCode == 0x00) continue;
 
@@ -115,7 +115,7 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
                         stream.seekg(skipLen - 2, std::ios::cur); 
                     }
                 } else {
-                    return JPEGREADER_INVALID_FILE_SIZE;
+                    return FILEREADER_INVALID_FILE_SIZE;
                 }
                 continue;
             }
@@ -131,11 +131,11 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
             std::uint16_t len;
             stream.read(reinterpret_cast<char*>(&len), sizeof(len));
             if (stream.gcount() < sizeof(len)) {
-                return JPEGREADER_INVALID_FILE_SIZE;
+                return FILEREADER_INVALID_FILE_SIZE;
             }
             len = valueConverter::swapUInt16(len);
 
-            if (len < 2) return JPEGREADER_INVALID_FILE_FORMAT;
+            if (len < 2) return FILEREADER_INVALID_FILE_FORMAT;
 
             std::uint16_t payloadLen = len - 2;
 
@@ -144,7 +144,7 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
             if (payloadLen > 0) {
                 stream.read(reinterpret_cast<char*>(data.data()), payloadLen);
                 if (stream.gcount() < payloadLen) {
-                    return JPEGREADER_INVALID_FILE_FORMAT;
+                    return FILEREADER_INVALID_FILE_FORMAT;
                 }
             }
 
@@ -154,49 +154,12 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
 
     }
 
-    return JPEGREADER_INVALID_FILE_FORMAT;
-    /*do {
-        stream.read(reinterpret_cast<char*>(&mk), sizeof(mk));
-        if (stream.gcount() < sizeof(mk) || stream.eof()){
-            return JPEGREADER_INVALID_FILE_SIZE;
-        }
-        mk = valueConverter::swapUInt16(mk);
-
-        if (mk != marker) continue;
-
-        // These segments have no length field or data
-        if (mk == static_cast<std::uint16_t>(enSegmentMarker::ByteStuffing) ||
-            mk == static_cast<std::uint16_t>(enSegmentMarker::SOI) || 
-            mk == static_cast<std::uint16_t>(enSegmentMarker::EOI) ||
-            mk == static_cast<std::uint16_t>(enSegmentMarker::TEM) ||
-            (mk >= static_cast<std::uint16_t>(enSegmentMarker::RST0) && mk <= static_cast<std::uint16_t>(enSegmentMarker::RST7))) {
-            data.clear();
-            return 0;
-        }
-
-        stream.read(reinterpret_cast<char*>(&len), sizeof(len));
-        if (stream.gcount() < sizeof(len) || stream.eof()){
-            return JPEGREADER_INVALID_FILE_FORMAT;
-        }
-        len = valueConverter::swapUInt16(len);
-        std::uint16_t payloadLen = len - sizeof(mk);
-
-        if (payloadLen <= 0) return JPEGREADER_INVALID_FILE_FORMAT;
-
-        data.resize(payloadLen);
-        stream.read(reinterpret_cast<char*>(data.data()), payloadLen);
-        if (stream.gcount() < payloadLen || stream.eof()){
-            return JPEGREADER_INVALID_FILE_FORMAT;
-        }
-        break;
-    } while (!stream.eof());
-
-    return stream.gcount();*/
+    return FILEREADER_INVALID_FILE_FORMAT;
 }
 
 std::int32_t JPEGReader::parseAPP0(const std::vector<std::uint8_t>& data, stAPP0 &value){
     std::uint32_t ofs = 0;
-    if (data.size() < 12) return JPEGREADER_INVALID_FILE_SIZE;
+    if (data.size() < 12) return FILEREADER_INVALID_FILE_SIZE;
 
     auto is = data.begin();
     auto ie = is + 5;
@@ -204,7 +167,7 @@ std::int32_t JPEGReader::parseAPP0(const std::vector<std::uint8_t>& data, stAPP0
     std::memcpy(value.JFIFIdentifier, data.data(), 5);
     ofs += 5;
     if (std::memcmp(value.JFIFIdentifier, "JFIF\0", 5) != 0)
-        return JPEGREADER_INVALID_FILE_FORMAT;
+        return FILEREADER_INVALID_FILE_FORMAT;
 
     value.version = (static_cast<std::uint16_t>(data[ofs]) << 8) | data[ofs + 1];
     ofs += sizeof(value.version);
@@ -237,7 +200,7 @@ std::int32_t JPEGReader::parseAPP0(const std::vector<std::uint8_t>& data, stAPP0
 
 std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndian &endian, stAPP1 &value){
     std::uint32_t ofs = 0;
-    if (data.size() < 16) return JPEGREADER_INVALID_FILE_SIZE;
+    if (data.size() < 16) return FILEREADER_INVALID_FILE_SIZE;
 
     auto is = data.begin();
     auto ie = is + 6;
@@ -245,17 +208,17 @@ std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndi
     std::memcpy(value.ExifIdentifier, data.data(), 6);
     ofs += 6;
     if (std::memcmp(value.ExifIdentifier, "Exif\0\0", 6) != 0)
-        return JPEGREADER_INVALID_FILE_FORMAT;
+        return FILEREADER_INVALID_FILE_FORMAT;
 
     if (data[ofs] == 'M' && data[ofs + 1] == 'M')
         endian = enEndian::bigEndian;
     else if (data[ofs] == 'I' && data[ofs + 1] == 'I')
         endian = enEndian::littleEndian;
-    else return JPEGREADER_INVALID_FILE_FORMAT;
+    else return FILEREADER_INVALID_FILE_FORMAT;
     // ofs += 2;     Start the payload from "ByteOrder".
 
     std::uint32_t payloadLen = data.size() - ofs;
-    if (payloadLen <= 0) return JPEGREADER_INVALID_FILE_FORMAT;     // No IFD data.
+    if (payloadLen <= 0) return FILEREADER_INVALID_FILE_FORMAT;     // No IFD data.
 
     value.data.clear();
     value.data.resize(payloadLen);
@@ -271,14 +234,20 @@ enEndian JPEGReader::getEndian() const{
     return endian;
 }
 
-std::int32_t JPEGReader::readSegment(std::uint16_t marker){
-    return readSegment(marker, arstream, ardata);
+std::int32_t JPEGReader::parse(std::vector<std::uint8_t> &data){
+    std::int32_t ret = readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP1), arstream, ardata);
+    if (ret < 0){
+        return ret;
+    }
+
+    ret = parseAPP1(ardata, endian, app1);
+    if (ret < 0){
+        return ret;
+    }
+    this->endian = endian;
+    data = app1.data;
+
+    return ret;
 }
 
-std::int32_t JPEGReader::parseAPP0(stAPP0 &value){
-    return parseAPP0(ardata, value);
-}
 
-std::int32_t JPEGReader::parseAPP1(enEndian &endian, stAPP1 &value){
-    return parseAPP1(ardata, endian, value);
-}

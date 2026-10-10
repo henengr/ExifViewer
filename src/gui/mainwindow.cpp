@@ -4,20 +4,16 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QMessageBox>
-#include <filesystem>
 #include <string>
-#include <fstream>
 #include <sstream>
 #include <cmath>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "../../include/JFIF.hpp"
 #include "../../include/IFD.hpp"
 #include "../../include/IFDReader.hpp"
-#include "../../include/JPEGReader.hpp"
+#include "../../include/ReaderFactory.hpp"
 
-namespace fs = std::filesystem;
 
 constexpr const char* APP_NAME = "ExifViewer ver.0.10";
 
@@ -40,7 +36,7 @@ void MainWindow::on_action_Open_triggered()
     QString fileName = QFileDialog::getOpenFileName(
         this, tr("Open file"),
         "",
-        tr("Images (*.jpg, *.jpeg);;All Files(*)")
+        tr("Images (*.jpg, *.jpeg, *.JPG, *.JPEG);;All Files(*)")
     );
 
     if (fileName.isEmpty()){
@@ -60,41 +56,17 @@ void MainWindow::on_action_Open_triggered()
     ui->graphicsView->setScene(scene);
     ui->graphicsView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 
+    std::unique_ptr<FileReader> reader = ReaderFactory::create(fileName.toStdString());
+    //auto reader = std::make_unique<JPEGReader>(fileName.toStdString());
 
-
-    fs::path filePath = fileName.toStdWString();
-
-    if (!fs::exists(filePath)){
-        qDebug() << "File not found. :" << filePath.string();
-        return;
-    }
-
-    std::ifstream file(filePath, std::ios::binary);
-    if (!file.is_open()){
-        qDebug() << "File could not be opened. :" << filePath.string();
-        return;
-    }
-
-    auto pjpg = std::make_unique<JPEGReader>(file);
-
-    std::int32_t ret;
     enEndian endian;
-    stAPP1 app1;
 
-    ret = pjpg->readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP1));
-    if (ret < 0){
-        qDebug() << "Invalid file. : " << filePath.string();
-        return;
-    }
+    std::vector<std::uint8_t> data;
+    reader->parse(data);
 
-    ret = pjpg->parseAPP1(endian, app1);
-    if (ret < 0){
-        qDebug() << "File parsing error. " << filePath.string();
-        return;
-    }
-
-    std::vector<std::uint8_t> &data = app1.data;
     auto rifd = std::make_unique<IFDReader>(data);
+
+    endian = reader->getEndian();
 
     std::vector<stIFD> ifds;
     rifd->readIFDs(ifds);
@@ -115,16 +87,11 @@ void MainWindow::on_action_Open_triggered()
     ui->tableView->setColumnWidth(3, 220);
     ui->tableView->setColumnWidth(4, 1200);
 
-    //ui->tableView->setStyleSheet("QTableView { gridline-color: #d0d0d0; border-bottom: 1px solid #d0d0d0; }");
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    //ui->tableView->setSelectionBehavior(QAbstractItemView::SelectItems);
     ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->tableView->verticalHeader()->setDefaultSectionSize(26);
-    //ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-
 
     int row = 0;
     std::string strLat, strLong;
@@ -263,7 +230,7 @@ void MainWindow::on_action_Open_triggered()
         row++;
     }
 
-    std::string title = std::string(APP_NAME) + "  [" + filePath.string() + "]";
+    std::string title = std::string(APP_NAME) + "  [" + fileName.toStdString() + "]";
     setWindowTitle(title.c_str());
 }
 

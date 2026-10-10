@@ -1,9 +1,13 @@
 #pragma once
 
 #include <vector>
+#include <fstream>
+#include <cstdint>
+#include <filesystem>
 
-#include "JFIF.hpp"
-#include "IFD.hpp"
+
+constexpr std::int32_t FILEREADER_INVALID_FILE_SIZE                 = -1;
+constexpr std::int32_t FILEREADER_INVALID_FILE_FORMAT               = -2;
 
 enum class enEndian: std::uint8_t {
     littleEndian = 1,
@@ -12,10 +16,14 @@ enum class enEndian: std::uint8_t {
 
 class FileReader {
 protected:
-    std::istream &arstream;
+    std::ifstream arstream;
     std::vector<std::uint8_t> ardata;
     enEndian endian;
 public:
-    FileReader(std::ifstream &stream): arstream(stream), endian(enEndian::littleEndian), ardata(){} 
+    FileReader(std::ifstream &stream): arstream(std::move(stream)), endian(enEndian::littleEndian), ardata(){}
+    FileReader(const std::string path): arstream(std::filesystem::u8path(path), std::ios::binary){}
+    virtual ~FileReader() = default;
+    virtual enEndian getEndian() const = 0;
+    virtual std::int32_t parse(std::vector<std::uint8_t> &data) = 0;
 };
 

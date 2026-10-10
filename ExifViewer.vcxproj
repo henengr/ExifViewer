@@ -126,10 +126,13 @@
     <ClInclude Include="include\IFD.hpp" />
     <ClInclude Include="include\IFDReader.hpp" />
     <ClInclude Include="include\JFIF.hpp" />
+    <ClInclude Include="include\FileReader.hpp" />
     <ClInclude Include="include\JPEGReader.hpp" />
+    <ClInclude Include="include\ReaderFactory.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\core\JPEGReader.cpp" />
+    <ClCompile Include="src\core\ReaderFactory.cpp" />
     <ClCompile Include="src\core\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
