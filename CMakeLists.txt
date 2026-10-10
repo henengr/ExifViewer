@@ -4,11 +4,12 @@ project(MyCppProject CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(PROJECT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# ==============================================================================
 add_library(exifviewer_lib STATIC
+    src/core/FileReader.cpp
     src/core/ReaderFactory.cpp
     src/core/JPEGReader.cpp
     src/core/IFDReader.cpp
+    src/core/HEICReader.cpp
 )
 target_include_directories(exifviewer_lib PUBLIC ${PROJECT_INCLUDE_DIR})
 
@@ -22,9 +23,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(exifviewer PRIVATE -Wno-shift-count-overflow)
 endif()
 
-# ==============================================================================
 find_package(GTest REQUIRED)
 
-# ==============================================================================
 enable_testing()
 add_subdirectory(test)

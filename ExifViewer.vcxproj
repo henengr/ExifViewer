@@ -128,10 +128,13 @@
     <ClInclude Include="include\JFIF.hpp" />
     <ClInclude Include="include\FileReader.hpp" />
     <ClInclude Include="include\JPEGReader.hpp" />
+    <ClInclude Include="include\HEICReader.hpp" />
     <ClInclude Include="include\ReaderFactory.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\HEICReader.cpp" />
     <ClCompile Include="src\core\JPEGReader.cpp" />
+    <ClCompile Include="src\core\FileReader.cpp" />
     <ClCompile Include="src\core\ReaderFactory.cpp" />
     <ClCompile Include="src\core\main.cpp" />
   </ItemGroup>
