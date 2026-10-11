@@ -6,8 +6,10 @@
 #include <filesystem>
 
 
-constexpr std::int32_t FILEREADER_INVALID_FILE_SIZE                 = -1;
-constexpr std::int32_t FILEREADER_INVALID_FILE_FORMAT               = -2;
+constexpr std::int32_t FILEREADER_FILE_NOT_OPENED                   = -1;
+constexpr std::int32_t FILEREADER_INVALID_FILE_SIZE                 = -2;
+constexpr std::int32_t FILEREADER_INVALID_FILE_FORMAT               = -3;
+constexpr std::int32_t FILEREADER_EXIF_BLOCK_NOT_FOUND              = -8;
 
 class valueConverter {
 public:

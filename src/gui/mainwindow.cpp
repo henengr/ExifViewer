@@ -16,6 +16,7 @@
 
 
 constexpr const char* APP_NAME = "ExifViewer ver.0.10";
+constexpr const char* COPYRIGHT = "henengr (Kenichiro Hojo)";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -36,7 +37,7 @@ void MainWindow::on_action_Open_triggered()
     QString fileName = QFileDialog::getOpenFileName(
         this, tr("Open file"),
         "",
-        tr("Images (*.jpg, *.jpeg, *.JPG, *.JPEG);;All Files(*)")
+        tr("Images (*.jpg *.jpeg *.JPG *.JPEG *.heic *.HEIC);;All Files(*)")
     );
 
     if (fileName.isEmpty()){
@@ -45,16 +46,22 @@ void MainWindow::on_action_Open_triggered()
 
     qDebug() << "Selected file:" << fileName;
 
-    QPixmap pixmap(fileName);
-    if (pixmap.isNull()) {
-        QMessageBox::warning(this, tr("Error"), tr("Loading an image failed."));
-        return;
-    }
+    bool isHeic = fileName.endsWith(".heic", Qt::CaseInsensitive);
+    if (!isHeic) {
+        QPixmap pixmap(fileName);
+        if (pixmap.isNull()) {
+            QMessageBox::warning(this, tr("Error"), tr("Loading an image failed."));
+            return;
+        }
 
-    QGraphicsScene *scene = new QGraphicsScene(this);
-    scene->addPixmap(pixmap);
-    ui->graphicsView->setScene(scene);
-    ui->graphicsView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+        QGraphicsScene *scene = new QGraphicsScene(this);
+        scene->addPixmap(pixmap);
+        ui->graphicsView->setScene(scene);
+        ui->graphicsView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+    } else {
+        ui->graphicsView->setScene(nullptr);
+        qDebug() << "HEIC file detected. Skipping QPixmap rendering and proceeding to Exif parsing.";
+    }
 
     std::unique_ptr<FileReader> reader = ReaderFactory::create(fileName.toStdString());
     //auto reader = std::make_unique<JPEGReader>(fileName.toStdString());
@@ -243,6 +250,7 @@ void MainWindow::on_action_Quit_triggered()
 
 void MainWindow::on_action_About_triggered()
 {
-    QMessageBox::information(this, "About", APP_NAME);
+    std::string cp = std::string(APP_NAME) + "\n\n" + COPYRIGHT;
+    QMessageBox::information(this, "About", cp.c_str());
 }
 
