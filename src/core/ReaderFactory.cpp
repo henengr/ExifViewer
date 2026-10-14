@@ -37,7 +37,7 @@ bool ReaderFactory::checkHeader(const std::string& path, const std::vector<unsig
     if (expectedHeader2.size() > 0)
             file.read(reinterpret_cast<char*>(actualHeader2.data()), expectedHeader2.size());
     
-    return actualHeader == expectedHeader;
+    return (actualHeader == expectedHeader && actualHeader2 == expectedHeader2);
 }
 
 
