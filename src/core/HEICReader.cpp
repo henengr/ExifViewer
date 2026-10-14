@@ -49,6 +49,7 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
         exifFound = true;
         break;
     }
+    if (!exifFound) return FILEREADER_EXIF_BLOCK_NOT_FOUND;
 
     std::streamsize curPos = stream.tellg();    // Save the current position
     stream.seekg(0, std::ios::end);
@@ -56,6 +57,7 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     stream.seekg(curPos, std::ios::beg);
     data.resize(endPos - curPos);
 
+    this->endian = endian;
     stream.read(reinterpret_cast<char*>(data.data()), endPos - curPos);
 
     return static_cast<std::int32_t>(endPos - curPos);

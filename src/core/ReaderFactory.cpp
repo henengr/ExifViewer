@@ -8,6 +8,7 @@
 #include "ReaderFactory.hpp"
 #include "JPEGReader.hpp"
 #include "HEICReader.hpp"
+#include "PNGReader.hpp"
 
 
 std::string ReaderFactory::getExtension(const std::string& path) {
@@ -46,6 +47,13 @@ std::unique_ptr<FileReader> ReaderFactory::create(const std::string &path){
     if (ext == "heic" || ext == "HEIC"){
         if (checkHeader(path, {0x00, 0x00, 0x00, '4', 'f', 't', 'y', 'p', 'h', 'e', 'i', 'c'})){
             return std::make_unique<HEICReader>(path);
+        }
+    }
+
+    // PNG
+    if (ext == "png" || ext == "PNG"){
+        if (checkHeader(path, {0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a})){
+            return std::make_unique<PNGReader>(path);
         }
     }
 

@@ -37,7 +37,7 @@ void MainWindow::on_action_Open_triggered()
     QString fileName = QFileDialog::getOpenFileName(
         this, tr("Open file"),
         "",
-        tr("Images (*.jpg *.jpeg *.JPG *.JPEG *.heic *.HEIC);;All Files(*)")
+        tr("Images (*.jpg *.jpeg *.JPG *.JPEG *.heic *.HEIC *.png *.PNG);;All Files(*)")
     );
 
     if (fileName.isEmpty()){
@@ -64,7 +64,6 @@ void MainWindow::on_action_Open_triggered()
     }
 
     std::unique_ptr<FileReader> reader = ReaderFactory::create(fileName.toStdString());
-    //auto reader = std::make_unique<JPEGReader>(fileName.toStdString());
 
     enEndian endian;
 
