@@ -285,8 +285,6 @@ TEST(JPEGReaderTest, parse){
         'i', 'P', 'h', 'o', 'n', 'e', ' ', '1', '6', ' ', 'P', 'r', 'o', 0x00,      // ???
     };
 
-    stAPP1 app;
-    enEndian endian;
     std::vector<std::uint8_t> data;
     std::vector<std::uint8_t> checkVal(mock.begin() + 34, mock.end());
     std::string_view view(reinterpret_cast<const char*>(mock.data()), mock.size());

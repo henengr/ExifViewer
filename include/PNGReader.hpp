@@ -14,7 +14,7 @@ class PNGReader: public FileReader{
 private:
 protected:
 public:
-    PNGReader(std::ifstream &stream):FileReader(stream){} 
+    PNGReader(std::istream &stream):FileReader(stream){} 
     PNGReader(const std::string path):FileReader(path){}
     virtual ~PNGReader(){}
 
