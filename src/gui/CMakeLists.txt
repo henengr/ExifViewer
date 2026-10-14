@@ -15,6 +15,7 @@ qt_add_executable(ExifViewer
     ../core/JPEGReader.cpp
     ../core/HEICReader.cpp
     ../core/PNGReader.cpp
+    ../core/WebPReader.cpp
     ../core/FileReader.cpp
     ../core/ReaderFactory.cpp
     ../../include/FileReader.hpp
@@ -24,6 +25,7 @@ qt_add_executable(ExifViewer
     ../../include/JPEGReader.hpp
     ../../include/HEICReader.hpp
     ../../include/PNGReader.hpp
+    ../../include/WebPReader.hpp
     ../../include/ReaderFactory.hpp
 )
 

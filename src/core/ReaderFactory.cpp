@@ -9,6 +9,7 @@
 #include "JPEGReader.hpp"
 #include "HEICReader.hpp"
 #include "PNGReader.hpp"
+#include "WebPReader.hpp"
 
 
 std::string ReaderFactory::getExtension(const std::string& path) {
@@ -19,16 +20,23 @@ std::string ReaderFactory::getExtension(const std::string& path) {
     return ext;
 }
 
-bool ReaderFactory::checkHeader(const std::string& path, const std::vector<unsigned char>& expectedHeader){
+bool ReaderFactory::checkHeader(const std::string& path, const std::vector<unsigned char>& expectedHeader,
+        std::size_t skipByte, const std::vector<unsigned char>& expectedHeader2){
     std::filesystem::path filePath = std::filesystem::u8path(path);
 
     std::ifstream file(filePath, std::ios::binary);
     if (!file) return false;
 
     std::vector<unsigned char> actualHeader(expectedHeader.size());
+    std::vector<unsigned char> actualHeader2(expectedHeader2.size());
     file.read(reinterpret_cast<char*>(actualHeader.data()), expectedHeader.size());
-    
+
     if (file.gcount() < static_cast<std::streamsize>(expectedHeader.size())) return false;
+
+    if (skipByte > 0) file.seekg(skipByte, std::ios::cur);
+    if (expectedHeader2.size() > 0)
+            file.read(reinterpret_cast<char*>(actualHeader2.data()), expectedHeader2.size());
+    
     return actualHeader == expectedHeader;
 }
 
@@ -54,6 +62,13 @@ std::unique_ptr<FileReader> ReaderFactory::create(const std::string &path){
     if (ext == "png" || ext == "PNG"){
         if (checkHeader(path, {0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a})){
             return std::make_unique<PNGReader>(path);
+        }
+    }
+
+    // WebP
+    if (ext == "webp" || ext == "WEBP" || ext == "WebP"){
+        if (checkHeader(path, {'R', 'I', 'F', 'F'}, 4, {'W', 'E', 'B', 'P', 'V', 'P', '8', 'X'})){
+            return std::make_unique<WebPReader>(path);
         }
     }
 

@@ -11,6 +11,7 @@ add_library(exifviewer_lib STATIC
     src/core/IFDReader.cpp
     src/core/HEICReader.cpp
     src/core/PNGReader.cpp
+    src/core/WebPReader.cpp
 )
 target_include_directories(exifviewer_lib PUBLIC ${PROJECT_INCLUDE_DIR})
 
