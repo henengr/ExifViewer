@@ -14,9 +14,9 @@ enEndian HEICReader::getEndian() const{
 
 std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     std::int32_t ret;
-    std::ifstream &stream = arstream;
+    std::istream &stream = *arstream;
 
-    if (!stream.is_open()){
+    if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
     }
     stream.clear();

@@ -161,8 +161,8 @@ enEndian JPEGReader::getEndian() const{
 }
 
 std::int32_t JPEGReader::parse(std::vector<std::uint8_t> &data){
-    std::ifstream &stream = arstream;
-    if (!stream.is_open()){
+    std::istream &stream = *arstream;
+    if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
     }
 

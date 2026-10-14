@@ -30,7 +30,7 @@ private:
     std::int32_t parseAPP1(const std::vector<std::uint8_t>& data, enEndian &endian, stAPP1 &value);
 protected:
 public:
-    JPEGReader(std::ifstream &stream):FileReader(stream){} 
+    JPEGReader(std::istream &stream):FileReader(stream){} 
     JPEGReader(const std::string path):FileReader(path){}
     virtual ~JPEGReader(){}
 

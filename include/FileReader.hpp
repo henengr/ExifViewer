@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <cstdint>
+#include <memory>
 #include <filesystem>
 
 
@@ -31,12 +32,12 @@ enum class enEndian: std::uint8_t {
 
 class FileReader {
 protected:
-    std::ifstream arstream;
+    std::unique_ptr<std::istream> arstream;
     std::vector<std::uint8_t> ardata;
     enEndian endian;
 public:
-    FileReader(std::ifstream &stream): arstream(std::move(stream)), endian(enEndian::littleEndian), ardata(){}
-    FileReader(const std::string path): arstream(std::filesystem::u8path(path), std::ios::binary){}
+    FileReader(std::istream &stream): arstream(std::make_unique<std::istream>(stream.rdbuf())), endian(enEndian::littleEndian), ardata(){}
+    FileReader(const std::string path): arstream(std::make_unique<std::ifstream>(std::filesystem::u8path(path), std::ios::binary)){}
     virtual ~FileReader() = default;
     virtual enEndian getEndian() const = 0;
     virtual std::int32_t parse(std::vector<std::uint8_t> &data) = 0;
