@@ -94,6 +94,7 @@
       <PreprocessorDefinitions>DISABLE_GTEST;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -117,6 +118,7 @@
       <PreprocessorDefinitions>DISABLE_GTEST;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -133,15 +135,17 @@
     <ClInclude Include="include\JPEGReader.hpp" />
     <ClInclude Include="include\HEICReader.hpp" />
     <ClInclude Include="include\PNGReader.hpp" />
+    <ClInclude Include="include\WebPReader.hpp" />
     <ClInclude Include="include\ReaderFactory.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cli\main.cpp" />
     <ClCompile Include="src\core\IFDReader.cpp" />
-    <ClCompile Include="src\core\PNGReader.cpp" />
-    <ClCompile Include="src\core\HEICReader.cpp" />
-    <ClCompile Include="src\core\JPEGReader.cpp" />
     <ClCompile Include="src\core\FileReader.cpp" />
+    <ClCompile Include="src\core\JPEGReader.cpp" />
+    <ClCompile Include="src\core\HEICReader.cpp" />
+    <ClCompile Include="src\core\PNGReader.cpp" />
+    <ClCompile Include="src\core\WebPReader.cpp" />
     <ClCompile Include="src\core\ReaderFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

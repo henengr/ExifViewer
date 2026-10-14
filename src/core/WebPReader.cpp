@@ -13,7 +13,6 @@ enEndian WebPReader::getEndian() const{
 }
 
 std::int32_t WebPReader::parse(std::vector<std::uint8_t> &data){
-    std::int32_t ret;
     std::istream &stream = *arstream;
 
     if (!stream){

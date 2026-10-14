@@ -10,8 +10,6 @@
 
 std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream, std::vector<std::uint8_t> &data){
     std::uint8_t byte;
-    //std::uint16_t mk;
-    std::uint16_t len;
 
     stream.clear();
     stream.seekg(0, std::ios::beg);
@@ -112,7 +110,7 @@ std::int32_t JPEGReader::parseAPP0(const std::vector<std::uint8_t>& data, stAPP0
     value.thumbnailImageHeight = data[ofs + 1];
     ofs += 2;
 
-    std::uint32_t payloadLen = data.size() - ofs;
+    std::uint32_t payloadLen = static_cast<std::uint32_t>(data.size()) - ofs;
     if (payloadLen <= 0) return ofs;
 
     value.thumbnailImage.clear();
@@ -143,7 +141,7 @@ std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndi
     else return FILEREADER_INVALID_FILE_FORMAT;
     // ofs += 2;     Start the payload from "ByteOrder".
 
-    std::uint32_t payloadLen = data.size() - ofs;
+    std::uint32_t payloadLen = static_cast<std::uint32_t>(data.size()) - ofs;
     if (payloadLen <= 0) return FILEREADER_INVALID_FILE_FORMAT;     // No IFD data.
 
     value.data.clear();
