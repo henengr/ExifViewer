@@ -1,5 +1,6 @@
 add_executable(exifviewer_test
     test_JPEGReader.cpp
+    test_HEICReader.cpp
     test_PNGReader.cpp
     test_IFDReader.cpp
     test_main.cpp)

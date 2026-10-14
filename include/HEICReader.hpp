@@ -14,7 +14,7 @@ class HEICReader: public FileReader{
 private:
 protected:
 public:
-    HEICReader(std::ifstream &stream):FileReader(stream){} 
+    HEICReader(std::istream &stream):FileReader(stream){} 
     HEICReader(const std::string path):FileReader(path){}
     virtual ~HEICReader(){}
 
