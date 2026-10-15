@@ -56,7 +56,6 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     stream.seekg(curPos, std::ios::beg);
     data.resize(endPos - curPos);
 
-    this->endian = endian;
     stream.read(reinterpret_cast<char*>(data.data()), endPos - curPos);
 
     return static_cast<std::int32_t>(endPos - curPos);

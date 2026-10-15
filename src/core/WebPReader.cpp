@@ -21,10 +21,10 @@ std::int32_t WebPReader::readHeader(std::istream &stream, stWebPVP8XHeader &head
 
     if (std::memcmp(buf, "RIFF", 4) != 0) return FILEREADER_INVALID_FILE_FORMAT;
     header.fourCC = "RIFF";
-    header.fileSize = *reinterpret_cast<const uint32_t*>(&buf[4]);
+    header.fileSize = *reinterpret_cast<const std::uint32_t*>(&buf[4]);
     header.webP = "WEBP";
     header.chunkHeader = "VP8X";
-    header.payloadSize = *reinterpret_cast<const uint32_t*>(&buf[16]);
+    header.payloadSize = *reinterpret_cast<const std::uint32_t*>(&buf[16]);
     header.flagICCProfile = (buf[20] & 0b00100000) != 0;
     header.flagAlpha      = (buf[20] & 0b00010000) != 0;
     header.flagExif       = (buf[20] & 0b00001000) != 0;

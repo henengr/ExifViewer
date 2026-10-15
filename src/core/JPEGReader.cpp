@@ -173,7 +173,6 @@ std::int32_t JPEGReader::parse(std::vector<std::uint8_t> &data){
     if (ret < 0){
         return ret;
     }
-    this->endian = endian;
     data = app1.data;
 
     return ret;
