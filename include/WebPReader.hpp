@@ -10,8 +10,28 @@
 #include "FileReader.hpp"
 
 
+struct stWebPVP8XHeader {
+    std::string     fourCC;             // "RIFF"
+    std::uint32_t   fileSize;
+    std::string     webP;               // "WEBP"
+    std::string     chunkHeader;        // "VP8X"
+    std::uint32_t   payloadSize;
+    bool            flagICCProfile;
+    bool            flagAlpha;
+    bool            flagExif;
+    bool            flagXMP;
+    bool            flagAnimation;
+    std::uint32_t   canvasWidth;
+    std::uint32_t   canvasHeight;
+};
+
 class WebPReader: public FileReader{
 private:
+    FRIEND_TEST(WebPReaderTest, readHeader);
+    std::int32_t readHeader(std::istream &stream, stWebPVP8XHeader &header);
+
+    FRIEND_TEST(WebPReaderTest, readChunk);
+    std::int32_t readChunk(const std::string fourCC, std::istream &stream, std::vector<std::uint8_t> &data);
 protected:
 public:
     WebPReader(std::istream &stream):FileReader(stream){} 
