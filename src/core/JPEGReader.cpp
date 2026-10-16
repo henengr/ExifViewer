@@ -158,6 +158,27 @@ enEndian JPEGReader::getEndian() const{
     return endian;
 }
 
+std::int32_t JPEGReader::getImageInfo(stImageInfo &info){
+    std::istream &stream = *arstream;
+    if (!stream){
+        return FILEREADER_FILE_NOT_OPENED;
+    }
+    std::vector<std::uint8_t> data;
+
+    std::int32_t ret = readSegment(static_cast<std::uint16_t>(enSegmentMarker::SOF0), stream, data);
+    if (ret < 0){
+        return ret;
+    }
+
+    info.height = static_cast<std::uint32_t>((static_cast<std::uint8_t>(data[1])) |
+                                             (static_cast<std::uint8_t>(data[2]) << 8));
+    info.width  = static_cast<std::uint32_t>((static_cast<std::uint8_t>(data[3])) |
+                                             (static_cast<std::uint8_t>(data[4]) << 8));
+    info.bitsPerPixel = data[0];
+
+    return ret;
+}
+
 std::int32_t JPEGReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *arstream;
     if (!stream){

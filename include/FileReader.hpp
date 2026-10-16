@@ -30,6 +30,12 @@ enum class enEndian: std::uint8_t {
     bigEndian
 };
 
+struct stImageInfo {
+    std::uint32_t   width;
+    std::uint32_t   height;
+    std::uint8_t    bitsPerPixel;
+};
+
 class FileReader {
 protected:
     std::unique_ptr<std::istream> arstream;
@@ -40,6 +46,7 @@ public:
     FileReader(const std::string path): arstream(std::make_unique<std::ifstream>(std::filesystem::u8path(path), std::ios::binary)){}
     virtual ~FileReader() = default;
     virtual enEndian getEndian() const = 0;
+    virtual std::int32_t getImageInfo(stImageInfo &info) = 0;
     virtual std::int32_t parse(std::vector<std::uint8_t> &data) = 0;
 };
 

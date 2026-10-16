@@ -10,7 +10,7 @@
 #include "FileReader.hpp"
 
 
-struct stWebPVP8XHeader {
+struct stWebP_VP8XHeader {
     std::string     fourCC;             // "RIFF"
     std::uint32_t   fileSize;
     std::string     webP;               // "WEBP"
@@ -28,7 +28,7 @@ struct stWebPVP8XHeader {
 class WebPReader: public FileReader{
 private:
     FRIEND_TEST(WebPReaderTest, readHeader);
-    std::int32_t readHeader(std::istream &stream, stWebPVP8XHeader &header);
+    std::int32_t readHeader(std::istream &stream, stWebP_VP8XHeader &header);
 
     FRIEND_TEST(WebPReaderTest, readChunk);
     std::int32_t readChunk(const std::string fourCC, std::istream &stream, std::vector<std::uint8_t> &data);
@@ -39,6 +39,7 @@ public:
     virtual ~WebPReader(){}
 
     enEndian getEndian() const override;
+    std::int32_t getImageInfo(stImageInfo &info) override;
     std::int32_t parse(std::vector<std::uint8_t> &data) override;
 };
 

@@ -52,9 +52,47 @@ std::int32_t PNGReader::readChunk(const std::string fourCC, std::istream &stream
     return paySize + 12;
 }
 
+std::int32_t PNGReader::getIHDRInfo(std::istream &stream, stPNG_IHDRData ihdr){
+    std::vector<std::uint8_t> data;
+
+    std::int32_t ret = readChunk("IHDR", stream, data);
+    ihdr.width  = static_cast<std::uint32_t>((static_cast<std::uint8_t>(data[3])) |
+                                             (static_cast<std::uint8_t>(data[2]) << 8) |
+                                             (static_cast<std::uint8_t>(data[1]) << 16) |
+                                             (static_cast<std::uint8_t>(data[0]) << 24));
+    ihdr.height = static_cast<std::uint32_t>((static_cast<std::uint8_t>(data[7])) |
+                                             (static_cast<std::uint8_t>(data[6]) << 8) |
+                                             (static_cast<std::uint8_t>(data[5]) << 16) |
+                                             (static_cast<std::uint8_t>(data[4]) << 24));
+    ihdr.bitDepth = data[8];
+    ihdr.colorType = static_cast<enPNG_ColorType>(data[9]);
+    ihdr.compressionMethod = static_cast<enPNG_CompressionMethod>(data[10]);
+    ihdr.filterMethod = static_cast<enPNG_FilterMethod>(data[11]);
+    ihdr.interlaceMethod = static_cast<enPNG_InterlaceMethod>(data[12]);
+
+    return ret;
+}
+
 
 enEndian PNGReader::getEndian() const{
     return endian;
+}
+
+std::int32_t PNGReader::getImageInfo(stImageInfo &info){
+    std::istream &stream = *arstream;
+    if (!stream){
+        return FILEREADER_FILE_NOT_OPENED;
+    }
+    stPNG_IHDRData ihdr;
+
+    std::int32_t ret = getIHDRInfo(stream, ihdr);
+    if (ret < 0) return ret;
+
+    info.width = ihdr.width;
+    info.height = ihdr.height;
+    info.bitsPerPixel = ihdr.bitDepth;
+
+    return ret;
 }
 
 std::int32_t PNGReader::parse(std::vector<std::uint8_t> &data){

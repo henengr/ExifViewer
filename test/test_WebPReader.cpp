@@ -24,7 +24,7 @@ TEST(WebPReaderTest, readHeader){
     auto ie = mock.end();
     std::string str(is, ie);
     std::stringstream ss(str);
-    stWebPVP8XHeader header;
+    stWebP_VP8XHeader header;
 
     auto pwebp = std::make_unique<WebPReader>("");
     std::int32_t ret = pwebp->readHeader(ss, header);
@@ -57,7 +57,7 @@ TEST(WebPReaderTest, readChunk){
     auto ie = mock.end();
     std::string str(is, ie);
     std::stringstream ss(str);
-    stWebPVP8XHeader header;
+    stWebP_VP8XHeader header;
     std::vector<std::uint8_t> data;
 
     auto pwebp = std::make_unique<WebPReader>("");

@@ -8,7 +8,7 @@
 #include "WebPReader.hpp"
 
 
-std::int32_t WebPReader::readHeader(std::istream &stream, stWebPVP8XHeader &header){
+std::int32_t WebPReader::readHeader(std::istream &stream, stWebP_VP8XHeader &header){
     if (!stream) return FILEREADER_FILE_NOT_OPENED;
 
     stream.clear();
@@ -75,9 +75,27 @@ enEndian WebPReader::getEndian() const{
     return endian;
 }
 
+std::int32_t WebPReader::getImageInfo(stImageInfo &info){
+    std::istream &stream = *arstream;
+    if (!stream){
+        return FILEREADER_FILE_NOT_OPENED;
+    }
+
+    stWebP_VP8XHeader header;
+    std::int32_t ret;
+    ret = readHeader(stream, header);
+    if (ret < 0) return ret;
+
+    info.width = header.canvasWidth;
+    info.height = header.canvasHeight;
+    info.bitsPerPixel = 0;
+
+    return ret;
+}
+
 std::int32_t WebPReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *arstream;
-    stWebPVP8XHeader header;
+    stWebP_VP8XHeader header;
     std::int32_t ret;
 
     ret = readHeader(stream, header);

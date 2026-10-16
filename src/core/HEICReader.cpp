@@ -12,6 +12,19 @@ enEndian HEICReader::getEndian() const{
     return endian;
 }
 
+std::int32_t HEICReader::getImageInfo(stImageInfo &info){
+    std::istream &stream = *arstream;
+    if (!stream){
+        return FILEREADER_FILE_NOT_OPENED;
+    }
+
+    info.width = 0;
+    info.height = 0;
+    info.bitsPerPixel = 0;
+
+    return 1;
+}
+
 std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *arstream;
 
