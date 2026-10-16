@@ -9,12 +9,15 @@
 
 TEST(PNGReaderTest, parse){
     std::vector<std::uint8_t> mock = {
-        0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A,
-        0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+        0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A,            // PNG file signature
+        // IHDR chunk
+        0x00, 0x00, 0x00, 0x0D,                                 // payload size
+        'I', 'H', 'D', 'R',
         0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x06, 0x00,
-        0x08, 0x02, 0x00, 0x00, 0x00, 0x6D, 0xFA, 0x3F,
-        0x3A, 0x00, 0x00, 0x04, 0xC4,
-        //
+        0x08, 0x02, 0x00, 0x00, 0x00, 
+        0x6D, 0xFA, 0x3F, 0x3A,                                 // CRC
+        // eXIf chunk
+        0x00, 0x00, 0x00, 0xec,                                 // payload size
         'e', 'X', 'I', 'f',
         // +0x00000000
         'M', 'M',                   // Byte Order (Big Endian)
@@ -43,10 +46,12 @@ TEST(PNGReaderTest, parse){
         '2', '6', '.', '6', '.', '1', 0x00, 0x00,                                   // Software
         '2', '0', '2', '6', ':', '0', '9', ':', '0', '5', ' ', '1', '1', ':', '5', '4', ':', '5', '2', 0x00,    // DateTime
         'i', 'P', 'h', 'o', 'n', 'e', ' ', '1', '6', ' ', 'P', 'r', 'o', 0x00,      // ???
+        //
+        0x00, 0x00, 0x00, 0x00,                                 // CRC
     };
 
     std::vector<std::uint8_t> data;
-    std::vector<std::uint8_t> checkVal(mock.begin() + 41, mock.end());
+    std::vector<std::uint8_t> checkVal(mock.begin() + 41, mock.end() - 4);  // Subtract the CRC portion
     std::string_view view(reinterpret_cast<const char*>(mock.data()), mock.size());
     std::istringstream strm((std::string(view)));
     auto ppng = std::make_unique<PNGReader>(strm);
