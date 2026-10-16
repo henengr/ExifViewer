@@ -7,6 +7,85 @@
 #include "PNGReader.hpp" 
 
 
+TEST(PNGReaderTest, readChunk){
+    std::vector<std::uint8_t> mock = {
+        0x00, 0x00, 0x00, 0x04,
+        'T', 'S', 'T', '1',
+        0x00, 0x01, 0x02, 0x03,
+        0xaa, 0xbb, 0xcc, 0xdd,
+        //
+        0x00, 0x00, 0x00, 0x04,
+        'T', 'S', 'T', '2',
+        0x07, 0x06, 0x05, 0x04,
+        0x11, 0x22, 0x33, 0x44,
+    };
+
+    auto is = mock.begin();
+    auto ie = mock.end();
+    std::string str(is, ie);
+    std::stringstream ss(str);
+    std::vector<std::uint8_t> data;
+    std::vector<std::uint8_t> checkVal = {0x07, 0x06, 0x05, 0x04};
+
+    auto ppng = std::make_unique<PNGReader>("");
+    std::int32_t ret = ppng->readChunk("TST2", ss, data);
+    EXPECT_EQ(ret, 16);
+    EXPECT_EQ(checkVal, data);
+}
+
+TEST(PNGReaderTest, getIHDRInfo){
+    std::vector<std::uint8_t> mock = {
+        // IHDR chunk
+        0x00, 0x00, 0x00, 0x0D,                                 // payload size
+        'I', 'H', 'D', 'R',
+        0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x06, 0x00,
+        0x08, 0x02, 0x00, 0x00, 0x00, 
+        0x6D, 0xFA, 0x3F, 0x3A,                                 // CRC
+    };
+
+    auto is = mock.begin();
+    auto ie = mock.end();
+    std::string str(is, ie);
+    std::stringstream ss(str);
+    stPNG_IHDRData ihdr;
+
+    auto ppng = std::make_unique<PNGReader>("");
+    std::int32_t ret = ppng->getIHDRInfo(ss, ihdr);
+    EXPECT_EQ(ret, 25);
+    EXPECT_EQ(ihdr.width, 0x800);
+    EXPECT_EQ(ihdr.height, 0x600);
+    EXPECT_EQ(ihdr.bitDepth, 8);
+    EXPECT_EQ(ihdr.colorType, enPNG_ColorType::RGBTriple);
+    EXPECT_EQ(ihdr.compressionMethod, enPNG_CompressionMethod::none);
+    EXPECT_EQ(ihdr.filterMethod, enPNG_FilterMethod::none);
+    EXPECT_EQ(ihdr.interlaceMethod, enPNG_InterlaceMethod::leftToRight_TopToBottom);
+}
+
+TEST(PNGReaderTest, getImageInfo){
+    std::vector<std::uint8_t> mock = {
+        0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A,            // PNG file signature
+        // IHDR chunk
+        0x00, 0x00, 0x00, 0x0D,                                 // payload size
+        'I', 'H', 'D', 'R',
+        0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x06, 0x00,
+        0x08, 0x02, 0x00, 0x00, 0x00, 
+        0x6D, 0xFA, 0x3F, 0x3A,                                 // CRC
+    };
+
+    auto is = mock.begin();
+    auto ie = mock.end();
+    std::string str(is, ie);
+    std::stringstream ss(str);
+    stImageInfo info;
+
+    auto ppng = std::make_unique<PNGReader>(ss);
+    std::int32_t ret = ppng->getImageInfo(info);
+    EXPECT_EQ(ret, 25);
+    EXPECT_EQ(info.width, 0x800);
+    EXPECT_EQ(info.height, 0x600);
+    EXPECT_EQ(info.bitsPerPixel, 8);
+}
+
 TEST(PNGReaderTest, parse){
     std::vector<std::uint8_t> mock = {
         0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A,            // PNG file signature

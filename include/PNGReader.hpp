@@ -50,7 +50,9 @@ class PNGReader: public FileReader{
 private:
     FRIEND_TEST(PNGReaderTest, readChunk);
     std::int32_t readChunk(const std::string fourCC, std::istream &stream, std::vector<std::uint8_t> &data);
-    std::int32_t getIHDRInfo(std::istream &stream, stPNG_IHDRData ihdr);
+
+    FRIEND_TEST(PNGReaderTest, getIHDRInfo);
+    std::int32_t getIHDRInfo(std::istream &stream, stPNG_IHDRData &ihdr);
 protected:
 public:
     PNGReader(std::istream &stream):FileReader(stream){} 

@@ -52,7 +52,7 @@ std::int32_t PNGReader::readChunk(const std::string fourCC, std::istream &stream
     return paySize + 12;
 }
 
-std::int32_t PNGReader::getIHDRInfo(std::istream &stream, stPNG_IHDRData ihdr){
+std::int32_t PNGReader::getIHDRInfo(std::istream &stream, stPNG_IHDRData &ihdr){
     std::vector<std::uint8_t> data;
 
     std::int32_t ret = readChunk("IHDR", stream, data);
@@ -83,8 +83,17 @@ std::int32_t PNGReader::getImageInfo(stImageInfo &info){
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
     }
-    stPNG_IHDRData ihdr;
+    stream.clear();
+    stream.seekg(0, std::ios::beg);
 
+    // Read header
+    char head[8];
+    stream.read(head, 8);
+    if (stream.gcount() < 8) return FILEREADER_INVALID_FILE_SIZE;
+    std::uint8_t header[] = {0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a};
+    if (std::memcmp(head, header, 8) != 0) return FILEREADER_INVALID_FILE_FORMAT;
+
+    stPNG_IHDRData ihdr;
     std::int32_t ret = getIHDRInfo(stream, ihdr);
     if (ret < 0) return ret;
 
