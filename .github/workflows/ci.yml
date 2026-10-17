@@ -8,11 +8,20 @@ on:
 
 jobs:
   build-and-test:
-    name: ${{ matrix.os }} - Build and Test
+    name: ${{ matrix.os-name }} - Build and Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            os-name: ubuntu-latest
+            build-type: cmake
+          - os: windows-latest
+            os-name: windows-latest-cmake
+            build-type: cmake
+          - os: windows-latest
+            os-name: windows-latest-vs2022
+            build-type: msbuild
       
     steps:
     - name: Checkout code
@@ -20,21 +29,33 @@ jobs:
     
     # for Linux
     - name: Setup Environment (linux only)
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.build-type == 'cmake' && matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y clang libgtest-dev googletest
         echo "CC=clang" >> $GITHUB_ENV
-        echo "CXX=clang++" >> $GITHUB_ENV]
+        echo "CXX=clang++" >> $GITHUB_ENV
     
-    # for Windows
-    - name: Setup Environment (Windows only)
-      if: matrix.os == 'windows-latest'
+    # for Windows (CMake + vcpkg)
+    - name: Setup Environment (Windows CMake)
+      if: matrix.build-type == 'cmake' && matrix.os == 'windows-latest'
       run: |
         vcpkg install gtest:x64-windows
 
+    # for VisualStudio (MSBuild)
+    - name: Setup MSBuild
+      if: matrix.build-type == 'msbuild'
+      uses: microsoft/setup-msbuild@v2
+
+    # for Visual Studio (NuGetパッケージの復元：必要な場合のみ)
+    # もしソリューションでNuGet管理の依存関係（GTest等）があれば有効にしてください
+    #- name: Restore NuGet Packages
+    #  if: matrix.build-type == 'msbuild'
+    #  run: nuget restore YourSolution.sln
+
     # CMake configuration
     - name: Configure CMake
+      if: matrix.build-type == 'cmake'
       run: |
         if ("${{ matrix.os }}" -eq "windows-latest") {
           cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
@@ -44,11 +65,23 @@ jobs:
       shell: pwsh
     
     # execute build
-    - name: Build
+    - name: Build (CMake)
+      if: matrix.build-type == 'cmake'
       run: cmake --build build --config Release
     
+    # execute build (VisualStudio / MSBuild)
+    - name: Build (VisualStudio)
+      if: matrix.build-type == 'msbuild'
+      run: msbuild ExifViewer.sln /p:Configuration=Release /p:Platform=x64
+
     # GoogleTest automatic execute
-    - name: Run Tests
+    - name: Run Tests (CMake)
+      if: matrix.build-type == 'cmake'
       working-directory: build
       run: ctest -C Release --output-on-failure
 
+    # GoogleTest automatic execute (for VisualStudio environment)
+    # ※MSBuildでビルドされたテスト実行バイナリを直接叩く例です。パスは構成に合わせて調整してください。
+    #- name: Run Tests (Visual Studio)
+    #  if: matrix.build-type == 'msbuild'
+    #  run: .\x64\Release\YourTestProject.exe
