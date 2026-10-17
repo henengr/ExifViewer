@@ -18,7 +18,6 @@ public:
     HEICReader(const std::string path):FileReader(path){}
     virtual ~HEICReader(){}
 
-    std::int32_t getImageInfo(stImageInfo &info) override;
     std::int32_t parse(std::vector<std::uint8_t> &data) override;
 };
 

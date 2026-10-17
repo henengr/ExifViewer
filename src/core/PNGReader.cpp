@@ -74,7 +74,7 @@ std::int32_t PNGReader::getIHDRInfo(std::istream &stream, stPNG_IHDRData &ihdr){
 }
 
 
-std::int32_t PNGReader::getImageInfo(stImageInfo &info){
+/*std::int32_t PNGReader::getImageInfo(stImageInfo &info){
     std::istream &stream = *_pstream;
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
@@ -98,7 +98,7 @@ std::int32_t PNGReader::getImageInfo(stImageInfo &info){
     info.bitsPerPixel = ihdr.bitDepth;
 
     return ret;
-}
+}*/
 
 std::int32_t PNGReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;

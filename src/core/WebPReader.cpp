@@ -71,7 +71,7 @@ std::int32_t WebPReader::readChunk(const std::string fourCC, std::istream &strea
 }
 
 
-std::int32_t WebPReader::getImageInfo(stImageInfo &info){
+/*std::int32_t WebPReader::getImageInfo(stImageInfo &info){
     std::istream &stream = *_pstream;
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
@@ -87,7 +87,7 @@ std::int32_t WebPReader::getImageInfo(stImageInfo &info){
     info.bitsPerPixel = 0;
 
     return ret;
-}
+}*/
 
 std::int32_t WebPReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;

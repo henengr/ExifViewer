@@ -86,7 +86,7 @@ std::int32_t readBox(std::string boxName, std::istream &stream, std::vector<std:
 }
 
 
-std::int32_t HEICReader::getImageInfo(stImageInfo &info){
+/*std::int32_t HEICReader::getImageInfo(stImageInfo &info){
     std::istream &stream = *_pstream;
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
@@ -97,7 +97,7 @@ std::int32_t HEICReader::getImageInfo(stImageInfo &info){
     info.bitsPerPixel = 0;
 
     return 1;
-}
+}*/
 
 std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;

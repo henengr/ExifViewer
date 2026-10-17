@@ -154,7 +154,7 @@ std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndi
 }
 
 
-std::int32_t JPEGReader::getImageInfo(stImageInfo &info){
+/*std::int32_t JPEGReader::getImageInfo(stImageInfo &info){
     std::istream &stream = *_pstream;
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
@@ -173,7 +173,7 @@ std::int32_t JPEGReader::getImageInfo(stImageInfo &info){
     info.bitsPerPixel = data[0];
 
     return ret;
-}
+}*/
 
 std::int32_t JPEGReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;
