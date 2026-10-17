@@ -13,6 +13,7 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
 
     stream.clear();
     stream.seekg(0, std::ios::beg);
+    stream.clear();
 
     while (stream.read(reinterpret_cast<char*>(&byte), 1)) {
         if (byte == 0xff) {
@@ -24,8 +25,8 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
             std::uint16_t mk = (0xff00 | markerCode);
 
             if (mk != marker) {
+                if (mk == static_cast<std::uint16_t>(enSegmentMarker::EOI)) break;
                 if (mk == static_cast<std::uint16_t>(enSegmentMarker::SOI) || 
-                    mk == static_cast<std::uint16_t>(enSegmentMarker::EOI) ||
                     mk == static_cast<std::uint16_t>(enSegmentMarker::TEM) ||
                     (mk >= static_cast<std::uint16_t>(enSegmentMarker::RST0) && mk <= static_cast<std::uint16_t>(enSegmentMarker::RST7))) {
                     continue;
@@ -154,37 +155,30 @@ std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndi
 }
 
 
-/*std::int32_t JPEGReader::getImageInfo(stImageInfo &info){
-    std::istream &stream = *_pstream;
-    if (!stream){
-        return FILEREADER_FILE_NOT_OPENED;
-    }
-    std::vector<std::uint8_t> data;
-
-    std::int32_t ret = readSegment(static_cast<std::uint16_t>(enSegmentMarker::SOF0), stream, data);
-    if (ret < 0){
-        return ret;
-    }
-
-    info.height = static_cast<std::uint32_t>((static_cast<std::uint8_t>(data[1])) |
-                                             (static_cast<std::uint8_t>(data[2]) << 8));
-    info.width  = static_cast<std::uint32_t>((static_cast<std::uint8_t>(data[3])) |
-                                             (static_cast<std::uint8_t>(data[4]) << 8));
-    info.bitsPerPixel = data[0];
-
-    return ret;
-}*/
-
 std::int32_t JPEGReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
     }
 
-    std::int32_t ret = readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP1), stream, _data);
+    std::int32_t ret;
+
+    ret = readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP1), stream, _data);
     if (ret < 0){
         return ret;
     }
+
+    std::vector<std::uint8_t> sof;
+    ret = readSegment(static_cast<std::uint16_t>(enSegmentMarker::SOF0), stream, sof);
+    if (ret < 0){
+    //    return ret;
+    }
+    _pImageInfo = std::make_unique<stImageInfo>();
+    _pImageInfo->height = static_cast<std::uint32_t>((static_cast<std::uint8_t>(sof[1])) |
+                                                     (static_cast<std::uint8_t>(sof[2]) << 8));
+    _pImageInfo->width  = static_cast<std::uint32_t>((static_cast<std::uint8_t>(sof[3])) |
+                                                     (static_cast<std::uint8_t>(sof[4]) << 8));
+    _pImageInfo->bitsPerPixel = sof[0];
 
     ret = parseAPP1(_data, _endian, app1);
     if (ret < 0){

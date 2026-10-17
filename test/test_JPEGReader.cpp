@@ -283,10 +283,17 @@ TEST(JPEGReaderTest, parse){
         '2', '6', '.', '6', '.', '1', 0x00, 0x00,                                   // Software
         '2', '0', '2', '6', ':', '0', '9', ':', '0', '5', ' ', '1', '1', ':', '5', '4', ':', '5', '2', 0x00,    // DateTime
         'i', 'P', 'h', 'o', 'n', 'e', ' ', '1', '6', ' ', 'P', 'r', 'o', 0x00,      // ???
+        // SOF0
+        0xff, 0xc0,
+        0x00, 0x0d,
+        0x08,                       // 
+        0x03, 0x00,                 // height
+        0x04, 0x00,                 // width
+        0x03,
     };
 
     std::vector<std::uint8_t> data;
-    std::vector<std::uint8_t> checkVal(mock.begin() + 34, mock.end());
+    std::vector<std::uint8_t> checkVal(mock.begin() + 34, mock.end()-10);
     std::string_view view(reinterpret_cast<const char*>(mock.data()), mock.size());
     std::istringstream strm((std::string(view)));
     auto pjpg = std::make_unique<JPEGReader>(strm);

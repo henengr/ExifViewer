@@ -74,32 +74,6 @@ std::int32_t PNGReader::getIHDRInfo(std::istream &stream, stPNG_IHDRData &ihdr){
 }
 
 
-/*std::int32_t PNGReader::getImageInfo(stImageInfo &info){
-    std::istream &stream = *_pstream;
-    if (!stream){
-        return FILEREADER_FILE_NOT_OPENED;
-    }
-    stream.clear();
-    stream.seekg(0, std::ios::beg);
-
-    // Read header
-    char head[8];
-    stream.read(head, 8);
-    if (stream.gcount() < 8) return FILEREADER_INVALID_FILE_SIZE;
-    std::uint8_t header[] = {0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a};
-    if (std::memcmp(head, header, 8) != 0) return FILEREADER_INVALID_FILE_FORMAT;
-
-    stPNG_IHDRData ihdr;
-    std::int32_t ret = getIHDRInfo(stream, ihdr);
-    if (ret < 0) return ret;
-
-    info.width = ihdr.width;
-    info.height = ihdr.height;
-    info.bitsPerPixel = ihdr.bitDepth;
-
-    return ret;
-}*/
-
 std::int32_t PNGReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;
     if (!stream){
@@ -115,13 +89,23 @@ std::int32_t PNGReader::parse(std::vector<std::uint8_t> &data){
     std::uint8_t header[] = {0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a};
     if (std::memcmp(head, header, 8) != 0) return FILEREADER_INVALID_FILE_FORMAT;
 
-    std::int32_t ret = readChunk("eXIf", stream, data);
+    std::int32_t ret;
+    stPNG_IHDRData ihdr;
+    ret = getIHDRInfo(stream, ihdr);
+    if (ret < 0) return ret;
+
+    ret = readChunk("eXIf", stream, data);
 
     if (data[0] == 'M' && data[1] == 'M'){
         _endian = enEndian::bigEndian;
     }else if (data[0] == 'I' && data[1] == 'I'){
         _endian = enEndian::littleEndian;
     }
+
+    _pImageInfo = std::make_unique<stImageInfo>();
+    _pImageInfo->width = ihdr.width;
+    _pImageInfo->height = ihdr.height;
+    _pImageInfo->bitsPerPixel = ihdr.bitDepth;
 
     return ret;
 }

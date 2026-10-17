@@ -71,24 +71,6 @@ std::int32_t WebPReader::readChunk(const std::string fourCC, std::istream &strea
 }
 
 
-/*std::int32_t WebPReader::getImageInfo(stImageInfo &info){
-    std::istream &stream = *_pstream;
-    if (!stream){
-        return FILEREADER_FILE_NOT_OPENED;
-    }
-
-    stWebP_VP8XHeader header;
-    std::int32_t ret;
-    ret = readHeader(stream, header);
-    if (ret < 0) return ret;
-
-    info.width = header.canvasWidth;
-    info.height = header.canvasHeight;
-    info.bitsPerPixel = 0;
-
-    return ret;
-}*/
-
 std::int32_t WebPReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;
     stWebP_VP8XHeader header;
@@ -105,6 +87,11 @@ std::int32_t WebPReader::parse(std::vector<std::uint8_t> &data){
     }else if (data[0] == 'I' && data[1] == 'I'){
         _endian = enEndian::littleEndian;
     }
+
+    _pImageInfo = std::make_unique<stImageInfo>();
+    _pImageInfo->width = header.canvasWidth;
+    _pImageInfo->height = header.canvasHeight;
+    //_pImageInfo->bitsPerPixel = ; // TBD
 
     return ret;
 }

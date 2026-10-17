@@ -41,17 +41,17 @@ protected:
     std::unique_ptr<std::istream> _pstream;
     std::vector<std::uint8_t> _data;
     enEndian _endian;
-    stImageInfo* _pimageInfo;
+    std::unique_ptr<stImageInfo> _pImageInfo;
 public:
     FileReader(std::istream &stream):
         _pstream(std::make_unique<std::istream>(stream.rdbuf())), 
-        _endian(enEndian::littleEndian), _data(), _pimageInfo(nullptr){}
+        _endian(enEndian::littleEndian), _data(){}
     FileReader(const std::string path): 
         _pstream(std::make_unique<std::ifstream>(std::filesystem::u8path(path), std::ios::binary)),
-        _endian(enEndian::littleEndian), _data(), _pimageInfo(nullptr){}
+        _endian(enEndian::littleEndian), _data(){}
     virtual ~FileReader() = default;
     virtual enEndian getEndian() const {return _endian;}
-    virtual stImageInfo* getImageInfo() const {return _pimageInfo;}
+    virtual stImageInfo* getImageInfo() const {return _pImageInfo.get();}
     virtual std::int32_t parse(std::vector<std::uint8_t> &data) = 0;
 };
 
