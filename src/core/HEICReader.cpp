@@ -76,7 +76,7 @@ std::int32_t readBox(std::string boxName, std::istream &stream, std::vector<std:
         data.resize(payloadSize);
         if (payloadSize > 0){
             stream.read(reinterpret_cast<char*>(data.data()), payloadSize);
-            if (stream.gcount() < payloadSize) return FILEREADER_INVALID_FILE_SIZE;
+            if (stream.gcount() < static_cast<std::streamsize>(payloadSize)) return FILEREADER_INVALID_FILE_SIZE;
         }
 
         return static_cast<std::int32_t>(boxSize);
