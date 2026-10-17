@@ -91,7 +91,7 @@ std::int32_t WebPReader::parse(std::vector<std::uint8_t> &data){
     _pImageInfo = std::make_unique<stImageInfo>();
     _pImageInfo->width = header.canvasWidth;
     _pImageInfo->height = header.canvasHeight;
-    //_pImageInfo->bitsPerPixel = ; // TBD
+    _pImageInfo->bitsPerPixel = 0; // TBD
 
     return ret;
 }

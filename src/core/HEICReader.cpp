@@ -11,6 +11,7 @@
 std::int32_t readBox(std::string boxName, std::istream &stream, std::vector<std::uint8_t> &data){
     data.clear();
     stream.clear();
+    stream.seekg(0, std::ios::beg);
 
     char sizeBytes[4];
     std::uint64_t boxSize = 0;
@@ -86,19 +87,6 @@ std::int32_t readBox(std::string boxName, std::istream &stream, std::vector<std:
 }
 
 
-/*std::int32_t HEICReader::getImageInfo(stImageInfo &info){
-    std::istream &stream = *_pstream;
-    if (!stream){
-        return FILEREADER_FILE_NOT_OPENED;
-    }
-
-    info.width = 0;
-    info.height = 0;
-    info.bitsPerPixel = 0;
-
-    return 1;
-}*/
-
 std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;
 
@@ -144,6 +132,11 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     data.resize(endPos - curPos);
 
     stream.read(reinterpret_cast<char*>(data.data()), endPos - curPos);
+
+    _pImageInfo = std::make_unique<stImageInfo>();
+    _pImageInfo->width = 0;         // TBD
+    _pImageInfo->height = 0;        // TBD
+    _pImageInfo->bitsPerPixel = 0;  // TBD
 
     return static_cast<std::int32_t>(endPos - curPos);
 }

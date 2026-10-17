@@ -113,5 +113,10 @@ TEST(PNGReaderTest, parse){
     EXPECT_TRUE(ret > 0);
     //EXPECT_EQ(checkVal.size(), data.size());
     EXPECT_EQ(checkVal, data);
+    stImageInfo* info = ppng->getImageInfo();
+    EXPECT_TRUE(info != nullptr);
+    EXPECT_EQ(info->width, 0x800);
+    EXPECT_EQ(info->height, 0x600);
+    EXPECT_EQ(info->bitsPerPixel, 8);
 }
 

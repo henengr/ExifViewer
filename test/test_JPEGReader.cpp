@@ -287,8 +287,8 @@ TEST(JPEGReaderTest, parse){
         0xff, 0xc0,
         0x00, 0x0d,
         0x08,                       // 
-        0x03, 0x00,                 // height
-        0x04, 0x00,                 // width
+        0x00, 0x03,                 // height
+        0x00, 0x04,                 // width
         0x03,
     };
 
@@ -301,4 +301,9 @@ TEST(JPEGReaderTest, parse){
     EXPECT_TRUE(ret > 0);
     //EXPECT_EQ(checkVal.size(), data.size());
     EXPECT_EQ(checkVal, data);
+    stImageInfo* info = pjpg->getImageInfo();
+    EXPECT_TRUE(info != nullptr);
+    EXPECT_EQ(info->width, 0x400);
+    EXPECT_EQ(info->height, 0x300);
+    EXPECT_EQ(info->bitsPerPixel, 8);
 }

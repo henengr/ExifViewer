@@ -76,8 +76,8 @@ TEST(WebPReaderTest, parse){
         0x0a, 0x00, 0x00, 0x00,     // 
         0b00001100,                 // flags
         0x00, 0x00, 0x00,           // reserved
-        0x00, 0x04, 0x00,           // canvasWidth
-        0x00, 0x03, 0x00,           // canvasHeight
+        0xFF, 0x03, 0x00,           // canvasWidth-1
+        0xFF, 0x02, 0x00,           // canvasHeight-1
         'E', 'X', 'I', 'F',
         0xEC, 0x00, 0x00, 0x00,
         // +0x00000000
@@ -118,5 +118,10 @@ TEST(WebPReaderTest, parse){
     EXPECT_TRUE(ret > 0);
     //EXPECT_EQ(checkVal.size(), data.size());
     EXPECT_EQ(checkVal, data);
+    stImageInfo* info = pwebp->getImageInfo();
+    EXPECT_TRUE(info != nullptr);
+    EXPECT_EQ(info->width, 0x400);
+    EXPECT_EQ(info->height, 0x300);
+    //EXPECT_EQ(info->bitsPerPixel, 8);
 }
 
