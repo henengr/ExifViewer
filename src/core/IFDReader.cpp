@@ -302,6 +302,6 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
 }
 
 std::int32_t IFDReader::readIFDs(std::vector<stIFD> &ifds){
-    return readIFDs(0, ardata, ifds);
+    return readIFDs(0, _data, ifds);
 }
 

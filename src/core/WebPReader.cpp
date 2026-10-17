@@ -72,11 +72,11 @@ std::int32_t WebPReader::readChunk(const std::string fourCC, std::istream &strea
 
 
 enEndian WebPReader::getEndian() const{
-    return endian;
+    return _endian;
 }
 
 std::int32_t WebPReader::getImageInfo(stImageInfo &info){
-    std::istream &stream = *arstream;
+    std::istream &stream = *_pstream;
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
     }
@@ -94,7 +94,7 @@ std::int32_t WebPReader::getImageInfo(stImageInfo &info){
 }
 
 std::int32_t WebPReader::parse(std::vector<std::uint8_t> &data){
-    std::istream &stream = *arstream;
+    std::istream &stream = *_pstream;
     stWebP_VP8XHeader header;
     std::int32_t ret;
 
@@ -105,9 +105,9 @@ std::int32_t WebPReader::parse(std::vector<std::uint8_t> &data){
     ret = readChunk("EXIF", stream, data);
 
     if (data[0] == 'M' && data[1] == 'M'){
-        endian = enEndian::bigEndian;
+        _endian = enEndian::bigEndian;
     }else if (data[0] == 'I' && data[1] == 'I'){
-        endian = enEndian::littleEndian;
+        _endian = enEndian::littleEndian;
     }
 
     return ret;

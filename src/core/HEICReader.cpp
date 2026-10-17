@@ -87,11 +87,11 @@ std::int32_t readBox(std::string boxName, std::istream &stream, std::vector<std:
 
 
 enEndian HEICReader::getEndian() const{
-    return endian;
+    return _endian;
 }
 
 std::int32_t HEICReader::getImageInfo(stImageInfo &info){
-    std::istream &stream = *arstream;
+    std::istream &stream = *_pstream;
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
     }
@@ -104,7 +104,7 @@ std::int32_t HEICReader::getImageInfo(stImageInfo &info){
 }
 
 std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
-    std::istream &stream = *arstream;
+    std::istream &stream = *_pstream;
 
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
@@ -128,9 +128,9 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
         if (stream.gcount() < 2) break;
 
         if (byteOrder[0] == 'M' && byteOrder[1] == 'M'){
-            endian = enEndian::bigEndian;
+            _endian = enEndian::bigEndian;
         }else if (byteOrder[0] == 'I' && byteOrder[1] == 'I'){
-            endian = enEndian::littleEndian;
+            _endian = enEndian::littleEndian;
         }else{
             continue;   // It's not an Exif block
         }

@@ -59,8 +59,8 @@ constexpr const char* const IFD_UNKNOWN_TAG   = "???";
 
 class IFDReader {
 private:
-    std::vector<std::uint8_t> &ardata;
-    enEndian enendian;
+    std::vector<std::uint8_t> &_data;
+    enEndian _endian;
 
     FRIEND_TEST(IFDReaderTest, readIFDByte);            // BYTE, ASCII, UNDEFINED, UTF-8
     FRIEND_TEST(IFDReaderTest, readIFDShort);           // SHORT
@@ -73,7 +73,7 @@ private:
 protected:
 public:
     IFDReader(std::vector<std::uint8_t> &data, const enEndian endian = enEndian::littleEndian):
-        ardata(data), enendian(endian){}
+        _data(data), _endian(endian){}
     virtual ~IFDReader(){}
     static bool getVariantIFD(const stIFD &ifd, const enEndian endian, stIFDValue &value);
     std::int32_t readIFDs(std::vector<stIFD> &ifds);

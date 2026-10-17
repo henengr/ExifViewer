@@ -38,12 +38,12 @@ struct stImageInfo {
 
 class FileReader {
 protected:
-    std::unique_ptr<std::istream> arstream;
-    std::vector<std::uint8_t> ardata;
-    enEndian endian;
+    std::unique_ptr<std::istream> _pstream;
+    std::vector<std::uint8_t> _data;
+    enEndian _endian;
 public:
-    FileReader(std::istream &stream): arstream(std::make_unique<std::istream>(stream.rdbuf())), endian(enEndian::littleEndian), ardata(){}
-    FileReader(const std::string path): arstream(std::make_unique<std::ifstream>(std::filesystem::u8path(path), std::ios::binary)){}
+    FileReader(std::istream &stream): _pstream(std::make_unique<std::istream>(stream.rdbuf())), _endian(enEndian::littleEndian), _data(){}
+    FileReader(const std::string path): _pstream(std::make_unique<std::ifstream>(std::filesystem::u8path(path), std::ios::binary)){}
     virtual ~FileReader() = default;
     virtual enEndian getEndian() const = 0;
     virtual std::int32_t getImageInfo(stImageInfo &info) = 0;

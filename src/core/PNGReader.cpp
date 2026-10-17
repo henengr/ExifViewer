@@ -75,11 +75,11 @@ std::int32_t PNGReader::getIHDRInfo(std::istream &stream, stPNG_IHDRData &ihdr){
 
 
 enEndian PNGReader::getEndian() const{
-    return endian;
+    return _endian;
 }
 
 std::int32_t PNGReader::getImageInfo(stImageInfo &info){
-    std::istream &stream = *arstream;
+    std::istream &stream = *_pstream;
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
     }
@@ -105,7 +105,7 @@ std::int32_t PNGReader::getImageInfo(stImageInfo &info){
 }
 
 std::int32_t PNGReader::parse(std::vector<std::uint8_t> &data){
-    std::istream &stream = *arstream;
+    std::istream &stream = *_pstream;
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
     }
@@ -122,9 +122,9 @@ std::int32_t PNGReader::parse(std::vector<std::uint8_t> &data){
     std::int32_t ret = readChunk("eXIf", stream, data);
 
     if (data[0] == 'M' && data[1] == 'M'){
-        endian = enEndian::bigEndian;
+        _endian = enEndian::bigEndian;
     }else if (data[0] == 'I' && data[1] == 'I'){
-        endian = enEndian::littleEndian;
+        _endian = enEndian::littleEndian;
     }
 
     return ret;

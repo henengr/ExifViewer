@@ -155,11 +155,11 @@ std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndi
 
 
 enEndian JPEGReader::getEndian() const{
-    return endian;
+    return _endian;
 }
 
 std::int32_t JPEGReader::getImageInfo(stImageInfo &info){
-    std::istream &stream = *arstream;
+    std::istream &stream = *_pstream;
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
     }
@@ -180,17 +180,17 @@ std::int32_t JPEGReader::getImageInfo(stImageInfo &info){
 }
 
 std::int32_t JPEGReader::parse(std::vector<std::uint8_t> &data){
-    std::istream &stream = *arstream;
+    std::istream &stream = *_pstream;
     if (!stream){
         return FILEREADER_FILE_NOT_OPENED;
     }
 
-    std::int32_t ret = readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP1), stream, ardata);
+    std::int32_t ret = readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP1), stream, _data);
     if (ret < 0){
         return ret;
     }
 
-    ret = parseAPP1(ardata, endian, app1);
+    ret = parseAPP1(_data, _endian, app1);
     if (ret < 0){
         return ret;
     }
