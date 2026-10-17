@@ -164,7 +164,7 @@ TEST(JPEGReaderTest, parseAPP0){
     char dtJFIF[] = {0x4a, 0x46, 0x49, 0x46, 0x00};
     std::vector<std::uint8_t> dtThumb = {0x41, 0x4d, 0x50, 0x46};
 
-    stAPP0 app;
+    stJPEG_APP0 app;
     auto pjpg = std::make_unique<JPEGReader>("");
     std::int32_t len = pjpg->parseAPP0(mock, app);
     EXPECT_EQ(std::memcmp(app.JFIFIdentifier, dtJFIF, 5), 0);
@@ -191,7 +191,7 @@ TEST(JPEGReaderTest, parseAPP0Err){
         0x41, 0x4d, 0x50, 0x46      // thumbnailImage
     };
 
-    stAPP0 app;
+    stJPEG_APP0 app;
     std::int32_t len;
     auto pjpg = std::make_unique<JPEGReader>("");
     len = pjpg->parseAPP0(mockErr1, app);
@@ -212,7 +212,7 @@ TEST(JPEGReaderTest, parseAPP1){
     char dtExif[] = {0x45, 0x78, 0x69, 0x66, 0x00, 0x00};
     std::vector<std::uint8_t> dtThumb = {0x41, 0x4d, 0x50, 0x46};
 
-    stAPP1 app;
+    stJPEG_APP1 app;
     enEndian endian;
     auto pjpg = std::make_unique<JPEGReader>("");
     std::int32_t len = pjpg->parseAPP1(mock, endian, app);
@@ -234,7 +234,7 @@ TEST(JPEGReaderTest, parseAPP1Err){
     char dtExif[] = {0x45, 0x78, 0x69, 0x66, 0x00, 0x00};
     std::vector<std::uint8_t> dtThumb = {0x41, 0x4d, 0x50, 0x46};
 
-    stAPP1 app;
+    stJPEG_APP1 app;
     enEndian endian;
     std::int32_t len;
     auto pjpg = std::make_unique<JPEGReader>("");

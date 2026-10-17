@@ -91,12 +91,12 @@ enum class enSegmentMarker: std::uint16_t {
     COM1        = 0xfffe,
 };
 
-struct stMarker {
+struct stJPEG_Marker {
     std::uint16_t       marker;                     // 0000
     std::uint16_t       length;                     // 0002
 };
 
-struct stAPP0 {
+struct stJPEG_APP0 {
     char                JFIFIdentifier[5];          // 0004  "JFIF\0"
     std::uint16_t       version;                    // 0009
     std::uint8_t        pixelConcentrationUnit;     // 000b
@@ -108,7 +108,7 @@ struct stAPP0 {
     std::vector<std::uint8_t> thumbnailImage;       // 0012
 };
 
-struct stAPP1 {
+struct stJPEG_APP1 {
     char                ExifIdentifier[6];          // 0004  "Exif\0\0"
     //char                TIFFByteOrder[2];           // 000a  "MM" / "II"
     //std::uint16_t       TIFFIdentifier;             // 000b  0x002a(42)
@@ -117,18 +117,18 @@ struct stAPP1 {
     std::vector<std::uint8_t> data;                 // 000a
 };
 
-struct stAPP2 {
+struct stJPEG_APP2 {
     std::uint8_t        FPXRIdentifierCode[5];      // 0004  "FPXR\0"
     std::uint8_t        version;                    // 0009
     std::vector<std::uint8_t> streamData;           // 000a
 };
 
-struct stDQT {
+struct stJPEG_DQT {
     std::uint8_t        tableIdentifier;            // 0004
     std::vector<std::uint8_t> DQTtable;             // 0005
 };
 
-struct stSOF0 {
+struct stJPEG_SOF0 {
     std::uint8_t        samplePrecision;            // 0004
     std::uint16_t       imageRow;                   // 0005
     std::uint16_t       imageColumn;                // 0007
@@ -136,13 +136,13 @@ struct stSOF0 {
     std::vector<std::uint8_t> components;           // 000a
 };
 
-struct stDHT {
+struct stJPEG_DHT {
     std::uint8_t        DHTClassIdentifier;         // 0004
     std::uint8_t        numOfCodesByCodeLength[16]; // 0005
     std::vector<std::uint8_t> codesOfEachCodeLength;// 0015
 };
 
-struct stSOS {
+struct stJPEG_SOS {
     std::uint8_t        numOfComponents;            // 0004
     std::vector<std::uint8_t> components;           // 0005
 };

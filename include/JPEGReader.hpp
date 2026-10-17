@@ -14,8 +14,8 @@
 
 class JPEGReader: public FileReader{
 private:
-    stAPP0 app0;
-    stAPP1 app1;
+    stJPEG_APP0 app0;
+    stJPEG_APP1 app1;
 
     FRIEND_TEST(JPEGReaderTest, readSegment);
     FRIEND_TEST(JPEGReaderTest, readSegmentErr);
@@ -23,11 +23,11 @@ private:
 
     FRIEND_TEST(JPEGReaderTest, parseAPP0);
     FRIEND_TEST(JPEGReaderTest, parseAPP0Err);
-    std::int32_t parseAPP0(const std::vector<std::uint8_t>& data, stAPP0 &value);
+    std::int32_t parseAPP0(const std::vector<std::uint8_t>& data, stJPEG_APP0 &value);
 
     FRIEND_TEST(JPEGReaderTest, parseAPP1);
     FRIEND_TEST(JPEGReaderTest, parseAPP1Err);
-    std::int32_t parseAPP1(const std::vector<std::uint8_t>& data, enEndian &endian, stAPP1 &value);
+    std::int32_t parseAPP1(const std::vector<std::uint8_t>& data, enEndian &endian, stJPEG_APP1 &value);
 protected:
 public:
     JPEGReader(std::istream &stream):FileReader(stream){} 

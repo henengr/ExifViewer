@@ -82,7 +82,7 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
     return FILEREADER_INVALID_FILE_FORMAT;
 }
 
-std::int32_t JPEGReader::parseAPP0(const std::vector<std::uint8_t>& data, stAPP0 &value){
+std::int32_t JPEGReader::parseAPP0(const std::vector<std::uint8_t>& data, stJPEG_APP0 &value){
     std::uint32_t ofs = 0;
     if (data.size() < 12) return FILEREADER_INVALID_FILE_SIZE;
 
@@ -123,7 +123,7 @@ std::int32_t JPEGReader::parseAPP0(const std::vector<std::uint8_t>& data, stAPP0
     return ofs;
 }
 
-std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndian &endian, stAPP1 &value){
+std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndian &endian, stJPEG_APP1 &value){
     std::uint32_t ofs = 0;
     if (data.size() < 16) return FILEREADER_INVALID_FILE_SIZE;
 
