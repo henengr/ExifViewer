@@ -154,10 +154,6 @@ std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndi
 }
 
 
-enEndian JPEGReader::getEndian() const{
-    return _endian;
-}
-
 std::int32_t JPEGReader::getImageInfo(stImageInfo &info){
     std::istream &stream = *_pstream;
     if (!stream){

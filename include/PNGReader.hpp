@@ -59,7 +59,6 @@ public:
     PNGReader(const std::string path):FileReader(path){}
     virtual ~PNGReader(){}
 
-    enEndian getEndian() const override;
     std::int32_t getImageInfo(stImageInfo &info) override;
     std::int32_t parse(std::vector<std::uint8_t> &data) override;
 };

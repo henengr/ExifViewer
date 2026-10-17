@@ -45,7 +45,7 @@ public:
     FileReader(std::istream &stream): _pstream(std::make_unique<std::istream>(stream.rdbuf())), _endian(enEndian::littleEndian), _data(){}
     FileReader(const std::string path): _pstream(std::make_unique<std::ifstream>(std::filesystem::u8path(path), std::ios::binary)){}
     virtual ~FileReader() = default;
-    virtual enEndian getEndian() const = 0;
+    virtual enEndian getEndian() const{return _endian;};
     virtual std::int32_t getImageInfo(stImageInfo &info) = 0;
     virtual std::int32_t parse(std::vector<std::uint8_t> &data) = 0;
 };

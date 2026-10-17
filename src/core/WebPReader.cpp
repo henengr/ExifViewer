@@ -71,10 +71,6 @@ std::int32_t WebPReader::readChunk(const std::string fourCC, std::istream &strea
 }
 
 
-enEndian WebPReader::getEndian() const{
-    return _endian;
-}
-
 std::int32_t WebPReader::getImageInfo(stImageInfo &info){
     std::istream &stream = *_pstream;
     if (!stream){

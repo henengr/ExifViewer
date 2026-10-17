@@ -74,10 +74,6 @@ std::int32_t PNGReader::getIHDRInfo(std::istream &stream, stPNG_IHDRData &ihdr){
 }
 
 
-enEndian PNGReader::getEndian() const{
-    return _endian;
-}
-
 std::int32_t PNGReader::getImageInfo(stImageInfo &info){
     std::istream &stream = *_pstream;
     if (!stream){

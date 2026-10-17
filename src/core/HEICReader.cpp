@@ -86,10 +86,6 @@ std::int32_t readBox(std::string boxName, std::istream &stream, std::vector<std:
 }
 
 
-enEndian HEICReader::getEndian() const{
-    return _endian;
-}
-
 std::int32_t HEICReader::getImageInfo(stImageInfo &info){
     std::istream &stream = *_pstream;
     if (!stream){
