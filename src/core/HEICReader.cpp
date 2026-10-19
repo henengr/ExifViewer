@@ -156,7 +156,7 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
 
     std::uint32_t mWidth = 0;
     std::uint32_t mHeight = 0;
-    for (const auto buf: bufs){
+    for (const auto &buf: bufs){
         // Define the image size as the maximum value obtained by multiplying the image's width and height
         if (buf.size() < 12) return FILEREADER_INVALID_FILE_FORMAT;
         std::uint32_t w = static_cast<std::uint32_t>((static_cast<std::uint8_t>(buf[4]) << 24) |
