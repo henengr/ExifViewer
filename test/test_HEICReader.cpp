@@ -28,7 +28,7 @@ TEST(HEICReaderTest, parse){
                 // "ipse" #0
                 0x00, 0x00, 0x00, 0x14,                         // Length of "ispe"
                 'i', 's', 'p', 'e',
-                0x00, 0x00, 0x12, 0x34,                         // Version/Flags
+                0x00, 0x00, 0x00, 0x00,                         // Version/Flags
                 0x00, 0x00, 0x04, 0x00,                         // Image width
                 0x00, 0x00, 0x03, 0x00,                         // Image Height
                 // "pixi"
