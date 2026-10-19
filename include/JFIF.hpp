@@ -4,7 +4,7 @@
 #include <vector>
 
 
-enum class enSegmentMarker: std::uint16_t {
+enum class enJPEGSegmentMarker: std::uint16_t {
     ByteStuffing = 0xff00,
     TEM         = 0xff01,
     SOC         = 0xff4f,
@@ -110,10 +110,6 @@ struct stJPEG_APP0 {
 
 struct stJPEG_APP1 {
     char                ExifIdentifier[6];          // 0004  "Exif\0\0"
-    //char                TIFFByteOrder[2];           // 000a  "MM" / "II"
-    //std::uint16_t       TIFFIdentifier;             // 000b  0x002a(42)
-    //std::uint32_t       IFD0thOffset;               // 000d
-    //std::vector<std::uint8_t> IFDs;                 // 0011
     std::vector<std::uint8_t> data;                 // 000a
 };
 

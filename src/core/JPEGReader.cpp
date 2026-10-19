@@ -30,10 +30,10 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
             std::uint16_t mk = (0xff00 | markerCode);
 
             if (mk != marker) {
-                if (mk == static_cast<std::uint16_t>(enSegmentMarker::EOI)) break;
-                if (mk == static_cast<std::uint16_t>(enSegmentMarker::SOI) || 
-                    mk == static_cast<std::uint16_t>(enSegmentMarker::TEM) ||
-                    (mk >= static_cast<std::uint16_t>(enSegmentMarker::RST0) && mk <= static_cast<std::uint16_t>(enSegmentMarker::RST7))) {
+                if (mk == static_cast<std::uint16_t>(enJPEGSegmentMarker::EOI)) break;
+                if (mk == static_cast<std::uint16_t>(enJPEGSegmentMarker::SOI) || 
+                    mk == static_cast<std::uint16_t>(enJPEGSegmentMarker::TEM) ||
+                    (mk >= static_cast<std::uint16_t>(enJPEGSegmentMarker::RST0) && mk <= static_cast<std::uint16_t>(enJPEGSegmentMarker::RST7))) {
                     continue;
                 }
 
@@ -50,10 +50,10 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
                 continue;
             }
 
-            if (mk == static_cast<std::uint16_t>(enSegmentMarker::SOI) || 
-                mk == static_cast<std::uint16_t>(enSegmentMarker::EOI) ||
-                mk == static_cast<std::uint16_t>(enSegmentMarker::TEM) ||
-                (mk >= static_cast<std::uint16_t>(enSegmentMarker::RST0) && mk <= static_cast<std::uint16_t>(enSegmentMarker::RST7))) {
+            if (mk == static_cast<std::uint16_t>(enJPEGSegmentMarker::SOI) || 
+                mk == static_cast<std::uint16_t>(enJPEGSegmentMarker::EOI) ||
+                mk == static_cast<std::uint16_t>(enJPEGSegmentMarker::TEM) ||
+                (mk >= static_cast<std::uint16_t>(enJPEGSegmentMarker::RST0) && mk <= static_cast<std::uint16_t>(enJPEGSegmentMarker::RST7))) {
                 data.clear();
                 return 0;
             }
@@ -180,13 +180,13 @@ std::int32_t JPEGReader::parse(std::vector<std::uint8_t> &data){
 
     std::int32_t ret;
 
-    ret = readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP1), stream, _data);
+    ret = readSegment(static_cast<std::uint16_t>(enJPEGSegmentMarker::APP1), stream, _data);
     if (ret < 0){
         return ret;
     }
 
     std::vector<std::uint8_t> sof;
-    ret = readSegment(static_cast<std::uint16_t>(enSegmentMarker::SOF0), stream, sof);
+    ret = readSegment(static_cast<std::uint16_t>(enJPEGSegmentMarker::SOF0), stream, sof);
     if (ret < 0){
     //    return ret;
     }

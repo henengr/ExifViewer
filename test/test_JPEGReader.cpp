@@ -103,11 +103,11 @@ TEST(JPEGReaderTest, readSegment){
 
     std::int32_t len;
     auto pjpg = std::make_unique<JPEGReader>("");
-    len = pjpg->readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss, data);
+    len = pjpg->readSegment(static_cast<std::uint16_t>(enJPEGSegmentMarker::APP0), ss, data);
     EXPECT_EQ(dtAPP0, data);
 
     data.clear();
-    len = pjpg->readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP1), ss, data);
+    len = pjpg->readSegment(static_cast<std::uint16_t>(enJPEGSegmentMarker::APP1), ss, data);
     EXPECT_EQ(dtAPP1, data);
 }
 
@@ -141,10 +141,10 @@ TEST(JPEGReaderTest, readSegmentErr){
 
     std::int32_t len;
     auto pjpg = std::make_unique<JPEGReader>("");
-    len = pjpg->readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss1, data);
+    len = pjpg->readSegment(static_cast<std::uint16_t>(enJPEGSegmentMarker::APP0), ss1, data);
     EXPECT_EQ(len, FILEREADER_INVALID_FILE_FORMAT);
 
-    len = pjpg->readSegment(static_cast<std::uint16_t>(enSegmentMarker::APP0), ss2, data);
+    len = pjpg->readSegment(static_cast<std::uint16_t>(enJPEGSegmentMarker::APP0), ss2, data);
     EXPECT_EQ(len, FILEREADER_INVALID_FILE_FORMAT);
 }
 
