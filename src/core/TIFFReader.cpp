@@ -50,7 +50,7 @@ std::int32_t TIFFReader::parse(std::vector<std::uint8_t> &data){
     rifd->readIFDs(ifds);
 
     _pImageInfo = std::make_unique<stImageInfo>();
-    for (const auto ifd: ifds){
+    for (const auto &ifd: ifds){
         stIFDValue vals;
         IFDReader::getVariantIFD(ifd, _endian, vals);
 

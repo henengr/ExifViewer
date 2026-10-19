@@ -181,7 +181,7 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     ret = readBoxes("pixi", stream, bufs);
 
     std::uint16_t mBits = 0;
-    for (const auto buf: bufs){
+    for (const auto &buf: bufs){
         std::uint8_t ch = buf[4];
         std::uint16_t bitDepth = 0;
         if (buf.size() < 6) return FILEREADER_INVALID_FILE_FORMAT;

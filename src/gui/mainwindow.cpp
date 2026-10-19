@@ -106,7 +106,7 @@ void MainWindow::on_action_Open_triggered()
     int row = 0;
     std::string strLat, strLong;
     double dbLat, dbLong;
-    for (stIFD ifd: ifds){
+    for (const auto &ifd: ifds){
         QStandardItem *itemTag = new QStandardItem(QString("0x%1").arg(ifd.tag, 4, 16, QChar('0')));
         itemTag->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
         model->setItem(row, 0, itemTag);
@@ -247,7 +247,7 @@ void MainWindow::on_action_Open_triggered()
             QString qstrURL = QString("https://www.google.com/maps/search/?api=1&query=%1, %2").arg(dbLat).arg(dbLong);
             //QString qstrLocation = QString("%1 %2").arg(dbLat).arg(dbLong);
             QString qstrLocation = QString("%1 %2").arg(strLat).arg(strLong);
-            QString qstrLink = QString("<a href=\"%1\">%2</a>").arg(qstrURL).arg(qstrLocation);
+            QString qstrLink = QString("<a href=\"%1\">%2</a>").arg(qstrURL, qstrLocation);
 
             ui->labelLocation->setText(qstrLink);
         }
