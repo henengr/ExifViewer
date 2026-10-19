@@ -9,8 +9,35 @@
 
 TEST(HEICReaderTest, parse){
     std::vector<std::uint8_t> mock = {
-        0x00, 0x00, 0x00, '4', 'f', 't', 'y', 'p', 'h', 'e', 'i', 'c', 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x06,
+        0x00, 0x00, 0x00, 0x34,                                 // Length of "ftyp"
+        'f', 't', 'y', 'p',
+        'h', 'e', 'i', 'c',
+        0x00, 0x00, 0x00, 0x00, 0x6D, 0x69, 0x66, 0x31,
+        0x4D, 0x69, 0x48, 0x42, 0x4D, 0x69, 0x48, 0x41,
+        0x68, 0x65, 0x69, 0x78, 0x4D, 0x69, 0x48, 0x45,
+        0x4D, 0x69, 0x50, 0x72, 0x6D, 0x69, 0x61, 0x66,
+        0x68, 0x65, 0x69, 0x63, 0x74, 0x6D, 0x61, 0x70,
+        // "meta"
+        0x00, 0x00, 0x00, 0x01,                                 // Length of "meta"
+        'm', 'e', 't', 'a',
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30,         // Large box length
+        0x00, 0x00, 0x00, 0x00,
+            // "iprp"
+            0x00, 0x00, 0x00, 0x24,                             // Length of "iprp"
+            'i', 'p', 'r', 'p',
+                // "ipse" #0
+                0x00, 0x00, 0x00, 0x14,                         // Length of "ispe"
+                'i', 's', 'p', 'e',
+                0x00, 0x00, 0x12, 0x34,                         // Version/Flags
+                0x00, 0x00, 0x04, 0x00,                         // Image width
+                0x00, 0x00, 0x03, 0x00,                         // Image Height
+                // "pixi"
+                0x00, 0x00, 0x00, 0x10,                         // Length of "pixi"
+                'p', 'i', 'x', 'i',
+                0x00, 0x00, 0x00, 0x00,                         // Version/Flags
+                0x03,                                           // Number of channels
+                0x08, 0x08, 0x08,                               // Bit depth of each channels
+        //
         'E', 'x', 'i', 'f', 0x00, 0x00,
         // +0x00000000
         'M', 'M',                   // Byte Order (Big Endian)
@@ -42,7 +69,7 @@ TEST(HEICReaderTest, parse){
     };
 
     std::vector<std::uint8_t> data;
-    std::vector<std::uint8_t> checkVal(mock.begin() + 24, mock.end());
+    std::vector<std::uint8_t> checkVal(mock.begin() + 122, mock.end());
     std::string_view view(reinterpret_cast<const char*>(mock.data()), mock.size());
     std::istringstream strm((std::string(view)));
     auto pheic = std::make_unique<HEICReader>(strm);
@@ -50,5 +77,9 @@ TEST(HEICReaderTest, parse){
     EXPECT_TRUE(ret > 0);
     //EXPECT_EQ(checkVal.size(), data.size());
     EXPECT_EQ(checkVal, data);
+    stImageInfo* info = pheic->getImageInfo();
+    EXPECT_EQ(info->width, 0x400);
+    EXPECT_EQ(info->height, 0x300);
+    EXPECT_EQ(info->bitsPerPixel, 8);
 }
 

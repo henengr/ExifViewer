@@ -158,6 +158,7 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     std::uint32_t mHeight = 0;
     for (const auto buf: bufs){
         // Define the image size as the maximum value obtained by multiplying the image's width and height
+        if (buf.size() < 12) return FILEREADER_INVALID_FILE_FORMAT;
         std::uint32_t w = static_cast<std::uint32_t>((static_cast<std::uint8_t>(buf[4]) << 24) |
                                                      (static_cast<std::uint8_t>(buf[5]) << 16) |
                                                      (static_cast<std::uint8_t>(buf[6]) << 8) |
@@ -182,10 +183,9 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     std::uint32_t mBits = 0;
     for (const auto buf: bufs){
         std::uint8_t ch = buf[4];
-        std::uint32_t bitDepth = 0;
-        for (int i = 0; i < static_cast<int>(ch); ++i){
-            bitDepth += static_cast<std::uint32_t>(buf[i + 5]);
-        }
+        std::uint8_t bitDepth = 0;
+        if (buf.size() < 6) return FILEREADER_INVALID_FILE_FORMAT;
+        bitDepth = buf[5];      // Set the value as the bit depth for the first channel
         if (bitDepth > mBits){
             mBits = bitDepth;
         }
