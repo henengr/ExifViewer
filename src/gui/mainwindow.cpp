@@ -79,21 +79,23 @@ void MainWindow::on_action_Open_triggered()
     std::vector<stIFD> ifds;
     rifd->readIFDs(ifds);
 
-    QStandardItemModel *model = new QStandardItemModel(10, 5, this);
+    QStandardItemModel *model = new QStandardItemModel(10, 6, this);
 
     model->setHeaderData(0, Qt::Horizontal, "Tag");
     model->setHeaderData(1, Qt::Horizontal, "Type");
-    model->setHeaderData(2, Qt::Horizontal, "Count");
-    model->setHeaderData(3, Qt::Horizontal, "Description");
-    model->setHeaderData(4, Qt::Horizontal, "Value");
+    model->setHeaderData(2, Qt::Horizontal, "Type(STR)");
+    model->setHeaderData(3, Qt::Horizontal, "Count");
+    model->setHeaderData(4, Qt::Horizontal, "Description");
+    model->setHeaderData(5, Qt::Horizontal, "Value");
 
     ui->tableView->setModel(model);
 
     ui->tableView->setColumnWidth(0, 60);
     ui->tableView->setColumnWidth(1, 60);
     ui->tableView->setColumnWidth(2, 100);
-    ui->tableView->setColumnWidth(3, 220);
-    ui->tableView->setColumnWidth(4, 1200);
+    ui->tableView->setColumnWidth(3, 100);
+    ui->tableView->setColumnWidth(4, 220);
+    ui->tableView->setColumnWidth(5, 1200);
 
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -115,14 +117,29 @@ void MainWindow::on_action_Open_triggered()
         model->setItem(row, 1, itemType);
         //delete itemType;
 
+        std::string ifdTypeStr;
+        if (ifd.type == static_cast<std::uint16_t>(enIFDType::BYTE))        ifdTypeStr = "BYTE";
+        if (ifd.type == static_cast<std::uint16_t>(enIFDType::ASCII))       ifdTypeStr = "ASCII";
+        if (ifd.type == static_cast<std::uint16_t>(enIFDType::SHORT))       ifdTypeStr = "SHORT";
+        if (ifd.type == static_cast<std::uint16_t>(enIFDType::LONG))        ifdTypeStr = "LONG";
+        if (ifd.type == static_cast<std::uint16_t>(enIFDType::RATIONAL))    ifdTypeStr = "RATIONAL";
+        if (ifd.type == static_cast<std::uint16_t>(enIFDType::UNDEFINED))   ifdTypeStr = "UNDEFINED";
+        if (ifd.type == static_cast<std::uint16_t>(enIFDType::SLONG))       ifdTypeStr = "SLONG";
+        if (ifd.type == static_cast<std::uint16_t>(enIFDType::SRATIONAL))   ifdTypeStr = "SRATIONAL";
+        if (ifd.type == static_cast<std::uint16_t>(enIFDType::UTF8))        ifdTypeStr = "UTF-8";
+        QStandardItem *itemTypeStr = new QStandardItem(QString("%1").arg(ifdTypeStr));
+        itemTypeStr->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+        model->setItem(row, 2, itemTypeStr);
+        //delete itemTypeStr;
+
         QStandardItem *itemCount = new QStandardItem(QString("0x%1").arg(ifd.count, 8, 16, QChar('0')));
         itemCount->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        model->setItem(row, 2, itemCount);
+        model->setItem(row, 3, itemCount);
         //delete itemType;
 
         QStandardItem *itemDesc = new QStandardItem(QString("%1").arg(ifd.description));
         itemDesc->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        model->setItem(row, 3, itemDesc);
+        model->setItem(row, 4, itemDesc);
         //delete itemType;
 
         stIFDValue vals;
@@ -174,7 +191,7 @@ void MainWindow::on_action_Open_triggered()
 
         QStandardItem *itemValue = new QStandardItem(QString("%1").arg(ss.str()));
         itemValue->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        model->setItem(row, 4, itemValue);
+        model->setItem(row, 5, itemValue);
         //delete itemValue;
 
         if (ifd.tag == 0x010f){     // Make
