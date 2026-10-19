@@ -12,6 +12,8 @@
 
 class HEICReader: public FileReader{
 private:
+    FRIEND_TEST(HEICReaderTest, readBoxes);
+    std::int32_t readBoxes(std::string boxName, std::istream &stream, std::vector<std::vector<std::uint8_t>> &datas);
 protected:
 public:
     HEICReader(std::istream &stream):FileReader(stream){} 

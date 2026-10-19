@@ -8,13 +8,18 @@
 #include "HEICReader.hpp"
 
 
-std::int32_t readBox(std::string boxName, std::istream &stream, std::vector<std::uint8_t> &data){
-    data.clear();
-    stream.clear();
-    stream.seekg(0, std::ios::beg);
+/// @brief Find the specified Boxes
+/// @param[in]      boxName     The name of Boxes
+/// @param[in,out]  stream      Opened stream
+/// @param[out]     datas       An array that returns the payloads
+/// @return                     Number of found Boxes
+std::int32_t HEICReader::readBoxes(std::string boxName, std::istream &stream, std::vector<std::vector<std::uint8_t>> &datas){
+    // https://www.iso.org/standard/85596.html  -- ISO/IEC 14496-12:2026
+    // https://www.iso.org/standard/89035.html  -- ISO/IEC 23008-12:2025
 
     char sizeBytes[4];
     std::uint64_t boxSize = 0;
+    std::int32_t foundCount = 0;
     while (stream.read(sizeBytes, 4)){
         std::streampos startPos = stream.tellg() - static_cast<std::streamoff>(4);
         if (stream.gcount() < 4) return FILEREADER_INVALID_FILE_SIZE;
@@ -52,17 +57,20 @@ std::int32_t readBox(std::string boxName, std::istream &stream, std::vector<std:
         if (boxSize < headerSize) return FILEREADER_INVALID_FILE_SIZE;
 
         std::uint64_t payloadSize = boxSize - headerSize;
+        std::streampos nextBoxPos = startPos + static_cast<std::streamoff>(boxSize);
 
-        if (boxName == "meta" || boxName == "iprp" || boxName == "ipco"){
+        if (actBoxType == "meta" || actBoxType == "iprp" || actBoxType == "ipco"){
             if (actBoxType == "meta") {
                 stream.seekg(4, std::ios::cur);
                 payloadSize -= 4;
             }
 
-            std::int32_t ret = readBox(boxName, stream, data);
+            std::int32_t ret = readBoxes(boxName, stream, datas);
             if (ret > 0){
-                return ret;
+                foundCount += ret;
             }
+            stream.clear();
+            stream.seekg(nextBoxPos);
             continue;
         }
 
@@ -73,20 +81,26 @@ std::int32_t readBox(std::string boxName, std::istream &stream, std::vector<std:
             continue;
         }
 
-        // get payload
-        data.resize(payloadSize);
+        // get payloads
+        std::vector<std::uint8_t> currentPayload(payloadSize);
         if (payloadSize > 0){
-            stream.read(reinterpret_cast<char*>(data.data()), payloadSize);
+            stream.read(reinterpret_cast<char*>(currentPayload.data()), payloadSize);
             if (stream.gcount() < static_cast<std::streamsize>(payloadSize)) return FILEREADER_INVALID_FILE_SIZE;
         }
+        datas.push_back(std::move(currentPayload));
+        foundCount++;
 
-        return static_cast<std::int32_t>(boxSize);
+        stream.clear();
+        stream.seekg(nextBoxPos);
     }
 
-    return 0;   // Specified box doesn't exist
+    return foundCount;
 }
 
 
+/// @brief                  Parse the HEIC image file
+/// @param[out]     data    Return the payload
+/// @return                 Number of read data
 std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;
 
@@ -134,9 +148,49 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     stream.read(reinterpret_cast<char*>(data.data()), endPos - curPos);
 
     _pImageInfo = std::make_unique<stImageInfo>();
-    _pImageInfo->width = 0;         // TBD
-    _pImageInfo->height = 0;        // TBD
-    _pImageInfo->bitsPerPixel = 0;  // TBD
+    std::vector<std::vector<std::uint8_t>> bufs;
+    stream.clear();
+    stream.seekg(0, std::ios::beg);
+    std::int32_t ret;
+    ret = readBoxes("ispe", stream, bufs);
+
+    std::uint32_t mWidth = 0;
+    std::uint32_t mHeight = 0;
+    for (const auto buf: bufs){
+        // Define the image size as the maximum value obtained by multiplying the image's width and height
+        std::uint32_t w = static_cast<std::uint32_t>((static_cast<std::uint8_t>(buf[4]) << 24) |
+                                                     (static_cast<std::uint8_t>(buf[5]) << 16) |
+                                                     (static_cast<std::uint8_t>(buf[6]) << 8) |
+                                                     (static_cast<std::uint8_t>(buf[7])));
+        std::uint32_t h = static_cast<std::uint32_t>((static_cast<std::uint8_t>(buf[8]) << 24) |
+                                                     (static_cast<std::uint8_t>(buf[9]) << 16) |
+                                                     (static_cast<std::uint8_t>(buf[10]) << 8) |
+                                                     (static_cast<std::uint8_t>(buf[11])));
+        if (w * h > mWidth * mHeight){
+            mWidth = w;
+            mHeight = h;
+        }
+    }
+    _pImageInfo->width = mWidth;
+    _pImageInfo->height = mHeight;
+
+    bufs.clear();
+    stream.clear();
+    stream.seekg(0, std::ios::beg);
+    ret = readBoxes("pixi", stream, bufs);
+
+    std::uint32_t mBits = 0;
+    for (const auto buf: bufs){
+        std::uint8_t ch = buf[4];
+        std::uint32_t bitDepth = 0;
+        for (int i = 0; i < static_cast<int>(ch); ++i){
+            bitDepth += static_cast<std::uint32_t>(buf[i + 5]);
+        }
+        if (bitDepth > mBits){
+            mBits = bitDepth;
+        }
+    }
+    _pImageInfo->bitsPerPixel = mBits;
 
     return static_cast<std::int32_t>(endPos - curPos);
 }
