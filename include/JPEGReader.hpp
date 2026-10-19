@@ -104,7 +104,7 @@ struct stJPEG_Marker {
 };
 
 struct stJPEG_APP0 {
-    char                JFIFIdentifier[5];          // 0004  "JFIF\0"
+    std::string         JFIFIdentifier;             // 0004  "JFIF\0"
     std::uint16_t       version;                    // 0009
     std::uint8_t        pixelConcentrationUnit;     // 000b
     std::uint16_t       pixelConcentrationX;        // 000c
@@ -116,12 +116,12 @@ struct stJPEG_APP0 {
 };
 
 struct stJPEG_APP1 {
-    char                ExifIdentifier[6];          // 0004  "Exif\0\0"
+    std::string               ExifIdentifier;       // 0004  "Exif\0\0"
     std::vector<std::uint8_t> data;                 // 000a
 };
 
 struct stJPEG_APP2 {
-    std::uint8_t        FPXRIdentifierCode[5];      // 0004  "FPXR\0"
+    std::string         FPXRIdentifierCode;         // 0004  "FPXR\0"
     std::uint8_t        version;                    // 0009
     std::vector<std::uint8_t> streamData;           // 000a
 };

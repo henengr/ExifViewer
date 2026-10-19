@@ -166,7 +166,7 @@ TEST(JPEGReaderTest, parseAPP0){
     stJPEG_APP0 app;
     auto pjpg = std::make_unique<JPEGReader>("");
     std::int32_t len = pjpg->parseAPP0(mock, app);
-    EXPECT_EQ(std::memcmp(app.JFIFIdentifier, dtJFIF, 5), 0);
+    EXPECT_EQ(std::memcmp(app.JFIFIdentifier.c_str(), dtJFIF, 5), 0);
     EXPECT_EQ(app.version, 0x0101);
     EXPECT_EQ(app.pixelConcentrationUnit, 0x01);
     EXPECT_EQ(app.pixelConcentrationX, 0x012c);
@@ -215,7 +215,7 @@ TEST(JPEGReaderTest, parseAPP1){
     enEndian endian;
     auto pjpg = std::make_unique<JPEGReader>("");
     std::int32_t len = pjpg->parseAPP1(mock, endian, app);
-    EXPECT_EQ(std::memcmp(app.ExifIdentifier, dtExif, 6), 0);
+    EXPECT_EQ(std::memcmp(app.ExifIdentifier.c_str(), dtExif, 6), 0);
     EXPECT_EQ(endian, enEndian::bigEndian);
 }
 
@@ -242,7 +242,7 @@ TEST(JPEGReaderTest, parseAPP1Err){
 
     len = pjpg->parseAPP1(mockErr2, endian, app);
     EXPECT_EQ(len, FILEREADER_INVALID_FILE_FORMAT);
-    EXPECT_TRUE(std::memcmp(app.ExifIdentifier, dtExif, 6) > 0);
+    EXPECT_TRUE(std::memcmp(app.ExifIdentifier.c_str(), dtExif, 6) > 0);
 }
 
 TEST(JPEGReaderTest, parse){

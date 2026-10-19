@@ -97,9 +97,9 @@ std::int32_t JPEGReader::parseAPP0(const std::vector<std::uint8_t>& data, stJPEG
     auto is = data.begin();
     auto ie = is + 5;
     std::string jfif(is, ie);       // JFIF
-    std::memcpy(value.JFIFIdentifier, data.data(), 5);
+    value.JFIFIdentifier = jfif;
     ofs += 5;
-    if (std::memcmp(value.JFIFIdentifier, "JFIF\0", 5) != 0)
+    if (std::memcmp(jfif.c_str(), "JFIF\0", 5) != 0)
         return FILEREADER_INVALID_FILE_FORMAT;
 
     value.version = (static_cast<std::uint16_t>(data[ofs]) << 8) | data[ofs + 1];
@@ -143,9 +143,9 @@ std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndi
     auto is = data.begin();
     auto ie = is + 6;
     std::string exif(is, ie);       // Exif
-    std::memcpy(value.ExifIdentifier, data.data(), 6);
+    value.ExifIdentifier = exif;
     ofs += 6;
-    if (std::memcmp(value.ExifIdentifier, "Exif\0\0", 6) != 0)
+    if (std::memcmp(exif.c_str(), "Exif\0\0", 6) != 0)
         return FILEREADER_INVALID_FILE_FORMAT;
 
     if (data[ofs] == 'M' && data[ofs + 1] == 'M')
