@@ -4,7 +4,6 @@
 #include <cstring>
 #include <algorithm>
 
-#include "JFIF.hpp"
 #include "JPEGReader.hpp"
 
 

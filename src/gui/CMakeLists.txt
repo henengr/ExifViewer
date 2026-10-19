@@ -21,7 +21,6 @@ qt_add_executable(ExifViewer
     ../../include/FileReader.hpp
     ../../include/IFD.hpp
     ../../include/IFDReader.hpp
-    ../../include/JFIF.hpp
     ../../include/JPEGReader.hpp
     ../../include/HEICReader.hpp
     ../../include/PNGReader.hpp

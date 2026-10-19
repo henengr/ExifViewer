@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "JPEGReader.hpp"
-#include "JFIF.hpp"
 #include "IFD.hpp"
 #include "IFDReader.hpp"
 #include "ReaderFactory.hpp"
