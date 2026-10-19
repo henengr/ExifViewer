@@ -8,6 +8,11 @@
 #include "JPEGReader.hpp"
 
 
+/// @brief Read a segment that specified the marker
+/// @param[in]      marker  The name of marker
+/// @param[in,out]  stream  Opened stream
+/// @param[out]     data    Return the payload
+/// @return                 Number of read data
 std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream, std::vector<std::uint8_t> &data){
     std::uint8_t byte;
 
@@ -82,6 +87,10 @@ std::int32_t JPEGReader::readSegment(std::uint16_t marker, std::istream &stream,
     return FILEREADER_INVALID_FILE_FORMAT;
 }
 
+/// @brief Read data of APP0 segment
+/// @param[in]  data        Byte array of APP0 segment
+/// @param[out] value       Return APP0 information
+/// @return                 Number of read data
 std::int32_t JPEGReader::parseAPP0(const std::vector<std::uint8_t>& data, stJPEG_APP0 &value){
     std::uint32_t ofs = 0;
     if (data.size() < 12) return FILEREADER_INVALID_FILE_SIZE;
@@ -123,6 +132,11 @@ std::int32_t JPEGReader::parseAPP0(const std::vector<std::uint8_t>& data, stJPEG
     return ofs;
 }
 
+/// @brief Read data of APP1 segment
+/// @param[in]  data        Byte array of APP1 segment
+/// @param[in]  endian      Endian
+/// @param[out] value       Return APP1 information
+/// @return                 Number of read data
 std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndian &endian, stJPEG_APP1 &value){
     std::uint32_t ofs = 0;
     if (data.size() < 16) return FILEREADER_INVALID_FILE_SIZE;
@@ -155,6 +169,9 @@ std::int32_t JPEGReader::parseAPP1(const std::vector<std::uint8_t>& data, enEndi
 }
 
 
+/// @brief Parse the JPEG image file
+/// @param[out]     data    Return the payload
+/// @return                 Number of read data
 std::int32_t JPEGReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;
     if (!stream){

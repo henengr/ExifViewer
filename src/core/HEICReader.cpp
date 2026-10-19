@@ -98,7 +98,7 @@ std::int32_t HEICReader::readBoxes(std::string boxName, std::istream &stream, st
 }
 
 
-/// @brief                  Parse the HEIC image file
+/// @brief Parse the HEIC image file
 /// @param[out]     data    Return the payload
 /// @return                 Number of read data
 std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
@@ -194,5 +194,4 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
 
     return static_cast<std::int32_t>(endPos - curPos);
 }
-
 

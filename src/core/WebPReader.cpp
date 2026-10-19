@@ -8,6 +8,10 @@
 #include "WebPReader.hpp"
 
 
+/// @brief Read the header information
+/// @param[in,out]  stream  Opened stream
+/// @param[out]     header  Return the header information
+/// @return                 Number of read data
 std::int32_t WebPReader::readHeader(std::istream &stream, stWebP_VP8XHeader &header){
     if (!stream) return FILEREADER_FILE_NOT_OPENED;
 
@@ -40,6 +44,11 @@ std::int32_t WebPReader::readHeader(std::istream &stream, stWebP_VP8XHeader &hea
     return headSize;
 }
 
+/// @brief Read the specified chunk
+/// @param[in]      fourCC  Specify the fourCC wants to read
+/// @param[in,out]  stream  Opened stream
+/// @param[out]     data    Returned payload
+/// @return                 Number of read data
 std::int32_t WebPReader::readChunk(const std::string fourCC, std::istream &stream, std::vector<std::uint8_t> &data){
     // https://developers.google.com/speed/webp/docs/riff_container?hl=en
     char fCC[4];
@@ -71,6 +80,9 @@ std::int32_t WebPReader::readChunk(const std::string fourCC, std::istream &strea
 }
 
 
+/// @brief Parse the WebP image file
+/// @param[out]     data    Return the payload
+/// @return                 Number of read data
 std::int32_t WebPReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;
     stWebP_VP8XHeader header;
@@ -95,5 +107,4 @@ std::int32_t WebPReader::parse(std::vector<std::uint8_t> &data){
 
     return ret;
 }
-
 

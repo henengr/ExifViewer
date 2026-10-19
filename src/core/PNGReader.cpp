@@ -8,6 +8,11 @@
 #include "PNGReader.hpp"
 
 
+/// @brief Read the specified chunk
+/// @param[in]      fourCC  Specify the fourCC wants to read
+/// @param[in,out]  stream  Opened stream
+/// @param[out]     data    Returned payload
+/// @return                 Number of read data
 std::int32_t PNGReader::readChunk(const std::string fourCC, std::istream &stream, std::vector<std::uint8_t> &data){
     // https://www.libpng.org/pub/png/spec/1.2/PNG-Contents.html
     char fCC[4];
@@ -52,6 +57,10 @@ std::int32_t PNGReader::readChunk(const std::string fourCC, std::istream &stream
     return paySize + 12;
 }
 
+/// @brief Get the IHDR information
+/// @param[in,out]  stream  Opened stream
+/// @param[out]     ihdr    Return the IHDR information
+/// @return                 Number of found Boxes
 std::int32_t PNGReader::getIHDRInfo(std::istream &stream, stPNG_IHDRData &ihdr){
     std::vector<std::uint8_t> data;
 
@@ -74,6 +83,9 @@ std::int32_t PNGReader::getIHDRInfo(std::istream &stream, stPNG_IHDRData &ihdr){
 }
 
 
+/// @brief Parse the PNG image file
+/// @param[out]     data    Return the payload
+/// @return                 Number of read data
 std::int32_t PNGReader::parse(std::vector<std::uint8_t> &data){
     std::istream &stream = *_pstream;
     if (!stream){

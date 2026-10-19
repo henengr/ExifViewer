@@ -12,6 +12,9 @@
 #include "WebPReader.hpp"
 
 
+/// @brief Get file extension
+/// @param[in]      path    Path to the file
+/// @return Return the file extension
 std::string ReaderFactory::getExtension(const std::string& path) {
     size_t dotPos = path.find_last_of('.');
     if (dotPos == std::string::npos) return "";
@@ -20,6 +23,12 @@ std::string ReaderFactory::getExtension(const std::string& path) {
     return ext;
 }
 
+/// @brief Check the basic header structure to determine the file type
+/// @param[in]      path            Path to the image file
+/// @param[in]      expectedHeader  Expected header bytes #1
+/// @param[in]      skipByte        Number of bytes to skip between "expectedHeader" and "expectedHeader2"
+/// @param[in]      expectedHeader2 Expected header bytes #1
+/// @return Whether the file type matches
 bool ReaderFactory::checkHeader(const std::string& path, const std::vector<unsigned char>& expectedHeader,
         std::size_t skipByte, const std::vector<unsigned char>& expectedHeader2){
     std::filesystem::path filePath = std::filesystem::u8path(path);
@@ -41,6 +50,9 @@ bool ReaderFactory::checkHeader(const std::string& path, const std::vector<unsig
 }
 
 
+/// @brief *Reader class object creation method
+/// @param[in]      path    File path for an image file
+/// @return                 *Reader class object instance
 std::unique_ptr<FileReader> ReaderFactory::create(const std::string &path){
     std::string ext = getExtension(path);
 
