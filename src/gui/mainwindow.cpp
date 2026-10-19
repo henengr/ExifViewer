@@ -37,7 +37,7 @@ void MainWindow::on_action_Open_triggered()
     QString fileName = QFileDialog::getOpenFileName(
         this, tr("Open file"),
         "",
-        tr("Images (*.jpg *.jpeg *.JPG *.JPEG *.heic *.HEIC *.png *.PNG *.webp *.WEBP *.WebP);;All Files(*)")
+        tr("Images (*.jpg *.jpeg *.JPG *.JPEG *.heic *.HEIC *.png *.PNG *.webp *.WEBP *.WebP *.tiff *.TIFF *.tif *.TIF);;All Files(*)")
     );
 
     if (fileName.isEmpty()){
@@ -48,7 +48,8 @@ void MainWindow::on_action_Open_triggered()
 
     bool isHeic = fileName.endsWith(".heic", Qt::CaseInsensitive);
     bool isWebP = fileName.endsWith(".webp", Qt::CaseInsensitive);
-    if (!isHeic && !isWebP) {
+    bool isTIFF = fileName.endsWith(".tiff", Qt::CaseInsensitive) | fileName.endsWith(".tif", Qt::CaseInsensitive);
+    if (!isHeic && !isWebP && !isTIFF) {
         QPixmap pixmap(fileName);
         if (pixmap.isNull()) {
             QMessageBox::warning(this, tr("Error"), tr("Loading an image failed."));

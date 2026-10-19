@@ -3,6 +3,7 @@ add_executable(exifviewer_test
     test_HEICReader.cpp
     test_PNGReader.cpp
     test_WebPReader.cpp
+    test_TIFFReader.cpp
     test_IFDReader.cpp
     test_main.cpp)
 

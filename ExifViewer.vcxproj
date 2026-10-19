@@ -135,6 +135,7 @@
     <ClInclude Include="include\HEICReader.hpp" />
     <ClInclude Include="include\PNGReader.hpp" />
     <ClInclude Include="include\WebPReader.hpp" />
+    <ClInclude Include="include\TIFFReader.hpp" />
     <ClInclude Include="include\ReaderFactory.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -145,6 +146,7 @@
     <ClCompile Include="src\core\HEICReader.cpp" />
     <ClCompile Include="src\core\PNGReader.cpp" />
     <ClCompile Include="src\core\WebPReader.cpp" />
+    <ClCompile Include="src\core\TIFFReader.cpp" />
     <ClCompile Include="src\core\ReaderFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

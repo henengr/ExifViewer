@@ -10,6 +10,7 @@
 #include "HEICReader.hpp"
 #include "PNGReader.hpp"
 #include "WebPReader.hpp"
+#include "TIFFReader.hpp"
 
 
 /// @brief Get file extension
@@ -81,6 +82,13 @@ std::unique_ptr<FileReader> ReaderFactory::create(const std::string &path){
     if (ext == "webp" || ext == "WEBP" || ext == "WebP"){
         if (checkHeader(path, {'R', 'I', 'F', 'F'}, 4, {'W', 'E', 'B', 'P', 'V', 'P', '8', 'X'})){
             return std::make_unique<WebPReader>(path);
+        }
+    }
+
+    // TIFF
+    if (ext == "tiff" || ext == "TIFF" || ext == "tif" || ext == "TIF"){
+        if (checkHeader(path, {'I', 'I', 0x2a, 0x00}) || checkHeader(path, {'M', 'M', 0x00, 0x2a})){
+            return std::make_unique<TIFFReader>(path);
         }
     }
 
