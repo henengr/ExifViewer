@@ -180,12 +180,12 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     stream.seekg(0, std::ios::beg);
     ret = readBoxes("pixi", stream, bufs);
 
-    std::uint32_t mBits = 0;
+    std::uint16_t mBits = 0;
     for (const auto buf: bufs){
         std::uint8_t ch = buf[4];
-        std::uint8_t bitDepth = 0;
+        std::uint16_t bitDepth = 0;
         if (buf.size() < 6) return FILEREADER_INVALID_FILE_FORMAT;
-        bitDepth = buf[5];      // Set the value as the bit depth for the first channel
+        bitDepth = static_cast<std::uint16_t>(buf[5]);  // Set the value as the bit depth for the first channel
         if (bitDepth > mBits){
             mBits = bitDepth;
         }

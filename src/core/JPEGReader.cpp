@@ -190,11 +190,17 @@ std::int32_t JPEGReader::parse(std::vector<std::uint8_t> &data){
     //    return ret;
     }
     _pImageInfo = std::make_unique<stImageInfo>();
-    _pImageInfo->height = static_cast<std::uint32_t>((static_cast<std::uint8_t>(sof[1])) |
-                                                     (static_cast<std::uint8_t>(sof[2]) << 8));
-    _pImageInfo->width  = static_cast<std::uint32_t>((static_cast<std::uint8_t>(sof[3])) |
-                                                     (static_cast<std::uint8_t>(sof[4]) << 8));
-    _pImageInfo->bitsPerPixel = sof[0];
+    if (sof.size() > 4){
+        _pImageInfo->height = static_cast<std::uint32_t>((static_cast<std::uint8_t>(sof[1])) |
+                                                        (static_cast<std::uint8_t>(sof[2]) << 8));
+        _pImageInfo->width  = static_cast<std::uint32_t>((static_cast<std::uint8_t>(sof[3])) |
+                                                        (static_cast<std::uint8_t>(sof[4]) << 8));
+        _pImageInfo->bitsPerPixel = static_cast<std::uint16_t>(sof[0]);
+    }else{
+        _pImageInfo->width = 0;
+        _pImageInfo->height = 0;
+        _pImageInfo->bitsPerPixel = 0;
+    }
 
     ret = parseAPP1(_data, _endian, app1);
     if (ret < 0){

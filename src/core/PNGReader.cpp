@@ -117,7 +117,7 @@ std::int32_t PNGReader::parse(std::vector<std::uint8_t> &data){
     _pImageInfo = std::make_unique<stImageInfo>();
     _pImageInfo->width = ihdr.width;
     _pImageInfo->height = ihdr.height;
-    _pImageInfo->bitsPerPixel = ihdr.bitDepth;
+    _pImageInfo->bitsPerPixel = static_cast<std::uint16_t>(ihdr.bitDepth);
 
     return ret;
 }

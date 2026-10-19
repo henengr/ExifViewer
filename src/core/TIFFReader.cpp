@@ -86,7 +86,7 @@ std::int32_t TIFFReader::parse(std::vector<std::uint8_t> &data){
             if (vals.IFD.type == static_cast<uint16_t>(enIFDType::SHORT)){
                 std::vector<std::uint16_t> v = std::get<std::vector<std::uint16_t>>(vals.values);
                 if (v.size() > 0){
-                    _pImageInfo->bitsPerPixel = static_cast<std::uint8_t>(v[0]);
+                    _pImageInfo->bitsPerPixel = v[0];
                 }
             }
         }

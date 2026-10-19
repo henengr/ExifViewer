@@ -33,7 +33,7 @@ enum class enEndian: std::uint8_t {
 struct stImageInfo {
     std::uint32_t   width;
     std::uint32_t   height;
-    std::uint8_t    bitsPerPixel;
+    std::uint16_t   bitsPerPixel;
 };
 
 class FileReader {
