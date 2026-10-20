@@ -65,6 +65,7 @@ std::int32_t HEICReader::readBoxes(std::string boxName, std::istream &stream, st
                 payloadSize -= 4;
             }
 
+            // Perform a recursive operation if it contains a specified Box
             std::int32_t ret = readBoxes(boxName, stream, datas);
             if (ret > 0){
                 foundCount += ret;
@@ -114,16 +115,17 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     bool exifFound = false;
 
     while (stream.read(reinterpret_cast<char*>(&exif), 1)){
+        if (stream.gcount() < 1) return FILEREADER_INVALID_FILE_SIZE;
         if (exif[0] != 'E') continue;
 
         stream.read(reinterpret_cast<char*>(&exif[1]), 5);
-        if (stream.gcount() < 5) break;
+        if (stream.gcount() < 5) return FILEREADER_INVALID_FILE_SIZE;
 
         if (std::memcmp(exif, "Exif\0\0", 6) != 0) continue;
 
         char byteOrder[2];
         stream.read(byteOrder, 2);
-        if (stream.gcount() < 2) break;
+        if (stream.gcount() < 2) return FILEREADER_INVALID_FILE_SIZE;
 
         if (byteOrder[0] == 'M' && byteOrder[1] == 'M'){
             _endian = enEndian::bigEndian;
@@ -137,11 +139,13 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
         exifFound = true;
         break;
     }
+    std::streampos curPos = stream.tellg();
+    if (curPos < 12) return FILEREADER_INVALID_FILE_SIZE;
     if (!exifFound) return FILEREADER_EXIF_BLOCK_NOT_FOUND;
 
-    std::streamsize curPos = stream.tellg();    // Save the current position
+    curPos = stream.tellg();    // Save the current position
     stream.seekg(0, std::ios::end);
-    std::streamsize endPos = stream.tellg();    // Save the end position
+    std::streampos endPos = stream.tellg();    // Save the end position
     stream.seekg(curPos, std::ios::beg);
     data.resize(endPos - curPos);
 
@@ -153,6 +157,8 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     stream.seekg(0, std::ios::beg);
     std::int32_t ret;
     ret = readBoxes("ispe", stream, bufs);
+
+    if (bufs.empty()) return FILEREADER_INFO_BLOCK_NOT_FOUND;
 
     std::uint32_t mWidth = 0;
     std::uint32_t mHeight = 0;
@@ -179,6 +185,8 @@ std::int32_t HEICReader::parse(std::vector<std::uint8_t> &data){
     stream.clear();
     stream.seekg(0, std::ios::beg);
     ret = readBoxes("pixi", stream, bufs);
+
+    if (bufs.empty()) return FILEREADER_INFO_BLOCK_NOT_FOUND;
 
     std::uint16_t mBits = 0;
     for (const auto &buf: bufs){

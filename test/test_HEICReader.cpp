@@ -31,7 +31,7 @@ TEST(HEICReaderTest, parse){
                 0x00, 0x00, 0x00, 0x00,                         // Version/Flags
                 0x00, 0x00, 0x04, 0x00,                         // Image width
                 0x00, 0x00, 0x03, 0x00,                         // Image Height
-                // "pixi"
+                // "pixi" #0
                 0x00, 0x00, 0x00, 0x10,                         // Length of "pixi"
                 'p', 'i', 'x', 'i',
                 0x00, 0x00, 0x00, 0x00,                         // Version/Flags
@@ -83,3 +83,113 @@ TEST(HEICReaderTest, parse){
     EXPECT_EQ(info->bitsPerPixel, 8);
 }
 
+TEST(HEICReaderTest, parseErr1){
+    std::vector<std::uint8_t> mock = {
+        0x00, 0x00, 0x00,
+    };
+
+    std::vector<std::uint8_t> data;
+    std::string_view view(reinterpret_cast<const char*>(mock.data()), mock.size());
+    std::istringstream strm((std::string(view)));
+    auto pheic = std::make_unique<HEICReader>(strm);
+    std::int32_t ret = pheic->parse(data);
+    EXPECT_EQ(ret, FILEREADER_INVALID_FILE_SIZE);
+}
+
+TEST(HEICReaderTest, parseErr2){
+    std::vector<std::uint8_t> mock = {
+        0x00, 0x00, 0x00, 0x34,                                 // Length of "ftyp"
+        'f', 't', 'y',
+    };
+
+    std::vector<std::uint8_t> data;
+    std::string_view view(reinterpret_cast<const char*>(mock.data()), mock.size());
+    std::istringstream strm((std::string(view)));
+    auto pheic = std::make_unique<HEICReader>(strm);
+    std::int32_t ret = pheic->parse(data);
+    EXPECT_EQ(ret, FILEREADER_INVALID_FILE_SIZE);
+}
+
+TEST(HEICReaderTest, parseErr3){
+    std::vector<std::uint8_t> mock = {
+        0x00, 0x00, 0x00, 0x34,                                 // Length of "ftyp"
+        'f', 't', 'y', 'p',
+        'h', 'e', 'i', 'c',
+    };
+
+    std::vector<std::uint8_t> data;
+    std::string_view view(reinterpret_cast<const char*>(mock.data()), mock.size());
+    std::istringstream strm((std::string(view)));
+    auto pheic = std::make_unique<HEICReader>(strm);
+    std::int32_t ret = pheic->parse(data);
+    EXPECT_EQ(ret, FILEREADER_INVALID_FILE_SIZE);
+}
+
+TEST(HEICReaderTest, parseErr4){
+    std::vector<std::uint8_t> mock = {
+        0x00, 0x00, 0x00, 0x34,                                 // Length of "ftyp"
+        'f', 't', 'y', 'p',
+        'h', 'e', 'i', 'c',
+        0x00, 0x00, 0x00, 0x00, 0x6D, 0x69, 0x66, 0x31,
+        0x4D, 0x69, 0x48, 0x42, 0x4D, 0x69, 0x48, 0x41,
+        0x68, 0x65, 0x69, 0x78, 0x4D, 0x69, 0x48, 0x45,
+        0x4D, 0x69, 0x50, 0x72, 0x6D, 0x69, 0x61, 0x66,
+        0x68, 0x65, 0x69, 0x63, 0x74, 0x6D, 0x61, 0x70,
+        // "meta"
+        0x00, 0x00, 0x00, 0x01,                                 // Length of "meta"
+        'm', 'e', 't', 'a',
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30,         // Large box length
+        0x00, 0x00, 0x00, 0x00,
+            // "iprp"
+            0x00, 0x00, 0x00, 0x24,                             // Length of "iprp"
+            'i', 'p', 'r', 'p',
+                // "ipse" #0
+                0x00, 0x00, 0x00, 0x14,                         // Length of "ispe"
+                't', 's', 't', '1',
+                0x00, 0x00, 0x00, 0x00,                         // Version/Flags
+                0x00, 0x00, 0x04, 0x00,                         // Image width
+                0x00, 0x00, 0x03, 0x00,                         // Image Height
+                // "pixi" #0
+                0x00, 0x00, 0x00, 0x10,                         // Length of "pixi"
+                't', 's', 't', '2',
+                0x00, 0x00, 0x00, 0x00,                         // Version/Flags
+                0x03,                                           // Number of channels
+                0x08, 0x08, 0x08,                               // Bit depth of each channels
+        //
+        'E', 'x', 'i', 'f', 0x00, 0x00,
+        // +0x00000000
+        'M', 'M',                   // Byte Order (Big Endian)
+        0x00, 0x2A,                 // 42
+        0x00, 0x00, 0x00, 0x08,     // 0th IFD Offset
+        0x00, 0x0C,                 // Number of Entries
+        // +0x0000000a
+        0x01, 0x0F, 0x00, 0x02, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x9E,     // 0x010f: Make
+        0x01, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00, 0xA4,     // 0x0110: Model
+        0x01, 0x12, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,     // 0x0112: Orientation
+        0x01, 0x1A, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xB2,     // 0x011a: XResolution
+        0x01, 0x1B, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xBA,     // 0x011b: YResolution
+        0x01, 0x28, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00,     // 0x0128: ResolutionUnit
+        0x01, 0x31, 0x00, 0x02, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0xC2,     // 0x0131: Software
+        0x01, 0x32, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xCA,     // 0x0132: DateTime
+        0x01, 0x3C, 0x00, 0x02, 0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00, 0xDE,     // 0x013c: HostComputer
+        0x02, 0x13, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,     // 0x0213: YCbCrPositioning
+        0x82, 0x9a, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x02, 0xa2,     // 0x829a: ExposureTime
+        0x82, 0x9d ,0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x02, 0xaa,     // 0x829d: FNumber
+        0x00, 0x00, 0x00, 0x00,                                                     // Next IFD Offset
+        // +0x0000009e
+        'A', 'p', 'p', 'l', 'e', 0x00,                                              // Make
+        'i', 'P', 'h', 'o', 'n', 'e', ' ', '1', '6', ' ', 'P', 'r', 'o', 0x00,      // Model
+        0x00, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00, 0x01,                             // XResolution
+        0x00, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00, 0x01,                             // YResolution
+        '2', '6', '.', '6', '.', '1', 0x00, 0x00,                                   // Software
+        '2', '0', '2', '6', ':', '0', '9', ':', '0', '5', ' ', '1', '1', ':', '5', '4', ':', '5', '2', 0x00,    // DateTime
+        'i', 'P', 'h', 'o', 'n', 'e', ' ', '1', '6', ' ', 'P', 'r', 'o', 0x00,      // HostComputer
+    };
+
+    std::vector<std::uint8_t> data;
+    std::string_view view(reinterpret_cast<const char*>(mock.data()), mock.size());
+    std::istringstream strm((std::string(view)));
+    auto pheic = std::make_unique<HEICReader>(strm);
+    std::int32_t ret = pheic->parse(data);
+    EXPECT_EQ(ret, FILEREADER_INFO_BLOCK_NOT_FOUND);
+}
