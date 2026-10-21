@@ -5,6 +5,7 @@ add_executable(exifviewer_test
     test_WebPReader.cpp
     test_TIFFReader.cpp
     test_IFDReader.cpp
+    test_ReaderFactory.cpp
     test_main.cpp)
 
 target_link_libraries(exifviewer_test PRIVATE 

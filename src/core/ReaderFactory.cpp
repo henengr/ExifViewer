@@ -39,12 +39,13 @@ bool ReaderFactory::checkHeader(const std::string& path, const std::vector<unsig
 
     std::vector<unsigned char> actualHeader(expectedHeader.size());
     std::vector<unsigned char> actualHeader2(expectedHeader2.size());
-    file.read(reinterpret_cast<char*>(actualHeader.data()), expectedHeader.size());
+    if (!expectedHeader.empty())
+            file.read(reinterpret_cast<char*>(actualHeader.data()), expectedHeader.size());
 
     if (file.gcount() < static_cast<std::streamsize>(expectedHeader.size())) return false;
 
-    if (skipByte > 0) file.seekg(skipByte, std::ios::cur);
-    if (expectedHeader2.size() > 0)
+    if (skipByte > 0) file.seekg(static_cast<std::streamoff>(skipByte), std::ios::cur);
+    if (!expectedHeader2.empty())
             file.read(reinterpret_cast<char*>(actualHeader2.data()), expectedHeader2.size());
     
     return (actualHeader == expectedHeader && actualHeader2 == expectedHeader2);
@@ -66,7 +67,7 @@ std::unique_ptr<FileReader> ReaderFactory::create(const std::string &path){
 
     // HEIC
     if (ext == "heic" || ext == "HEIC"){
-        if (checkHeader(path, {0x00, 0x00, 0x00, '4', 'f', 't', 'y', 'p', 'h', 'e', 'i', 'c'})){
+        if (checkHeader(path, {0x00, 0x00}, 2, {'f', 't', 'y', 'p', 'h', 'e'})){
             return std::make_unique<HEICReader>(path);
         }
     }
