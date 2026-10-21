@@ -11,6 +11,11 @@ qt_add_executable(ExifViewer
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    graphicsviewex.h
+    graphicsviewex.cpp
+    picturepreview.h
+    picturepreview.cpp
+    picturepreview.ui
     ../core/IFDReader.cpp
     ../core/JPEGReader.cpp
     ../core/HEICReader.cpp
@@ -43,6 +48,7 @@ target_link_libraries(ExifViewer
 
 target_include_directories(ExifViewer
     PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/../../include
 )
 

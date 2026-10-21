@@ -42,7 +42,7 @@
       <property name="frameShadow">
        <enum>QFrame::Shadow::Plain</enum>
       </property>
-      <widget class="QGraphicsView" name="graphicsView">
+      <widget class="GraphicsViewEx" name="graphicsView">
        <property name="geometry">
         <rect>
          <x>0</x>
@@ -309,6 +309,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GraphicsViewEx</class>
+   <extends>QGraphicsView</extends>
+   <header>graphicsviewex.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

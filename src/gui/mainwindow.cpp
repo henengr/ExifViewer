@@ -135,12 +135,12 @@ void MainWindow::on_action_Open_triggered()
         QStandardItem *itemCount = new QStandardItem(QString("0x%1").arg(ifd.count, 8, 16, QChar('0')));
         itemCount->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
         model->setItem(row, 3, itemCount);
-        //delete itemType;
+        //delete itemCount;
 
         QStandardItem *itemDesc = new QStandardItem(QString("%1").arg(ifd.description));
         itemDesc->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         model->setItem(row, 4, itemDesc);
-        //delete itemType;
+        //delete itemDesc;
 
         stIFDValue vals;
         IFDReader::getVariantIFD(ifd, endian, vals);
