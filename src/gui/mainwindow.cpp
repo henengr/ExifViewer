@@ -9,6 +9,7 @@
 #include <cmath>
 
 #include "mainwindow.h"
+#include "picturepreview.h"
 #include "ui_mainwindow.h"
 #include "../../include/IFD.hpp"
 #include "../../include/IFDReader.hpp"
@@ -25,11 +26,24 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     setWindowTitle(APP_NAME);
+
+    connect(ui->graphicsView, &GraphicsViewEx::clicked,
+            this, &MainWindow::openPicturePreview);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::openPicturePreview()
+{
+    picturePreview dialog(this);
+
+    QString path = QString::fromStdWString(imagePath.wstring());
+    dialog.setImagePath(path);
+
+    dialog.exec();
 }
 
 void MainWindow::on_action_Open_triggered()
@@ -43,6 +57,7 @@ void MainWindow::on_action_Open_triggered()
     if (fileName.isEmpty()){
         return;
     }
+    imagePath = fileName.toStdString();
 
     qDebug() << "Selected file:" << fileName;
 

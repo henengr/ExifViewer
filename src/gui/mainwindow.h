@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <filesystem>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -24,7 +25,9 @@ private slots:
 
     void on_action_About_triggered();
 
+    void openPicturePreview();
 private:
     Ui::MainWindow *ui;
+    std::filesystem::path imagePath;
 };
 #endif // MAINWINDOW_H

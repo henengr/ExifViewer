@@ -14,6 +14,7 @@ class picturePreview : public QDialog
 public:
     explicit picturePreview(QWidget *parent = nullptr);
     ~picturePreview();
+    void setImagePath(const QString &imagePath);
 
 private:
     Ui::picturePreview *ui;
