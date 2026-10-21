@@ -4,25 +4,25 @@
 
 std::int32_t IFDReader::readIFD(const std::uint32_t offset, const enEndian endian, const std::vector<std::uint8_t> &data,
                 stIFD &ifd){
-    std::uint32_t iOffset = offset;
-    if (iOffset + 12 > data.size()) return IFDREADER_INVALID_IFD_SIZE;
+    std::uint32_t offs = offset;
+    if (offs + 12 > data.size()) return IFDREADER_INVALID_IFD_SIZE;
     //
-    ifd.tag = (static_cast<std::uint16_t>(data[iOffset]) << 8) | data[iOffset + 1];
-    iOffset += sizeof(ifd.tag);
-    ifd.type = (static_cast<std::uint16_t>(data[iOffset]) << 8) | data[iOffset + 1];
-    iOffset += sizeof(ifd.type);
-    ifd.count = (static_cast<std::uint32_t>(data[iOffset]) << 24) | 
-            (static_cast<std::uint32_t>(data[iOffset + 1]) << 16) |
-            (static_cast<std::uint32_t>(data[iOffset + 2]) << 8) | data[iOffset + 3];
-    iOffset += sizeof(ifd.count);
-    std::uint32_t iOfs = (static_cast<std::uint32_t>(data[iOffset]) << 24) | 
-            (static_cast<std::uint32_t>(data[iOffset + 1]) << 16) |
-            (static_cast<std::uint32_t>(data[iOffset + 2]) << 8) | data[iOffset + 3];
+    ifd.tag = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
+    offs += sizeof(ifd.tag);
+    ifd.type = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
+    offs += sizeof(ifd.type);
+    ifd.count = (static_cast<std::uint32_t>(data[offs]) << 24) | 
+            (static_cast<std::uint32_t>(data[offs + 1]) << 16) |
+            (static_cast<std::uint32_t>(data[offs + 2]) << 8) | data[offs + 3];
+    offs += sizeof(ifd.count);
+    std::uint32_t ofs = (static_cast<std::uint32_t>(data[offs]) << 24) | 
+            (static_cast<std::uint32_t>(data[offs + 1]) << 16) |
+            (static_cast<std::uint32_t>(data[offs + 2]) << 8) | data[offs + 3];
     if (endian == enEndian::littleEndian){
         ifd.tag = valueConverter::swapUInt16(ifd.tag);
         ifd.type = valueConverter::swapUInt16(ifd.type);
         ifd.count = valueConverter::swapUInt32(ifd.count);
-        iOfs = valueConverter::swapUInt32(iOfs);
+        ofs = valueConverter::swapUInt32(ofs);
     }
     //
     ifd.data.clear();
@@ -31,24 +31,24 @@ std::int32_t IFDReader::readIFD(const std::uint32_t offset, const enEndian endia
         ifd.type == static_cast<std::uint16_t>(enIFDType::UNDEFINED) ||
         ifd.type == static_cast<std::uint16_t>(enIFDType::UTF8)){
         if (ifd.count <= 4){
-            auto is = data.begin() + iOffset;
+            auto is = data.begin() + offs;
             auto ie = is + ifd.count;
             ifd.data.assign(is, ie);
         } else {
-            if (iOfs + ifd.count > data.size()) return IFDREADER_INVALID_VALUE_LONGER_THAN_FOURBYTE_SIZE;
-            auto is = data.begin() + iOfs;
+            if (ofs + ifd.count > data.size()) return IFDREADER_INVALID_VALUE_LONGER_THAN_FOURBYTE_SIZE;
+            auto is = data.begin() + ofs;
             auto ie = is + ifd.count;
             ifd.data.assign(is, ie);
         }
     }
     if (ifd.type == static_cast<std::uint16_t>(enIFDType::SHORT)){
         if (ifd.count <= 2){
-            auto is = data.begin() + iOffset;
+            auto is = data.begin() + offs;
             auto ie = is + ifd.count * 2;
             ifd.data.assign(is, ie);
         } else {
-            if (iOfs + ifd.count * 2 > data.size()) return IFDREADER_INVALID_VALUE_LONGER_THAN_FOURBYTE_SIZE;
-            auto is = data.begin() + iOfs;
+            if (ofs + ifd.count * 2 > data.size()) return IFDREADER_INVALID_VALUE_LONGER_THAN_FOURBYTE_SIZE;
+            auto is = data.begin() + ofs;
             auto ie = is + ifd.count * 2;
             ifd.data.assign(is, ie);
         }
@@ -56,25 +56,24 @@ std::int32_t IFDReader::readIFD(const std::uint32_t offset, const enEndian endia
     if (ifd.type == static_cast<std::uint16_t>(enIFDType::LONG) ||
         ifd.type == static_cast<std::uint16_t>(enIFDType::SLONG)){
         if (ifd.count <= 1){
-            auto is = data.begin() + iOffset;
+            auto is = data.begin() + offs;
             auto ie = is + ifd.count * 4;
             ifd.data.assign(is, ie);
         } else {
-            if (iOfs + ifd.count * 4 > data.size()) return IFDREADER_INVALID_VALUE_LONGER_THAN_FOURBYTE_SIZE;
-            auto is = data.begin() + iOfs;
+            if (ofs + ifd.count * 4 > data.size()) return IFDREADER_INVALID_VALUE_LONGER_THAN_FOURBYTE_SIZE;
+            auto is = data.begin() + ofs;
             auto ie = is + ifd.count * 4;
             ifd.data.assign(is, ie);
         }
     }
     if (ifd.type == static_cast<std::uint16_t>(enIFDType::RATIONAL) ||
         ifd.type == static_cast<std::uint16_t>(enIFDType::SRATIONAL)){
-        if (iOfs + ifd.count * 8 > data.size()) return IFDREADER_INVALID_VALUE_LONGER_THAN_FOURBYTE_SIZE;
-        auto is = data.begin() + iOfs;
+        if (ofs + ifd.count * 8 > data.size()) return IFDREADER_INVALID_VALUE_LONGER_THAN_FOURBYTE_SIZE;
+        auto is = data.begin() + ofs;
         auto ie = is + ifd.count * 8;
         ifd.data.assign(is, ie);
     }
     //
-    //iOffset += sizeof(iOfs);
     return 12;
 }
 
