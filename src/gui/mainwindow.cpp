@@ -7,13 +7,15 @@
 #include <string>
 #include <sstream>
 #include <cmath>
+#include <vector>
+#include <cstdint>
 
 #include "mainwindow.h"
 #include "picturepreview.h"
 #include "ui_mainwindow.h"
-#include "../../include/IFD.hpp"
-#include "../../include/IFDReader.hpp"
-#include "../../include/ReaderFactory.hpp"
+#include "IFD.hpp"
+#include "IFDReader.hpp"
+#include "ReaderFactory.hpp"
 
 
 constexpr const char* APP_NAME = "ExifViewer ver.0.10";
@@ -51,7 +53,7 @@ void MainWindow::on_action_Open_triggered()
     QString fileName = QFileDialog::getOpenFileName(
         this, tr("Open file"),
         "",
-        tr("Images (*.jpg *.jpeg *.JPG *.JPEG *.heic *.HEIC *.png *.PNG *.webp *.WEBP *.WebP *.tiff *.TIFF *.tif *.TIF);;All Files(*)")
+        tr("Images (*.jpg *.jpeg *.JPG *.JPEG *.heic *.HEIC *.png *.PNG *.webp *.WEBP *.WebP *.tiff *.TIFF *.tif *.TIF *jxl *JXL);;All Files(*)")
     );
 
     if (fileName.isEmpty()){
@@ -64,7 +66,8 @@ void MainWindow::on_action_Open_triggered()
     bool isHeic = fileName.endsWith(".heic", Qt::CaseInsensitive);
     bool isWebP = fileName.endsWith(".webp", Qt::CaseInsensitive);
     bool isTIFF = fileName.endsWith(".tiff", Qt::CaseInsensitive) | fileName.endsWith(".tif", Qt::CaseInsensitive);
-    if (!isHeic && !isWebP && !isTIFF) {
+    bool isJXL  = fileName.endsWith(".jxl", Qt::CaseInsensitive);
+    if (!isHeic && !isWebP && !isTIFF && !isJXL) {
         QPixmap pixmap(fileName);
         if (pixmap.isNull()) {
             QMessageBox::warning(this, tr("Error"), tr("Loading an image failed."));

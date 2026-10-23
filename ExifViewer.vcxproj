@@ -68,7 +68,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);include;include\readers</IncludePath>
     <SourcePath>$(VC_SourcePath);src</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -76,7 +76,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);include;include\readers</IncludePath>
     <SourcePath>$(VC_SourcePath);src</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -131,25 +131,25 @@
     <ClInclude Include="include\IFD.hpp" />
     <ClInclude Include="include\IFDReader.hpp" />
     <ClInclude Include="include\FileReader.hpp" />
-    <ClInclude Include="include\JPEGReader.hpp" />
-    <ClInclude Include="include\HEICReader.hpp" />
-    <ClInclude Include="include\PNGReader.hpp" />
-    <ClInclude Include="include\WebPReader.hpp" />
-    <ClInclude Include="include\TIFFReader.hpp" />
-    <ClInclude Include="include\JXLReader.hpp" />
     <ClInclude Include="include\ReaderFactory.hpp" />
+    <ClInclude Include="include\readers\HEICReader.hpp" />
+    <ClInclude Include="include\readers\JPEGReader.hpp" />
+    <ClInclude Include="include\readers\PNGReader.hpp" />
+    <ClInclude Include="include\readers\WebPReader.hpp" />
+    <ClInclude Include="include\readers\TIFFReader.hpp" />
+    <ClInclude Include="include\readers\JXLReader.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cli\main.cpp" />
     <ClCompile Include="src\core\IFDReader.cpp" />
     <ClCompile Include="src\core\FileReader.cpp" />
-    <ClCompile Include="src\core\JPEGReader.cpp" />
-    <ClCompile Include="src\core\HEICReader.cpp" />
-    <ClCompile Include="src\core\PNGReader.cpp" />
-    <ClCompile Include="src\core\WebPReader.cpp" />
-    <ClCompile Include="src\core\TIFFReader.cpp" />
-    <ClCompile Include="src\core\JXLReader.cpp" />
     <ClCompile Include="src\core\ReaderFactory.cpp" />
+    <ClCompile Include="src\core\readers\HEICReader.cpp" />
+    <ClCompile Include="src\core\readers\JPEGReader.cpp" />
+    <ClCompile Include="src\core\readers\PNGReader.cpp" />
+    <ClCompile Include="src\core\readers\WebPReader.cpp" />
+    <ClCompile Include="src\core\readers\TIFFReader.cpp" />
+    <ClCompile Include="src\core\readers\JXLReader.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

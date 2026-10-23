@@ -17,24 +17,24 @@ qt_add_executable(ExifViewer
     picturepreview.cpp
     picturepreview.ui
     ../core/IFDReader.cpp
-    ../core/JPEGReader.cpp
-    ../core/HEICReader.cpp
-    ../core/PNGReader.cpp
-    ../core/WebPReader.cpp
-    ../core/TIFFReader.cpp
-    ../core/JXLReader.cpp
     ../core/FileReader.cpp
     ../core/ReaderFactory.cpp
-    ../../include/FileReader.hpp
+    ../core/readers/JPEGReader.cpp
+    ../core/readers/HEICReader.cpp
+    ../core/readers/PNGReader.cpp
+    ../core/readers/WebPReader.cpp
+    ../core/readers/TIFFReader.cpp
+    ../core/readers/JXLReader.cpp
     ../../include/IFD.hpp
+    ../../include/FileReader.hpp
     ../../include/IFDReader.hpp
-    ../../include/JPEGReader.hpp
-    ../../include/HEICReader.hpp
-    ../../include/PNGReader.hpp
-    ../../include/WebPReader.hpp
-    ../../include/TIFFReader.hpp
-    ../../include/JXLReader.hpp
     ../../include/ReaderFactory.hpp
+    ../../include/readers/JPEGReader.hpp
+    ../../include/readers/HEICReader.hpp
+    ../../include/readers/PNGReader.hpp
+    ../../include/readers/WebPReader.hpp
+    ../../include/readers/TIFFReader.hpp
+    ../../include/readers/JXLReader.hpp
 )
 
 qt_add_translations(
@@ -52,6 +52,7 @@ target_include_directories(ExifViewer
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/../../include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../include/readers
 )
 
 if(WIN32)
