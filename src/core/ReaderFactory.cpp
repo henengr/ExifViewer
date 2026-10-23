@@ -11,6 +11,7 @@
 #include "PNGReader.hpp"
 #include "WebPReader.hpp"
 #include "TIFFReader.hpp"
+#include "JXLReader.hpp"
 
 
 /// @brief Get file extension
@@ -90,6 +91,14 @@ std::unique_ptr<FileReader> ReaderFactory::create(const std::string &path){
     if (ext == "tiff" || ext == "TIFF" || ext == "tif" || ext == "TIF"){
         if (checkHeader(path, {'I', 'I', 0x2a, 0x00}) || checkHeader(path, {'M', 'M', 0x00, 0x2a})){
             return std::make_unique<TIFFReader>(path);
+        }
+    }
+
+    // JPEG XL
+    if (ext == "jxl" || ext == "JXL"){
+        if (checkHeader(path, {0x00, 0x00, 0x00, 0x0c, 'J', 'X', 'L', ' ', 0x0d, 0x0a, 0x87, 0x0a,
+                               0x00, 0x00, 0x00, 0x14, 'f', 't', 'y', 'p', 'j', 'x', 'l', ' '})){
+            return std::make_unique<JXLReader>(path);
         }
     }
 
