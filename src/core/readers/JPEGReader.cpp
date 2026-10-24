@@ -184,18 +184,18 @@ std::int32_t JPEGReader::parse(std::vector<std::uint8_t> &data){
         return ret;
     }
 
-    std::vector<std::uint8_t> sof;
-    ret = readSegment(static_cast<std::uint16_t>(enJPEGSegmentMarker::SOF0), stream, sof);
+    auto psof = std::make_unique<std::vector<std::uint8_t>>();
+    ret = readSegment(static_cast<std::uint16_t>(enJPEGSegmentMarker::SOF0), stream, *psof);
     if (ret < 0){
     //    return ret;
     }
     _pImageInfo = std::make_unique<stImageInfo>();
-    if (sof.size() > 4){
-        _pImageInfo->height = static_cast<std::uint32_t>((static_cast<std::uint8_t>(sof[1])) |
-                                                        (static_cast<std::uint8_t>(sof[2]) << 8));
-        _pImageInfo->width  = static_cast<std::uint32_t>((static_cast<std::uint8_t>(sof[3])) |
-                                                        (static_cast<std::uint8_t>(sof[4]) << 8));
-        _pImageInfo->bitsPerPixel = static_cast<std::uint16_t>(sof[0]);
+    if (psof->size() > 4){
+        _pImageInfo->height = static_cast<std::uint32_t>((static_cast<std::uint8_t>((*psof)[1])) |
+                                                        (static_cast<std::uint8_t>((*psof)[2]) << 8));
+        _pImageInfo->width  = static_cast<std::uint32_t>((static_cast<std::uint8_t>((*psof)[3])) |
+                                                        (static_cast<std::uint8_t>((*psof)[4]) << 8));
+        _pImageInfo->bitsPerPixel = static_cast<std::uint16_t>((*psof)[0]);
     }else{
         _pImageInfo->width = 0;
         _pImageInfo->height = 0;

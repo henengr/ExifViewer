@@ -46,11 +46,11 @@ std::int32_t TIFFReader::parse(std::vector<std::uint8_t> &data){
     stream.seekg(0, std::ios::beg);
 
     auto rifd = std::make_unique<IFDReader>(data);
-    std::vector<stIFD> ifds;
-    rifd->readIFDs(ifds);
+    auto pifds = std::make_unique<std::vector<stIFD>>();
+    rifd->readIFDs(*pifds);
 
     _pImageInfo = std::make_unique<stImageInfo>();
-    for (const auto &ifd: ifds){
+    for (const auto &ifd: *pifds){
         stIFDValue vals;
         IFDReader::getVariantIFD(ifd, _endian, vals);
 

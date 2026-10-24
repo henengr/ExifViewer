@@ -78,18 +78,18 @@ std::int32_t JXLReader::parse(std::vector<std::uint8_t> &data){
     stream.seekg(0, std::ios::beg);
 
     // Read header
-    std::vector<std::uint8_t> buf;
-    std::int32_t ret = readBox("JXL ", stream, buf);
+    auto pbuf = std::make_unique<std::vector<std::uint8_t>>();
+    std::int32_t ret = readBox("JXL ", stream, *pbuf);
     if (ret < 0){
         return FILEREADER_INVALID_FILE_FORMAT;
     }
-    buf.clear();
+    pbuf->clear();
 
-    ret = readBox("ftyp", stream, buf);
+    ret = readBox("ftyp", stream, *pbuf);
     if (ret < 0){
         return FILEREADER_INVALID_FILE_FORMAT;
     }
-    buf.clear();
+    pbuf->clear();
 
     ret = readBox("Exif", stream, data);
     if (ret < 0){

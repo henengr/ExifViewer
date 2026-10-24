@@ -25,18 +25,17 @@ int main(int argc, char **argv) {
 
     enEndian endian;
 
-    std::vector<std::uint8_t> data;
-    reader->parse(data);
+    auto pdata = std::make_unique<std::vector<std::uint8_t>>();
+    reader->parse(*pdata);
 
-    auto rifd = std::make_unique<IFDReader>(data);
+    auto prifd = std::make_unique<IFDReader>(*pdata);
 
     endian = reader->getEndian();
 
-    std::vector<stIFD> ifds;
-    //auto ifds = std::make_unique<std::vector<stIFD>>(stIFD);
-    rifd->readIFDs(ifds);
+    auto pifds = std::make_unique<std::vector<stIFD>>();
+    prifd->readIFDs(*pifds);
 
-    for (stIFD ifd: ifds){
+    for (auto &ifd: *pifds){
         //std::cout << std::hex << std::right << std::setw(8) << std::setfill('0') << ifd.offset << " ";
         std::cout << std::hex << std::right << std::setw(4) << std::setfill('0') << ifd.tag << " ";
         std::cout << std::hex << std::right << std::setw(4) << std::setfill('0') << ifd.type << " ";
