@@ -172,13 +172,13 @@ bool IFDReader::getVariantIFD(const stIFD &ifd, const enEndian endian, stIFDValu
 }
 
 std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<std::uint8_t> &data, std::vector<stIFD> &ifds){
-    std::uint32_t iOffset = offset;
+    std::uint32_t offs = offset;
     std::uint32_t minSize = 10;     // the minimam size
-    if (iOffset + minSize > data.size()) return IFDREADER_INVALID_IFD_SIZE;
+    if (offs + minSize > data.size()) return IFDREADER_INVALID_IFD_SIZE;
     // ByteOrder
     char endianChrs[2] = {
-        static_cast<char>(data.at(iOffset)), 
-        static_cast<char>(data.at(iOffset + 1))
+        static_cast<char>(data[offs]), 
+        static_cast<char>(data[offs + 1])
     };
     enEndian endian;
     if (endianChrs[0] == 'M' && endianChrs[1] == 'M')
@@ -186,24 +186,26 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
     else if (endianChrs[0] == 'I' && endianChrs[1] == 'I')
         endian = enEndian::littleEndian;
     else return IFDREADER_INVALID_ENDIAN_SETTING;
-    iOffset += sizeof(endianChrs);
+    offs += sizeof(endianChrs);
     // Header 42
-    std::uint16_t header42 = (static_cast<std::uint16_t>(data[iOffset]) << 8) | data[iOffset + 1];
+    std::uint16_t header42 = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
     if (endian == enEndian::littleEndian) header42 = valueConverter::swapUInt16(header42);
     if (header42 != 0x002a) return IFDREADER_INVALID_HEADER42_VALUE;
-    iOffset += sizeof(header42);
+    offs += sizeof(header42);
     // 0th IFD Offset
-    std::uint32_t ofs0thIFD = (static_cast<std::uint32_t>(data[iOffset]) << 24) |
-                        (static_cast<std::uint32_t>(data[iOffset + 1]) << 16) |
-                        (static_cast<std::uint32_t>(data[iOffset + 2]) << 8) | data[iOffset + 3];
+    std::uint32_t ofs0thIFD;
+    ofs0thIFD = (static_cast<std::uint32_t>(data[offs]) << 24) |
+                (static_cast<std::uint32_t>(data[offs + 1]) << 16) |
+                (static_cast<std::uint32_t>(data[offs + 2]) << 8) | data[offs + 3];
     if (endian == enEndian::littleEndian) ofs0thIFD = valueConverter::swapUInt32(ofs0thIFD);
-    if (iOffset + ofs0thIFD > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
-    iOffset = ofs0thIFD + offset;
+    if (offs + ofs0thIFD > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
+    offs = ofs0thIFD + offset;
     // Number of Entries
-    std::uint16_t numOfEntries = (static_cast<std::uint16_t>(data[iOffset]) << 8) | data[iOffset + 1];
+    std::uint16_t numOfEntries;
+    numOfEntries = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
     if (endian == enEndian::littleEndian) numOfEntries = valueConverter::swapUInt16(numOfEntries);
-    if (iOffset + numOfEntries * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
-    iOffset += sizeof(numOfEntries);
+    if (offs + numOfEntries * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
+    offs += sizeof(numOfEntries);
     // 0th IFD
     std::uint32_t exifIFDPointer = 0;
     std::uint32_t GPSIFDOffset = 0;
@@ -212,7 +214,7 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
         stIFD ifd;
         bool found = false;
 
-        readIFD(iOffset, endian, data, ifd);
+        readIFD(offs, endian, data, ifd);
         for (stIFDTag tag: IFDTable){
             if (ifd.tag == tag.tag){
                 ifd.description = tag.description;
@@ -238,21 +240,21 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
             std::vector<std::uint32_t> vals = std::get<std::vector<std::uint32_t>>(val.values);
             if (vals.size() >= 1) GPSIFDOffset = vals[0];
         }
-        iOffset += 12;
+        offs += 12;
     }
-    if (exifIFDPointer == 0) return iOffset;
-    iOffset = exifIFDPointer + offset;
+    if (exifIFDPointer == 0) return offs;
+    offs = exifIFDPointer + offset;
     // Exif IFD
-    std::uint16_t ExifIFDNumber = (static_cast<std::uint16_t>(data[iOffset]) << 8) | data[iOffset + 1];
+    std::uint16_t ExifIFDNumber = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
     if (endian == enEndian::littleEndian) ExifIFDNumber = valueConverter::swapUInt16(ExifIFDNumber);
-    iOffset += sizeof(ExifIFDNumber);
-    if (iOffset + ExifIFDNumber * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
+    offs += sizeof(ExifIFDNumber);
+    if (offs + ExifIFDNumber * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
     //
     for (std::uint16_t i = 0; i < ExifIFDNumber; i++){
         stIFD ifd;
         bool found = false;
 
-        readIFD(iOffset, endian, data, ifd);
+        readIFD(offs, endian, data, ifd);
         for (stIFDTag tag: IFDTable){
             if (ifd.tag == tag.tag){
                 ifd.description = tag.description;
@@ -266,21 +268,21 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
         }
 
         ifds.push_back(ifd);
-        iOffset += 12;
+        offs += 12;
     }
     // 1st IFD
-    if (GPSIFDOffset == 0) return iOffset;
-    iOffset = GPSIFDOffset + offset;
-    numOfEntries = (static_cast<std::uint16_t>(data[iOffset]) << 8) | data[iOffset + 1];
+    if (GPSIFDOffset == 0) return offs;
+    offs = GPSIFDOffset + offset;
+    numOfEntries = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
     if (endian == enEndian::littleEndian) numOfEntries = valueConverter::swapUInt16(numOfEntries);
-    iOffset += sizeof(numOfEntries);
-    if (iOffset + numOfEntries * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
+    offs += sizeof(numOfEntries);
+    if (offs + numOfEntries * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
     //
     for (std::uint16_t i = 0; i < numOfEntries; i++){
         stIFD ifd;
         bool found = false;
 
-        readIFD(iOffset, endian, data, ifd);
+        readIFD(offs, endian, data, ifd);
         for (stIFDTag tag: IFDTable){
             if (ifd.tag == tag.tag){
                 ifd.description = tag.description;
@@ -294,10 +296,10 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
         }
 
         ifds.push_back(ifd);
-        iOffset += 12;
+        offs += 12;
     }
     //
-    return iOffset;
+    return offs;
 }
 
 std::int32_t IFDReader::readIFDs(std::vector<stIFD> &ifds){
