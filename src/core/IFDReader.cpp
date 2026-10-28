@@ -1,3 +1,5 @@
+#include <queue>
+
 #include "IFDReader.hpp"
 #include "JPEGReader.hpp"
 
@@ -181,124 +183,85 @@ std::int32_t IFDReader::readIFDs(const std::uint32_t offset, const std::vector<s
         static_cast<char>(data[offs + 1])
     };
     enEndian endian;
-    if (endianChrs[0] == 'M' && endianChrs[1] == 'M')
+    if (endianChrs[0] == 'M' && endianChrs[1] == 'M'){
         endian = enEndian::bigEndian;
-    else if (endianChrs[0] == 'I' && endianChrs[1] == 'I')
+    }else if (endianChrs[0] == 'I' && endianChrs[1] == 'I'){
         endian = enEndian::littleEndian;
-    else return IFDREADER_INVALID_ENDIAN_SETTING;
+    }else{
+        return IFDREADER_INVALID_ENDIAN_SETTING;
+    }
     offs += sizeof(endianChrs);
     // Header 42
-    std::uint16_t header42 = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
+    std::uint16_t header42;
+    header42 = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
     if (endian == enEndian::littleEndian) header42 = valueConverter::swapUInt16(header42);
     if (header42 != 0x002a) return IFDREADER_INVALID_HEADER42_VALUE;
     offs += sizeof(header42);
     // 0th IFD Offset
-    std::uint32_t ofs0thIFD;
-    ofs0thIFD = (static_cast<std::uint32_t>(data[offs]) << 24) |
+    std::uint32_t offsIFD;
+    offsIFD = (static_cast<std::uint32_t>(data[offs]) << 24) |
                 (static_cast<std::uint32_t>(data[offs + 1]) << 16) |
                 (static_cast<std::uint32_t>(data[offs + 2]) << 8) | data[offs + 3];
-    if (endian == enEndian::littleEndian) ofs0thIFD = valueConverter::swapUInt32(ofs0thIFD);
-    if (offs + ofs0thIFD > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
-    offs = ofs0thIFD + offset;
-    // Number of Entries
-    std::uint16_t numOfEntries;
-    numOfEntries = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
-    if (endian == enEndian::littleEndian) numOfEntries = valueConverter::swapUInt16(numOfEntries);
-    if (offs + numOfEntries * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
-    offs += sizeof(numOfEntries);
-    // 0th IFD
-    std::uint32_t exifIFDPointer = 0;
-    std::uint32_t GPSIFDOffset = 0;
+    if (endian == enEndian::littleEndian) offsIFD = valueConverter::swapUInt32(offsIFD);
+    std::queue<std::uint32_t> offsIFDs;
+    offsIFDs.push(offsIFD);
+    if (offs + offsIFD > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
+    offs = offsIFD + offset;
     ifds.clear();
-    for (std::uint16_t i = 0; i < numOfEntries; i++){
-        stIFD ifd;
-        bool found = false;
-
-        readIFD(offs, endian, data, ifd);
-        for (stIFDTag tag: IFDTable){
-            if (ifd.tag == tag.tag){
-                ifd.description = tag.description;
-                ifd.offset = offset;
-                found = true;
-                break;
+    do{
+        // Number of Entries
+        std::uint16_t numOfEntries;
+        numOfEntries = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
+        if (endian == enEndian::littleEndian) numOfEntries = valueConverter::swapUInt16(numOfEntries);
+        if (offs + numOfEntries * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
+        offs += sizeof(numOfEntries);
+        //
+        for (std::uint16_t i = 0; i < numOfEntries; i++){
+            stIFD ifd;
+            bool found = false;
+            readIFD(offs, endian, data, ifd);
+            for (stIFDTag tag: IFDTable){
+                if (ifd.tag == tag.tag){
+                    ifd.description = tag.description;
+                    ifd.offset = offset;
+                    found = true;
+                    break;
+                }
             }
-        }
-        if (!found){
-            ifd.description = IFD_UNKNOWN_TAG;
-        }
-
-        ifds.push_back(ifd);
-        if (ifd.tag == IFDTAG_ExifIFDPointer){
-            stIFDValue val;
-            getVariantIFD(ifd, endian, val);
-            std::vector<std::uint32_t> vals = std::get<std::vector<std::uint32_t>>(val.values);
-            if (vals.size() >= 1) exifIFDPointer = vals[0];
-        }
-        if (ifd.tag == IFDTAG_GPSInfoIFDPointer){
-            stIFDValue val;
-            getVariantIFD(ifd, endian, val);
-            std::vector<std::uint32_t> vals = std::get<std::vector<std::uint32_t>>(val.values);
-            if (vals.size() >= 1) GPSIFDOffset = vals[0];
-        }
-        offs += 12;
-    }
-    if (exifIFDPointer == 0) return offs;
-    offs = exifIFDPointer + offset;
-    // Exif IFD
-    std::uint16_t ExifIFDNumber = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
-    if (endian == enEndian::littleEndian) ExifIFDNumber = valueConverter::swapUInt16(ExifIFDNumber);
-    offs += sizeof(ExifIFDNumber);
-    if (offs + ExifIFDNumber * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
-    //
-    for (std::uint16_t i = 0; i < ExifIFDNumber; i++){
-        stIFD ifd;
-        bool found = false;
-
-        readIFD(offs, endian, data, ifd);
-        for (stIFDTag tag: IFDTable){
-            if (ifd.tag == tag.tag){
-                ifd.description = tag.description;
-                ifd.offset = offset;
-                found = true;
-                break;
+            if (!found){
+                ifd.description = IFD_UNKNOWN_TAG;
             }
-        }
-        if (!found){
-            ifd.description = IFD_UNKNOWN_TAG;
-        }
-
-        ifds.push_back(ifd);
-        offs += 12;
-    }
-    // 1st IFD
-    if (GPSIFDOffset == 0) return offs;
-    offs = GPSIFDOffset + offset;
-    numOfEntries = (static_cast<std::uint16_t>(data[offs]) << 8) | data[offs + 1];
-    if (endian == enEndian::littleEndian) numOfEntries = valueConverter::swapUInt16(numOfEntries);
-    offs += sizeof(numOfEntries);
-    if (offs + numOfEntries * 12 > data.size()) return IFDREADER_INVALID_NUM_OF_IFDS;
-    //
-    for (std::uint16_t i = 0; i < numOfEntries; i++){
-        stIFD ifd;
-        bool found = false;
-
-        readIFD(offs, endian, data, ifd);
-        for (stIFDTag tag: IFDTable){
-            if (ifd.tag == tag.tag){
-                ifd.description = tag.description;
-                ifd.offset = offset;
-                found = true;
-                break;
+            //
+            ifds.push_back(ifd);
+            if (ifd.tag == IFDTAG_ExifIFDPointer){
+                stIFDValue val;
+                getVariantIFD(ifd, endian, val);
+                std::vector<std::uint32_t> vals = std::get<std::vector<std::uint32_t>>(val.values);
+                if (vals.size() >= 1) offsIFDs.push(vals[0]);
             }
+            if (ifd.tag == IFDTAG_GPSInfoIFDPointer){
+                stIFDValue val;
+                getVariantIFD(ifd, endian, val);
+                std::vector<std::uint32_t> vals = std::get<std::vector<std::uint32_t>>(val.values);
+                if (vals.size() >= 1) offsIFDs.push(vals[0]);
+            }
+            offs += 12;
         }
-        if (!found){
-            ifd.description = IFD_UNKNOWN_TAG;
-        }
+        // Next IFD Offset
+        std::uint32_t nextIFD = (static_cast<std::uint32_t>(data[offs]) << 24) |
+                                (static_cast<std::uint32_t>(data[offs + 1]) << 16) |
+                                (static_cast<std::uint32_t>(data[offs + 2]) << 8) | data[offs + 3];
+        if (endian == enEndian::littleEndian) nextIFD = valueConverter::swapUInt32(nextIFD);
+        //offs += 4;
+        if (nextIFD > 0) offsIFDs.push(nextIFD);
+        //
+        nextIFD = offsIFDs.front();
+        offsIFDs.pop();
+        offs = nextIFD + offset;
 
-        ifds.push_back(ifd);
-        offs += 12;
-    }
-    //
+        //if (exifIFDPointer == 0) return offs;
+        //offs = exifIFDPointer + offset;
+    }while (!offsIFDs.empty());
     return offs;
 }
 
